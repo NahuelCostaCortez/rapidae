@@ -1,5 +1,5 @@
 from typing import Optional
-from aepy.models.base import BaseAE
+from models.base import BaseAE
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 import os

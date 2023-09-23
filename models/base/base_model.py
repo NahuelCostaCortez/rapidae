@@ -4,7 +4,7 @@ Base class for implementing all the models.
 
 import tensorflow as tf
 from typing import Optional
-from aepy.models.base import BaseEncoder, BaseDecoder, Encoder_Conv_MNIST, Decoder_Conv_MNIST
+from models.base import BaseEncoder, BaseDecoder, Encoder_MLP, Decoder_MLP
 
 
 class BaseAE(tf.keras.Model):
@@ -34,7 +34,7 @@ class BaseAE(tf.keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.encoder = Encoder_Conv_MNIST(model_config)
+            self.encoder = Encoder_MLP(model_config)
         self.encoder = encoder
 
         if decoder is None:
@@ -44,7 +44,7 @@ class BaseAE(tf.keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.decoder = Decoder_Conv_MNIST(model_config)
+            self.decoder = Decoder_MLP(model_config)
         self.decoder = decoder
 
     # make the class callable

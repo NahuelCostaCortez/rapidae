@@ -3,7 +3,8 @@ Base class for defining the encoder and decoder architectures
 """
 
 import tensorflow as tf
-from tensorflow.keras import layers
+import keras
+from keras import layers
 
 
 class BaseEncoder(layers.Layer):
