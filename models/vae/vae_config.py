@@ -1,4 +1,4 @@
-from aepy.models.base import BaseAEConfig
+from models.base import BaseAEConfig
 from pydantic.dataclasses import dataclass
 
 @dataclass

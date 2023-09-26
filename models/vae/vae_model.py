@@ -1,6 +1,6 @@
 from .vae_config import VAEConfig
 from typing import Optional
-from aepy.models.base import BaseAE, BaseEncoder, BaseDecoder, BaseRegressor
+from models.base import BaseAE, BaseEncoder, BaseDecoder, BaseRegressor
 import tensorflow as tf
 
 class VAE(BaseAE):
@@ -70,8 +70,8 @@ class VAE(BaseAE):
     
     @tf.function
     def train_step(self, inputs):
-        x = inputs[0]["data"]
-        labels_x = inputs[0]["labels"]
+        x = inputs["data"]
+        labels_x = inputs["labels"]
         with tf.GradientTape() as tape:
             metrics = {}
     
@@ -116,8 +116,8 @@ class VAE(BaseAE):
     
     @tf.function
     def test_step(self, inputs):
-        x = inputs[0]["data"]
-        labels_x = inputs[0]["labels"]
+        x = inputs["data"]
+        labels_x = inputs["labels"]
 
         metrics = {}
 

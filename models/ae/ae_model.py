@@ -41,7 +41,7 @@ class AE(BaseAE):
     
     @tf.function
     def train_step(self, inputs):
-        x = inputs[0]["data"]
+        x = inputs["data"]
         with tf.GradientTape() as tape:
             metrics = {}
     

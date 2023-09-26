@@ -55,7 +55,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
 		x_log_var = self.z_log_var(x)
 		return x_z_mean, x_log_var
 
-class Decoder_Conv_MNIST(BaseEncoder):
+class Decoder_Conv_MNIST(BaseDecoder):
 	"""
 	Decoder architecture from keras tutorial
 	"""
