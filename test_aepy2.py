@@ -39,12 +39,13 @@ model = VAE(model_config=model_config, encoder=RecurrentEncoder(model_config), d
 
 train_data = dict(data=x_train, labels=y_train)
 eval_data = dict(data=x_val, labels=y_val)
-pipeline = TrainingPipeline(model=model, num_epochs=3)
+pipeline = TrainingPipeline(model=model, num_epochs=1)
 trained_model = pipeline(train_data, eval_data)#, callbacks=model_callbacks)
 # -----------------------------------------------------------------------
 
 # ----------------------------- TEST ------------------------------------
-y_hat = model.predict(x_test, batch_size=batch_size)
+test_data = dict(data=x_test, labels=y_test)
+y_hat = trained_model.predict(test_data)
 mse = mean_squared_error.MeanSquaredError()
 results = mse.calculate(y_test, y_hat)
 # -----------------------------------------------------------------------

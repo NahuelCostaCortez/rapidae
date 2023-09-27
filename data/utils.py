@@ -23,10 +23,8 @@ def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=Fals
         plt.savefig(path+exp_name+'_latent_space.png')
     return z
 
-"""
-def evaluate(y_true, y_hat, label='test'):
-    mse = mean_squared_error(y_true, y_hat)
-    rmse = np.sqrt(mse)
-    variance = r2_score(y_true, y_hat)
-    print('{} set RMSE:{}, R2:{}'.format(label, rmse, variance))
-"""
+
+def evaluate(y_true, y_hat, metric, label='test'):
+    metric.show_start_message()
+    result = metric.calculate(y_true, y_hat)
+    print('{} set results: [\n\t {}: {} \n]'.format(label, metric.__class__.__name__, result))

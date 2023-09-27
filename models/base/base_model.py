@@ -48,8 +48,8 @@ class BaseAE(tf.keras.Model):
         self.decoder = decoder
 
     # make the class callable
-    def __call__(self, *args, **kwargs):
-        return self
+    #def __call__(self, *args, **kwargs):
+    #    return self
 
     @tf.function
     def call(self, inputs):
