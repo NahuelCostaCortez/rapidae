@@ -28,7 +28,7 @@ class BaseAE(tf.keras.Model):
         self.latent_dim = model_config.latent_dim
 
         if encoder is None:
-            print("No encoder provided, using default encoder")
+            print("No encoder provided, using default MLP encoder")
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"
@@ -38,7 +38,7 @@ class BaseAE(tf.keras.Model):
         self.encoder = encoder
 
         if decoder is None:
-            print("No decoder provided, using default decoder")
+            print("No decoder provided, using default MLP decoder")
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"

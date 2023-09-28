@@ -2,6 +2,9 @@ from .metric import Metric
 from sklearn.metrics import r2_score
 
 class R2Score(Metric):
+    """
+    Wrapper class of the sklearn R2Score.
+    """
 
     def __init__(self, force_finite=True):
         super().__init__()

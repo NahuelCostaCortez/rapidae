@@ -1,11 +1,12 @@
 from typing import Optional
 from models.base import BaseAE
+from pipelines.base import BasePipeline
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 import os
 from datetime import datetime
 
-class TrainingPipeline():
+class TrainingPipeline(BasePipeline):
     """
     Pipeline for end-to-end training of your AE.
     The trained model will be saved in ''output_dir''.
@@ -23,6 +24,7 @@ class TrainingPipeline():
     
     def __init__(
 		self,
+        name=None,
 		model:Optional[BaseAE]=None,
 		output_dir="output_dir",
         optimizer="adam",
@@ -30,8 +32,8 @@ class TrainingPipeline():
         batch_size=128,
         num_epochs=100,
 	):
+        super().__init__(self, name, output_dir)
         self.model = model
-        self.output_dir = output_dir
         self.optimizer = optimizer
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -58,9 +60,10 @@ class TrainingPipeline():
         """
         
         # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = os.path.join(self.output_dir, f"training_{timestamp}")
-        os.makedirs(folder_path)
+        #timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        #folder_path = os.path.join(self.output_dir, f"training_{timestamp}")
+        #os.makedirs(folder_path)
+        super().__call__()
         
         if callbacks is None:
             # set callbacks

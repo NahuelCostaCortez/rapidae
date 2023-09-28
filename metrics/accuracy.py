@@ -2,6 +2,9 @@ from .metric import Metric
 from sklearn.metrics import accuracy_score
 
 class AccuracyScore(Metric):
+    """
+    Wrapper class of the sklearn accuracy_scores
+    """
 
     def __init__(self, normalize=True):
         super().__init__()
