@@ -1,9 +1,9 @@
 from models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST, Encoder_MLP, Decoder_MLP
 from models.vae.vae_model import VAE, VAEConfig
 from pipelines.training import TrainingPipeline
+from metrics import mean_squared_error
 from data.datasets import load_MNIST
-
-
+from data.utils import evaluate
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(use_keras=True)
 train_data = dict(data=x_train.astype(float), labels=y_train)
@@ -18,3 +18,5 @@ pipe = TrainingPipeline(name='pipeline_entrenamiento', model=model, num_epochs=2
 trained_model = pipe(train_data=train_data)
 
 y_hat = model.predict(test_data)
+
+evaluate(y_hat=y_hat, y_true=y_test, metric=mean_squared_error.MeanSquaredError())

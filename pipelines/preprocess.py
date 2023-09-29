@@ -7,7 +7,7 @@ class PreprocessPipeline(BasePipeline):
         super().__init__(name, output_dir)
         self.preprocessor = preprocessor
 
-    def __call__(self, x_train, y_train, x_test, y_test):
+    def __call__(self, **kwargs):
         super().__call__()
 
         # TODO: check dataset format
@@ -20,4 +20,4 @@ class PreprocessPipeline(BasePipeline):
         
         # The preprocessor is a custom function to be applied to a specific dataset
         if type(self.preprocessor) == str:
-            pass
+            self.preprocessor(**kwargs)

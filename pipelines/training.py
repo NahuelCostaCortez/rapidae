@@ -32,7 +32,7 @@ class TrainingPipeline(BasePipeline):
         batch_size=128,
         num_epochs=100,
 	):
-        super().__init__(self, name, output_dir)
+        super().__init__(name, output_dir)
         self.model = model
         self.optimizer = optimizer
         self.learning_rate = learning_rate

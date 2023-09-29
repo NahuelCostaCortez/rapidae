@@ -1,10 +1,12 @@
 from data import utils 
 from data.preprocessing import CMAPSS_preprocessor
 from data.datasets import load_CMAPSS
+from data.utils import evaluate
 from models.base import RecurrentEncoder, RecurrentDecoder
 from models.vae import VAEConfig, VAE
 from metrics import mean_squared_error, r2_score
 from pipelines import TrainingPipeline
+import numpy as np
 
 # ------------------------------ DATA -----------------------------------
 dataset = 'FD003'
@@ -46,6 +48,4 @@ trained_model = pipeline(train_data, eval_data)#, callbacks=model_callbacks)
 # ----------------------------- TEST ------------------------------------
 test_data = dict(data=x_test, labels=y_test)
 y_hat = trained_model.predict(test_data)
-mse = mean_squared_error.MeanSquaredError()
-results = mse.calculate(y_test, y_hat)
-# -----------------------------------------------------------------------
+evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1), y_hat=y_hat['reg'], metric=mean_squared_error.MeanSquaredError())
