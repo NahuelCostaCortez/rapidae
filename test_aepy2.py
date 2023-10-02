@@ -5,7 +5,7 @@ from data.utils import evaluate
 from models.base import RecurrentEncoder, RecurrentDecoder
 from models.vae import VAEConfig, VAE
 from metrics import mean_squared_error, r2_score
-from pipelines import TrainingPipeline
+from pipelines import TrainingPipeline, PreprocessPipeline
 import numpy as np
 
 # ------------------------------ DATA -----------------------------------
@@ -23,7 +23,9 @@ threshold = 125
 #x_train, y_train, x_val, y_val, x_test, y_test = utils.get_data(dataset, sensors, 
 #sequence_length, alpha, threshold)
 train, test, y_test =  load_CMAPSS('FD001')
-x_train, y_train, x_val, y_val, x_test, y_test = CMAPSS_preprocessor(train, test, y_test)
+#x_train, y_train, x_val, y_val, x_test, y_test = CMAPSS_preprocessor(train, test, y_test)
+preprocess_pipeline = PreprocessPipeline(name='Preprocesamiento_de_CMAPSS', preprocessor=CMAPSS_preprocessor)
+x_train, y_train, x_val, y_val, x_test, y_test = preprocess_pipeline(train=train, test=test, y_test=y_test, threshold=100)
 # -----------------------------------------------------------------------
 
 timesteps = x_train.shape[1]

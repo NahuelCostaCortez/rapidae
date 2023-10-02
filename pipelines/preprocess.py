@@ -19,5 +19,7 @@ class PreprocessPipeline(BasePipeline):
             pass
         
         # The preprocessor is a custom function to be applied to a specific dataset
-        if type(self.preprocessor) == str:
-            self.preprocessor(**kwargs)
+        if callable(self.preprocessor):
+            x_train, y_train, x_val, y_val, x_test, y_test = self.preprocessor(**kwargs)
+
+        return x_train, y_train, x_val, y_val, x_test, y_test
