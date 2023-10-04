@@ -4,6 +4,7 @@ from pipelines.training import TrainingPipeline
 from metrics import mean_squared_error
 from data.datasets import load_MNIST
 from data.utils import evaluate
+
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(use_keras=True)
 train_data = dict(data=x_train.astype(float), labels=y_train)

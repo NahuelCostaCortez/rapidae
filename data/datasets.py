@@ -22,6 +22,9 @@ def get_data_from_url(url):
 
 
 def load_mnist_images(filename):
+    """
+    Auxiliary function to load gzipped images for MNIST dataset.
+    """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=16)
         #data = np.expand_dims(data, axis=-1)
@@ -30,6 +33,9 @@ def load_mnist_images(filename):
 
 
 def load_mnist_labels(filename):
+    """
+    Auxiliary function to load gzipped labels for MNIST dataset.
+    """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=8)
     return data

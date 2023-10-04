@@ -11,5 +11,4 @@ class AccuracyScore(Metric):
         self.normalize = normalize
 
     def calculate(self, y_true, y_hat):
-        self.show_start_message()
         return accuracy_score(y_true, y_hat, normalize=self.normalize)

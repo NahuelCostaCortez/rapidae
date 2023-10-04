@@ -1,7 +1,9 @@
 """
 Class for common data utilities.
 """
+import random
 import numpy as np
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score
 
@@ -28,3 +30,10 @@ def evaluate(y_true, y_hat, metric, label='test'):
     metric.show_start_message()
     result = metric.calculate(y_true, y_hat)
     print('{} set results: [\n\t {}: {} \n]'.format(label, metric.__class__.__name__, result))
+
+
+def set_random_seed(random_seed):
+    # Set Random seed of an experiment
+    random.seed(random_seed)
+    np.random.seed(random_seed)
+    tf.random.set_seed(random_seed)

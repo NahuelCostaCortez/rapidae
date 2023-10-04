@@ -15,6 +15,5 @@ class MeanSquaredError(Metric):
         self.squared = squared
 
     def calculate(self, y_true, y_hat):
-        self.show_start_message()
         return mean_squared_error(y_true, y_hat, squared=self.squared)
         

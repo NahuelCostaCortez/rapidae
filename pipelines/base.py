@@ -25,3 +25,4 @@ class BasePipeline(ABC):
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         folder_path = os.path.join(self.output_dir, f"{self.name}_{timestamp}")
         os.makedirs(folder_path)
+        self.output_dir = str(folder_path) + '/'
