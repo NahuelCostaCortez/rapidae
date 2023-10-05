@@ -1,5 +1,7 @@
-from .metric import Metric
 from sklearn.metrics import mean_squared_error
+
+from .metric import Metric
+
 
 class MeanSquaredError(Metric):
     """

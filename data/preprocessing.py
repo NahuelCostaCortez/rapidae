@@ -2,9 +2,9 @@
 Class that contains the different preprocessors that can be used to preprocess the data.
 """
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.preprocessing import StandardScaler
-import pandas as pd
 
 
 def add_remaining_useful_life(df):

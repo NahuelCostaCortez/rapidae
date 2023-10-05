@@ -1,12 +1,13 @@
-from data import utils 
-from data.preprocessing import CMAPSS_preprocessor
-from data.datasets import load_CMAPSS
-from data.utils import evaluate
-from models.base import RecurrentEncoder, RecurrentDecoder
-from models.vae import VAEConfig, VAE
-from metrics import mean_squared_error, r2_score
-from pipelines import TrainingPipeline, PreprocessPipeline
 import numpy as np
+
+from data import utils
+from data.datasets import load_CMAPSS
+from data.preprocessing import CMAPSS_preprocessor
+from data.utils import evaluate
+from metrics import mean_squared_error, r2_score
+from models.base import RecurrentDecoder, RecurrentEncoder
+from models.vae import VAE, VAEConfig
+from pipelines import PreprocessPipeline, TrainingPipeline
 
 # ------------------------------ DATA -----------------------------------
 dataset = 'FD003'

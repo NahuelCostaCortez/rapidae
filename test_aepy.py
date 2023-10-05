@@ -1,9 +1,10 @@
-from models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST, Encoder_MLP, Decoder_MLP
-from models.vae.vae_model import VAE, VAEConfig
-from pipelines.training import TrainingPipeline
-from metrics import mean_squared_error
 from data.datasets import load_MNIST
 from data.utils import evaluate
+from metrics import mean_squared_error
+from models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
+                                               Encoder_Conv_MNIST, Encoder_MLP)
+from models.vae.vae_model import VAE, VAEConfig
+from pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(use_keras=True)

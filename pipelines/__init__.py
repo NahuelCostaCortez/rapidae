@@ -1,2 +1,2 @@
-from .training import TrainingPipeline
 from .preprocess import PreprocessPipeline
+from .training import TrainingPipeline

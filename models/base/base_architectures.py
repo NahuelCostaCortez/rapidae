@@ -2,8 +2,8 @@
 Base class for defining the encoder and decoder architectures
 """
 
-import tensorflow as tf
 import keras
+import tensorflow as tf
 from keras import layers
 
 

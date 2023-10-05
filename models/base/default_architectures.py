@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers
-from models.base import BaseEncoder, BaseDecoder
+
+from models.base import BaseDecoder, BaseEncoder
 
 
 # ------------------- VANILLA MLP ENCODER-DECODER ------------------- #

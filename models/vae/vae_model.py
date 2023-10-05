@@ -1,7 +1,11 @@
-from .vae_config import VAEConfig
 from typing import Optional
-from models.base import BaseAE, BaseEncoder, BaseDecoder, BaseRegressor
+
 import tensorflow as tf
+
+from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor
+
+from .vae_config import VAEConfig
+
 
 class VAE(BaseAE):
     """

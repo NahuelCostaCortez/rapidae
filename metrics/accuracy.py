@@ -1,5 +1,7 @@
-from .metric import Metric
 from sklearn.metrics import accuracy_score
+
+from .metric import Metric
+
 
 class AccuracyScore(Metric):
     """

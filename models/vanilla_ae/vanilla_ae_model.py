@@ -1,7 +1,11 @@
-from .vanilla_ae_config import VanillaAEConfig
 from typing import Optional
-from models.base import BaseAE, BaseEncoder, BaseDecoder
+
 import tensorflow as tf
+
+from models.base import BaseAE, BaseDecoder, BaseEncoder
+
+from .vanilla_ae_config import VanillaAEConfig
+
 
 class VanillaAE(BaseAE):
     """

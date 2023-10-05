@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Metric(ABC):
     """
     Base class for all metrics used in the library.

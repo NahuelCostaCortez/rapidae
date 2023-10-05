@@ -1,5 +1,7 @@
-from models.base import BaseAEConfig
 from pydantic.dataclasses import dataclass
+
+from models.base import BaseAEConfig
+
 
 @dataclass
 class AEConfig(BaseAEConfig):

@@ -1,9 +1,11 @@
+from typing import Union
+
 from pipelines.base import BasePipeline
-from  typing import Union
+
 
 class PreprocessPipeline(BasePipeline):
 
-    def __init__(self, name=None, output_dir="output_dir", preprocessor=Union[list, str]):
+    def __init__(self, name=None, output_dir="output_dir", preprocessor=Union[list, callable]):
         super().__init__(name, output_dir)
         self.preprocessor = preprocessor
 
@@ -16,7 +18,8 @@ class PreprocessPipeline(BasePipeline):
         # TODO check preprocessor type
         # The preprocessor contains a list of methods, these will be applied in order to the data
         if type(self.preprocessor) == list:
-            pass
+            for i in self.preprocessor:
+                pass
         
         # The preprocessor is a custom function to be applied to a specific dataset
         if callable(self.preprocessor):

@@ -1,5 +1,7 @@
-from .metric import Metric
 from sklearn.metrics import r2_score
+
+from .metric import Metric
+
 
 class R2Score(Metric):
     """

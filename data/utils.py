@@ -2,10 +2,13 @@
 Class for common data utilities.
 """
 import random
+
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score
+
+from conf import RandomSeed
 
 
 def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=False, show=False, path='./'):
@@ -32,7 +35,7 @@ def evaluate(y_true, y_hat, metric, label='test'):
     print('{} set results: [\n\t {}: {} \n]'.format(label, metric.__class__.__name__, result))
 
 
-def set_random_seed(random_seed):
+def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
     # Set Random seed of an experiment
     random.seed(random_seed)
     np.random.seed(random_seed)

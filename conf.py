@@ -1,6 +1,8 @@
-from os import path, makedirs
 import logging
+from os import makedirs, path
+
 from colorlog import ColoredFormatter
+
 
 class Directory:
     BASE = path.join(path.expanduser('~'), 'AEPY')

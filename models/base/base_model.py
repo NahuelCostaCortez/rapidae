@@ -2,9 +2,11 @@
 Base class for implementing all the models.
 """
 
-import tensorflow as tf
 from typing import Optional
-from models.base import BaseEncoder, BaseDecoder, Encoder_MLP, Decoder_MLP
+
+import tensorflow as tf
+
+from models.base import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
 
 
 class BaseAE(tf.keras.Model):

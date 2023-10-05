@@ -1,10 +1,13 @@
-from typing import Optional
-from models.base import BaseAE
-from pipelines.base import BasePipeline
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-from tensorflow.keras.optimizers import Adam
 import os
 from datetime import datetime
+from typing import Optional
+
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+
+from models.base import BaseAE
+from pipelines.base import BasePipeline
+
 
 class TrainingPipeline(BasePipeline):
     """

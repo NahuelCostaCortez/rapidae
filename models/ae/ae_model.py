@@ -1,7 +1,11 @@
-from .ae_config import AEConfig
 from typing import Optional
-from models.base import BaseAE, BaseEncoder, BaseDecoder
+
 import tensorflow as tf
+
+from models.base import BaseAE, BaseDecoder, BaseEncoder
+
+from .ae_config import AEConfig
+
 
 class AE(BaseAE):
     """

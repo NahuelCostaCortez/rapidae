@@ -1,14 +1,15 @@
 """
 Class to load some common datasets.
 """
+import gzip
 import os
-from os.path import isfile
 import urllib
+from os.path import isfile
+
 import numpy as np
 import pandas as pd
-import gzip
-from tensorflow.keras.datasets import mnist
 import requests
+from tensorflow.keras.datasets import mnist
 
 
 def get_data_from_url(url):
