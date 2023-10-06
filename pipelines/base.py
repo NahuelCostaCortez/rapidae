@@ -20,7 +20,7 @@ class BasePipeline(ABC):
 
     def __call__(self):
         """
-        Launch the pipeline
+        Launchs the pipeline
         """
         # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

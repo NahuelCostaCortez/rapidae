@@ -10,7 +10,7 @@ from .vanilla_ae_config import VanillaAEConfig
 class VanillaAE(BaseAE):
     """
     Vanilla Autoencoder (AE) model.
-    
+
     Args:
         model_config (BaseAEConfig): configuration object for the model
         encoder (BaseEncoder): An instance of BaseEncoder. Default: None
@@ -24,12 +24,14 @@ class VanillaAE(BaseAE):
         decoder: Optional[BaseDecoder] = None,
     ):
 
-        BaseAE.__init__(self, model_config=model_config, encoder=encoder, decoder=decoder)
+        BaseAE.__init__(self, model_config=model_config,
+                        encoder=encoder, decoder=decoder)
 
         if self.decoder is not False:
             self.decoder = decoder
-            self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss")
-        
+            self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
+                name="reconstruction_loss")
+
         self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
 
     # keras model call function
@@ -38,7 +40,7 @@ class VanillaAE(BaseAE):
         x = inputs['data']
         encoded = self.encoder(x)
         outputs = {}
-        if self.decoder!=None:
+        if self.decoder != None:
             recon_x = self.decoder(encoded)
             outputs["recon"] = recon_x
         return outputs
@@ -46,7 +48,7 @@ class VanillaAE(BaseAE):
     @property
     def metrics(self):
         metrics = [self.total_loss_tracker]
-        if self.decoder!=None:
+        if self.decoder != None:
             metrics.append(self.reconstruction_loss_tracker)
         return metrics
 
@@ -61,6 +63,3 @@ class VanillaAE(BaseAE):
     @tf.function
     def test_step(self, inputs):
         return 0
-        
-
-        

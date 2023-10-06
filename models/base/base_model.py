@@ -13,7 +13,8 @@ class BaseAE(tf.keras.Model):
     """
     Base class for Autoencoder based models.
 
-    Args:
+    Args
+    ----
         model_config (BaseAEConfig): configuration object for the model
         encoder (BaseEncoder): An instance of BaseEncoder. Default: None
         decoder (BaseDecoder): An instance of BaseDecoder. Default: None
@@ -22,8 +23,8 @@ class BaseAE(tf.keras.Model):
     def __init__(
         self,
         model_config,
-        encoder:Optional[BaseEncoder]=None,
-        decoder:Optional[BaseDecoder]=None,
+        encoder: Optional[BaseEncoder] = None,
+        decoder: Optional[BaseDecoder] = None,
     ):
         super(BaseAE, self).__init__()
         self.input_dim = model_config.input_dim
@@ -50,14 +51,14 @@ class BaseAE(tf.keras.Model):
         self.decoder = decoder
 
     # make the class callable
-    #def __call__(self, *args, **kwargs):
+    # def __call__(self, *args, **kwargs):
     #    return self
 
     @tf.function
     def call(self, inputs):
         """
-        Main call pass outputing the VAE outputs
-        This function must be implemented in a child class
+        Main call pass outputing the VAE outputs.
+        This function must be implemented in a child class.
         """
         raise NotImplementedError
 
@@ -68,4 +69,3 @@ class BaseAE(tf.keras.Model):
     @tf.function
     def test_step(self, inputs):
         raise NotImplementedError
-   

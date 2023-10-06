@@ -20,10 +20,15 @@ class BaseEncoder(layers.Layer):
 		self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
 	def call(self, x):
-		""" This function must be implemented in a child class 
-		Parameters: 
+		""" 
+		This function must be implemented in a child class.
+
+		Parameters
+		----------
 			x (tf.Tensor): input tensor
-		Returns:
+
+		Returns
+		-------
 			tf.Tensor: the output of the encoder
 		"""
 		raise NotImplementedError
@@ -42,9 +47,13 @@ class BaseDecoder(layers.Layer):
 	def call(self, x):
 		""" 
   		This function must be implemented in a child class 
-		Parameters: 
+		  
+		Parameters
+		----------
 			x (tf.Tensor): input tensor with the latent data
-		Returns:
+
+		Returns
+		-------
 			tf.Tensor: the output of the decoder
 		"""
 		raise NotImplementedError

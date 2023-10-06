@@ -9,14 +9,12 @@ class Metric(ABC):
     @abstractmethod
     def calculate(self, y_true, y_hat):
         """
-        Calculate the corresponding metric on the results of a model
+        Calculates the metric for the model's results.
         """
         pass
 
     def show_start_message(self):
         """
-        Print name of the selected metric in the terminal. Logging purposes
+        Prints name of the selected metric in the terminal. Logging purposes
         """
         print("\n+++ Metric {} +++".format(self.__class__.__name__))
-
-

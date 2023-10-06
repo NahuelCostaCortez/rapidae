@@ -13,6 +13,14 @@ from tensorflow.keras.datasets import mnist
 
 
 def get_data_from_url(url):
+    """
+    Download data from a specific url.
+
+    Args
+    ----
+        url (str): Given url where the data will be downloaded.
+
+    """
     response = requests.get(url)
     if response.status_code == 200:
         data = response.text
@@ -25,17 +33,25 @@ def get_data_from_url(url):
 def load_mnist_images(filename):
     """
     Auxiliary function to load gzipped images for MNIST dataset.
+
+    Args
+    ----
+        filename (str): Path to the file.
     """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=16)
-        #data = np.expand_dims(data, axis=-1)
-        #data = np.expand_dims(data, axis=-1)
+        # data = np.expand_dims(data, axis=-1)
+        # data = np.expand_dims(data, axis=-1)
     return data.reshape(-1, 28, 28, 1)
 
 
 def load_mnist_labels(filename):
     """
     Auxiliary function to load gzipped labels for MNIST dataset.
+
+    Args
+    ----
+        filename (str): Path to the file.
     """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=8)
@@ -46,6 +62,10 @@ def load_MNIST(use_keras=False):
     """
     Returns the train, y_train and test data for the MNIST dataset.
     It can be obtained from original source or from Keras repository.
+
+    Args
+    ----
+        use_keras (bool): If False the MNIST data will be downloaded from source http://yann.lecun.com/exdb/mnist/ but if True it will use the Keras function mnist.load_data()
     """
 
     if use_keras:
@@ -64,10 +84,10 @@ def load_MNIST(use_keras=False):
         test_img_path = os.path.join(data_dir, filenames[2])
         test_lbl_path = os.path.join(data_dir, filenames[3])
 
-		# Create a directory to store the downloaded files
+        # Create a directory to store the downloaded files
         os.makedirs(data_dir, exist_ok=True)
 
-		# Download MNIST dataset files
+        # Download MNIST dataset files
         for filename in filenames:
             url = url_base + filename
             target_path = os.path.join(data_dir, filename)
@@ -93,6 +113,10 @@ def load_CMAPSS(subset="FD001"):
     These are download from the NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational repository 
     since they are not longer available in the original source:
     https://data.nasa.gov/dataset/C-MAPSS-Aircraft-Engine-Simulator-Data/xaut-bemq
+
+    Args
+    ----
+        subset (str): Selected subset of CMAPSS dataset. There are 4 available: FD001, FD002, FD003, FD004
     """
 
     if subset not in ["FD001", "FD002", "FD003", "FD004"]:

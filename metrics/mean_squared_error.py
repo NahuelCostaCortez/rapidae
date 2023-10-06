@@ -5,17 +5,20 @@ from .metric import Metric
 
 class MeanSquaredError(Metric):
     """
-    Wrapper class of the sklearn mean_squared_error
+    Wrapper class of the scikit-learn function mean_squared_error.
     """
 
     def __init__(self, squared=True):
-        """
-        Squared parameter determine if the desired metric is the Mean Squared Error (squared=True)
-        or the Root Mean Squared Error (squared=False)
-        """
         super().__init__()
         self.squared = squared
 
     def calculate(self, y_true, y_hat):
+        """
+        Calculates the metric for the model's results.
+
+        Args
+        ----
+            y_true (ArrayLike): Ground truth (correct) target values.
+            y_hat (ArrayLike): Estimated target values.
+        """
         return mean_squared_error(y_true, y_hat, squared=self.squared)
-        

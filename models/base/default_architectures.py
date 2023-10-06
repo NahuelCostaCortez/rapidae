@@ -6,75 +6,86 @@ from models.base import BaseDecoder, BaseEncoder
 
 # ------------------- VANILLA MLP ENCODER-DECODER ------------------- #
 class Encoder_MLP(BaseEncoder):
-	"""
-	Vanilla MLP encoder
-	"""
-	def __init__(self, args):
-		BaseEncoder.__init__(self, args)
-		self.dense = layers.Dense(512, activation="relu")
+    """
+    Vanilla MLP encoder
+    """
 
-	def call(self, x):
-		x = self.dense(x)
-		x_z_mean = self.z_mean(x)
-		x_log_var = self.z_log_var(x)
-		return x_z_mean, x_log_var
-    
+    def __init__(self, args):
+        BaseEncoder.__init__(self, args)
+        self.dense = layers.Dense(512, activation="relu")
+
+    def call(self, x):
+        x = self.dense(x)
+        x_z_mean = self.z_mean(x)
+        x_log_var = self.z_log_var(x)
+        return x_z_mean, x_log_var
+
+
 class Decoder_MLP(BaseDecoder):
-	"""
-	Vanilla MLP decoder
-	"""
-	def __init__(self, args):
-		BaseDecoder.__init__(self, args)
-		self.dense = layers.Dense(512, activation="relu")
-		self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+    """
+    Vanilla MLP decoder
+    """
 
-	def call(self, z):
-		x = self.dense(z)
-		x = self.dense2(x)
-		return x
+    def __init__(self, args):
+        BaseDecoder.__init__(self, args)
+        self.dense = layers.Dense(512, activation="relu")
+        self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+
+    def call(self, z):
+        x = self.dense(z)
+        x = self.dense2(x)
+        return x
 # ------------------------------------------------------------------- #
 
 
 # --------------- ENCODER-DECODER FROM KERAS TUTORIAL --------------- #
 class Encoder_Conv_MNIST(BaseEncoder):
-	"""
-	Encoder architecture from keras tutorial
-	"""
-	def __init__(self, args):
-		BaseEncoder.__init__(self, args)
-		self.conv2d_1 = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")
-		self.conv2d_2 = layers.Conv2D(64, 3, activation="relu", strides=2, padding="same")
-		self.flatten = layers.Flatten()
-		self.dense = layers.Dense(16, activation="relu")
-		
-	def call(self, x):
-		x = self.conv2d_1(x)
-		x = self.conv2d_2(x)
-		x = self.flatten(x)
-		x = self.dense(x)
-		x_z_mean = self.z_mean(x)
-		x_log_var = self.z_log_var(x)
-		return x_z_mean, x_log_var
+    """
+    Encoder architecture from keras tutorial
+    """
+
+    def __init__(self, args):
+        BaseEncoder.__init__(self, args)
+        self.conv2d_1 = layers.Conv2D(
+            32, 3, activation="relu", strides=2, padding="same")
+        self.conv2d_2 = layers.Conv2D(
+            64, 3, activation="relu", strides=2, padding="same")
+        self.flatten = layers.Flatten()
+        self.dense = layers.Dense(16, activation="relu")
+
+    def call(self, x):
+        x = self.conv2d_1(x)
+        x = self.conv2d_2(x)
+        x = self.flatten(x)
+        x = self.dense(x)
+        x_z_mean = self.z_mean(x)
+        x_log_var = self.z_log_var(x)
+        return x_z_mean, x_log_var
+
 
 class Decoder_Conv_MNIST(BaseDecoder):
-	"""
-	Decoder architecture from keras tutorial
-	"""
-	def __init__(self, args):
-		BaseDecoder.__init__(self, args)
-		self.dense = layers.Dense(7 * 7 * 64, activation="relu")
-		self.reshape = layers.Reshape((7, 7, 64))
-		self.conv2d_transpose_1 = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")
-		self.conv2d_transpose_2 = layers.Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")
-		self.conv2d_transpose_3 = layers.Conv2DTranspose(1, 3, activation="sigmoid", padding="same")
+    """
+    Decoder architecture from keras tutorial
+    """
 
-	def call(self, z):
-		x = self.dense(z)
-		x = self.reshape(x)
-		x = self.conv2d_transpose_1(x)
-		x = self.conv2d_transpose_2(x)
-		x = self.conv2d_transpose_3(x)
-		return x
+    def __init__(self, args):
+        BaseDecoder.__init__(self, args)
+        self.dense = layers.Dense(7 * 7 * 64, activation="relu")
+        self.reshape = layers.Reshape((7, 7, 64))
+        self.conv2d_transpose_1 = layers.Conv2DTranspose(
+            64, 3, activation="relu", strides=2, padding="same")
+        self.conv2d_transpose_2 = layers.Conv2DTranspose(
+            32, 3, activation="relu", strides=2, padding="same")
+        self.conv2d_transpose_3 = layers.Conv2DTranspose(
+            1, 3, activation="sigmoid", padding="same")
+
+    def call(self, z):
+        x = self.dense(z)
+        x = self.reshape(x)
+        x = self.conv2d_transpose_1(x)
+        x = self.conv2d_transpose_2(x)
+        x = self.conv2d_transpose_3(x)
+        return x
 # ------------------------------------------------------------------- #
 
 
@@ -83,28 +94,32 @@ class RecurrentEncoder(BaseEncoder):
     """
     Encoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
     """
+
     def __init__(self, args):
         BaseEncoder.__init__(self, args)
         self.mask = layers.Masking(mask_value=args.masking_value)
         self.h = layers.Bidirectional(layers.LSTM(300))
-        
+
     def call(self, x):
         x = self.mask(x)
         x = self.h(x)
         x_z_mean = self.z_mean(x)
         x_z_log_var = self.z_log_var(x)
         return x_z_mean, x_z_log_var
-    
+
+
 class RecurrentDecoder(BaseDecoder):
     """
     Decoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
     """
+
     def __init__(self, args):
         BaseDecoder.__init__(self, args)
         self.h_decoded_1 = layers.RepeatVector(args.input_dim[0])
-        self.h_decoded_2 = layers.Bidirectional(layers.LSTM(300, return_sequences=True))
+        self.h_decoded_2 = layers.Bidirectional(
+            layers.LSTM(300, return_sequences=True))
         self.h_decoded = layers.LSTM(args.input_dim[1], return_sequences=True)
-        
+
     def call(self, z):
         x = self.h_decoded_1(z)
         x = self.h_decoded_2(x)
@@ -118,11 +133,12 @@ class BaseRegressor(layers.Layer):
     """
     Simple regressor
     """
+
     def __init__(self, name="regressor"):
         super().__init__(name=name)
         self.dense = layers.Dense(200, activation='tanh')
         self.out = layers.Dense(1, name='reg_output')
-        
+
     def call(self, x):
         x = self.dense(x)
         x = self.out(x)
