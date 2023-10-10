@@ -6,7 +6,7 @@ from typing import Optional
 
 import tensorflow as tf
 
-from models.base import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
+from .default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
 
 
 class BaseAE(tf.keras.Model):

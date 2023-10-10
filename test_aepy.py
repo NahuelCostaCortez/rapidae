@@ -21,8 +21,3 @@ pipe = TrainingPipeline(name='pipeline_entrenamiento',
                         model=model, num_epochs=2)
 
 trained_model = pipe(train_data=train_data)
-
-y_hat = model.predict(test_data)
-
-evaluate(y_hat=y_hat, y_true=y_test,
-         metric=mean_squared_error.MeanSquaredError())

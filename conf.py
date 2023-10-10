@@ -5,9 +5,8 @@ from colorlog import ColoredFormatter
 
 
 class Directory:
-    BASE = path.join(path.expanduser('~'), 'AEPY')
-    DATA = path.join(path.expanduser('~'), 'AEPY', 'data')
-    OUTPUT_DIR = path.join(path.expanduser('~'), 'AEPY', 'output_dir')
+    DATA = path.join('.', 'data')
+    OUTPUT_DIR = path.join('.', 'output_dir')
 
 
 class RandomSeed:
@@ -28,8 +27,8 @@ class Logger:
 
     def _initialize_logger(self, log_file='aepy.log'):
         # Create directory if needed
-        if not path.exists(Directory.BASE):
-            makedirs(Directory.BASE)
+        #if not path.exists(Directory.BASE):
+        #    makedirs(Directory.BASE)
 
         # Advanced configuration (colors and format) of the loggar
         formatter = ColoredFormatter(
@@ -49,8 +48,7 @@ class Logger:
             level=logging.INFO,
             format="%(asctime)s [%(levelname)s]: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
-
-            filename=path.join(Directory.BASE, log_file)
+            filename=log_file
         )
 
         self.logger = logging.getLogger("AEPY_logger")

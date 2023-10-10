@@ -2,3 +2,4 @@ __pycache__/
 output_dir/
 mnist_data
 .vscode
+aepy.log
