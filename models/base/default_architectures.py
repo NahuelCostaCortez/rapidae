@@ -128,6 +128,39 @@ class RecurrentDecoder(BaseDecoder):
 # ------------------------------------------------------------------- #
 
 
+# ---------------------  VANILLA ENCODER-DECODER -------------------- #
+class VanillaEncoder(layers.Layer):
+    """
+    Vanilla encoder for normal AE
+    """
+
+    def __init__(self, args, name="encoder"):
+        super().__init__(name=name)
+        self.dense = layers.Dense(512, activation="relu")
+    
+    def call(self, x):
+        x = self.dense(x)
+        return x
+
+class VanillaDecoder(layers.Layer):
+    """
+    Vanilla decoder for normal AE
+    """
+
+    def __init__(self, args, name='decoder'):
+        super().__init__(name=name)
+        self.input_dim = args.input_dim
+        self.latent_dim = args.latent_dim
+        self.dense = layers.Dense(512, activation="relu")
+        self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+
+    def call(self, x):
+        x = self.dense(x)
+        x = self.dense2(x)
+        return x
+# ------------------------------------------------------------------- #
+
+
 # ------------------------ ADDITIONAL MODULES ----------------------- #
 class BaseRegressor(layers.Layer):
     """

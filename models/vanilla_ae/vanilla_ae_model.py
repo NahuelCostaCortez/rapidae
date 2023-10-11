@@ -27,12 +27,12 @@ class VanillaAE(BaseAE):
         BaseAE.__init__(self, model_config=model_config,
                         encoder=encoder, decoder=decoder)
 
-        if self.decoder is not False:
-            self.decoder = decoder
-            self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
-                name="reconstruction_loss")
+        #if self.decoder is not False:
+        #    self.decoder = decoder
+        #    self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
+        #        name="reconstruction_loss")
 
-        self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
+        self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss")
 
     # keras model call function
     @tf.function
@@ -40,14 +40,15 @@ class VanillaAE(BaseAE):
         x = inputs['data']
         encoded = self.encoder(x)
         outputs = {}
-        if self.decoder != None:
-            recon_x = self.decoder(encoded)
-            outputs["recon"] = recon_x
+        outputs['recon'] = self.decoder(encoded)
+        #if self.decoder != None:
+        #    recon_x = self.decoder(encoded)
+        #s    outputs["recon"] = recon_x
         return outputs
 
     @property
     def metrics(self):
-        metrics = [self.total_loss_tracker]
+        metrics = [self.reconstruction_loss_tracker]
         if self.decoder != None:
             metrics.append(self.reconstruction_loss_tracker)
         return metrics
@@ -58,8 +59,32 @@ class VanillaAE(BaseAE):
         labels_x = inputs["labels"]
         with tf.GradientTape() as tape:
             metrics = {}
-        return 0
+            encoded = self.encoder(x)
+            reconstruction = self.decoder(encoded)
+            reconstruction_loss = tf.reduce_mean(
+                tf.keras.losses.mse(x, reconstruction)
+            )
+            metrics['reconstruction_loss'] = reconstruction_loss
+
+            grads = tape.gradient(reconstruction_loss, self.trainable_weights)
+            self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+            self.reconstruction_loss_tracker.update_state(reconstruction_loss)
+            metrics["loss"] = reconstruction_loss 
+            
+        return metrics
 
     @tf.function
     def test_step(self, inputs):
-        return 0
+        x = inputs["data"]
+        labels_x = inputs["labels"]
+
+        metrics = {}
+        encoded = self.encoder(x)
+        reconstruction = self.decoder(encoded)
+        reconstruction_loss = tf.reduce_mean(
+            tf.keras.losses.mse(x, reconstruction)
+        )
+        metrics["reconstruction_loss"] = reconstruction_loss
+        metrics["loss"] = reconstruction_loss
+
+        return metrics
