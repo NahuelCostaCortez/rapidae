@@ -87,7 +87,7 @@ class TrainingPipeline(BasePipeline):
         if self.optimizer == 'adam':
             optimizer = Adam(learning_rate=self.learning_rate)
         else:
-            print("unimplemented optimizer")
+            self.logger.log_error('Unimplemented optimizer')
             exit(-1)
 
         # compile and fit the model

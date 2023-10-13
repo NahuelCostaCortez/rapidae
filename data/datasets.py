@@ -11,6 +11,8 @@ import pandas as pd
 import requests
 from tensorflow.keras.datasets import mnist
 
+from conf import Logger
+
 
 def get_data_from_url(url):
     """
@@ -77,13 +79,15 @@ def load_MNIST(use_keras=False):
         url_base = 'http://yann.lecun.com/exdb/mnist/'
         filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
                      't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
-        data_dir = 'mnist_data'
+        data_dir = os.path.join('datasets', 'mnist_data')
 
         train_img_path = os.path.join(data_dir, filenames[0])
         train_lbl_path = os.path.join(data_dir, filenames[1])
         test_img_path = os.path.join(data_dir, filenames[2])
         test_lbl_path = os.path.join(data_dir, filenames[3])
 
+        logger = Logger()
+        
         # Create a directory to store the downloaded files
         os.makedirs(data_dir, exist_ok=True)
 
@@ -92,10 +96,10 @@ def load_MNIST(use_keras=False):
             url = url_base + filename
             target_path = os.path.join(data_dir, filename)
             if not os.path.exists(target_path):
-                print(f'Downloading {filename}...')
+                logger.log_info(f'Downloading {filename}...')
                 urllib.request.urlretrieve(url, target_path)
             else:
-                print(f'{filename} already exists.')
+                logger.log_info(f'{filename} already exists.')
 
         # Load the training and test data
         x_train = load_mnist_images(train_img_path)

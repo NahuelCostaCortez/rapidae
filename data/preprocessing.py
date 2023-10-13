@@ -129,8 +129,8 @@ def CMAPSS_preprocessor(train, test, y_test, sensors=['s_3', 's_4', 's_7', 's_11
     '''
     Preprocesses the CMAPSS data and yields train, test and validation data/labels.
 
-Args
-----
+    Args
+    ----
     train (DataFrame): Training data.
         test (DataFrame): Test data.
         y_test (DataFrame): Test labels.
@@ -140,7 +140,7 @@ Args
         threshold (int): Threshold for RUL values.
 
     Returns
--------
+    -------
     x_train, y_train, x_val, y_val, x_test, y_test preprocessed
     '''
     # create RUL values according to the piece-wise target function

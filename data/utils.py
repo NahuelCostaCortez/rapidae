@@ -21,7 +21,7 @@ def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=Fals
         model (keras.Model): Used model.
         data ():
         targets ():
-        epoch (strs):
+        epoch (str):
         save (bool): Flag for saving the generated plot.
         show (bool): Flag for showing the generated plot.
         path (str): Path where the plot will be stored.

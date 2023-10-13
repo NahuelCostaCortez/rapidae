@@ -7,6 +7,7 @@ from typing import Optional
 import tensorflow as tf
 
 from .default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
+from conf import Logger
 
 
 class BaseAE(tf.keras.Model):
@@ -31,17 +32,17 @@ class BaseAE(tf.keras.Model):
         self.latent_dim = model_config.latent_dim
 
         if encoder is None:
-            print("No encoder provided, using default MLP encoder")
+            Logger.log_warning('No encoder provided, using default MLP encoder')
             if self.input_dim is None:
                 raise AttributeError(
-                    "No input dimension provided!"
+                    "No inpu)t dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
             self.encoder = Encoder_MLP(model_config)
         self.encoder = encoder
 
         if decoder is None:
-            print("No decoder provided, using default MLP decoder")
+            Logger.log_warning('No decoder provider, using default MLP decoder')
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"

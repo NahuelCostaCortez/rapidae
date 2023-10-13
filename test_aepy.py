@@ -7,7 +7,7 @@ from models.vae.vae_model import VAE, VAEConfig
 from pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
-x_train, y_train, x_test, y_test = load_MNIST(use_keras=True)
+x_train, y_train, x_test, y_test = load_MNIST(use_keras=False)
 train_data = dict(data=x_train.astype(float), labels=y_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
