@@ -3,7 +3,7 @@ from os import makedirs, path
 
 from colorlog import ColoredFormatter
 
-
+# TODO: Eliminar
 class Directory:
     DATA = path.join('.', 'data')
     OUTPUT_DIR = path.join('.', 'output_dir')

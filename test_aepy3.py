@@ -7,7 +7,7 @@ from pipelines.training import TrainingPipeline
 
 
 # Load MNIST dataset
-x_train, y_train, x_test, y_test = load_MNIST(use_keras=True)
+x_train, y_train, x_test, y_test = load_MNIST(persistant=True)
 
 x_train = x_train.reshape(x_train.shape[0], -1)
 x_test = x_test.reshape(x_test.shape[0], -1)

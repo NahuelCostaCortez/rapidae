@@ -1,10 +1,12 @@
 import numpy as np
 
+from sklearn.metrics import mean_squared_error
+
 from data import utils
 from data.datasets import load_CMAPSS
 from data.preprocessing import CMAPSS_preprocessor
 from data.utils import evaluate
-from metrics import mean_squared_error, r2_score, cmapps_score
+from metrics import cmapps_score
 from models.base import RecurrentDecoder, RecurrentEncoder
 from models.vae import VAE, VAEConfig
 from pipelines import PreprocessPipeline, TrainingPipeline
@@ -56,7 +58,7 @@ trained_model = pipeline(train_data, eval_data)  # , callbacks=model_callbacks)
 test_data = dict(data=x_test, labels=y_test)
 y_hat = trained_model.predict(test_data)
 
-evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1),
-         y_hat=y_hat['reg'], metric=mean_squared_error.MeanSquaredError())
+#evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1),
+#         y_hat=y_hat['reg'], metric=mean_squared_error)
 evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1),
          y_hat=y_hat['reg'], metric=cmapps_score.CMAPSS_Score())

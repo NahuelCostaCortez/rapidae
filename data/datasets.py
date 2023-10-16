@@ -5,6 +5,7 @@ import gzip
 import os
 import urllib
 from os.path import isfile
+from shutil import rmtree
 
 import numpy as np
 import pandas as pd
@@ -60,52 +61,50 @@ def load_mnist_labels(filename):
     return data
 
 
-def load_MNIST(use_keras=False):
+def load_MNIST(persistant=False):
     """
     Returns the train, y_train and test data for the MNIST dataset.
     It can be obtained from original source or from Keras repository.
 
     Args
     ----
-        use_keras (bool): If False the MNIST data will be downloaded from source http://yann.lecun.com/exdb/mnist/ but if True it will use the Keras function mnist.load_data()
+        persistant (bool): Determinates if the downloaded data will be deleted or not after running an experiment.
     """
+    url_base = 'http://yann.lecun.com/exdb/mnist/'
+    filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
+                    't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
+    data_dir = os.path.join('datasets', 'mnist_data')
 
-    if use_keras:
-        (x_train, y_train), (x_test, y_test) = mnist.load_data()
-        x_train = np.expand_dims(x_train, axis=-1)
-        x_test = np.expand_dims(x_test, axis=-1)
-    else:
-        # url
-        url_base = 'http://yann.lecun.com/exdb/mnist/'
-        filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
-                     't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
-        data_dir = os.path.join('datasets', 'mnist_data')
+    train_img_path = os.path.join(data_dir, filenames[0])
+    train_lbl_path = os.path.join(data_dir, filenames[1])
+    test_img_path = os.path.join(data_dir, filenames[2])
+    test_lbl_path = os.path.join(data_dir, filenames[3])
 
-        train_img_path = os.path.join(data_dir, filenames[0])
-        train_lbl_path = os.path.join(data_dir, filenames[1])
-        test_img_path = os.path.join(data_dir, filenames[2])
-        test_lbl_path = os.path.join(data_dir, filenames[3])
+    logger = Logger()
+    
+    # Create a directory to store the downloaded files
+    os.makedirs(data_dir, exist_ok=True)
 
-        logger = Logger()
-        
-        # Create a directory to store the downloaded files
-        os.makedirs(data_dir, exist_ok=True)
+    # Download MNIST dataset files
+    for filename in filenames:
+        url = url_base + filename
+        target_path = os.path.join(data_dir, filename)
+        if not os.path.exists(target_path):
+            logger.log_info(f'Downloading {filename}...')
+            urllib.request.urlretrieve(url, target_path)
+        else:
+            logger.log_info(f'{filename} already exists.')
 
-        # Download MNIST dataset files
-        for filename in filenames:
-            url = url_base + filename
-            target_path = os.path.join(data_dir, filename)
-            if not os.path.exists(target_path):
-                logger.log_info(f'Downloading {filename}...')
-                urllib.request.urlretrieve(url, target_path)
-            else:
-                logger.log_info(f'{filename} already exists.')
+    # Load the training and test data
+    x_train = load_mnist_images(train_img_path)
+    y_train = load_mnist_labels(train_lbl_path)
+    x_test = load_mnist_images(test_img_path)
+    y_test = load_mnist_labels(test_lbl_path)
 
-        # Load the training and test data
-        x_train = load_mnist_images(train_img_path)
-        y_train = load_mnist_labels(train_lbl_path)
-        x_test = load_mnist_images(test_img_path)
-        y_test = load_mnist_labels(test_lbl_path)
+    # If required delete data 
+    if not persistant:
+        logger.log_info('Deleting MNIST data...')
+        rmtree(data_dir)
 
     return x_train, y_train, x_test, y_test
 

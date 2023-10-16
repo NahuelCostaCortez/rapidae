@@ -3,7 +3,7 @@ from tensorflow.keras import layers
 
 from models.base import BaseDecoder, BaseEncoder
 
-
+# TODO: Hacer dinámica la creación de capas en decoders y encoders
 # ------------------- VANILLA MLP ENCODER-DECODER ------------------- #
 class Encoder_MLP(BaseEncoder):
     """
