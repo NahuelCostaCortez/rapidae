@@ -59,6 +59,6 @@ test_data = dict(data=x_test, labels=y_test)
 y_hat = trained_model.predict(test_data)
 
 evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1),
-         y_hat=y_hat['reg'], metric=mean_squared_error)
+         y_hat=y_hat['reg'], sel_metric=mean_squared_error)
 evaluate(y_true=np.expand_dims(test_data['labels'], axis=-1),
-         y_hat=y_hat['reg'], metric=cmapps_score.CMAPSS_Score())
+         y_hat=y_hat['reg'], sel_metric=cmapps_score.CMAPSS_Score())

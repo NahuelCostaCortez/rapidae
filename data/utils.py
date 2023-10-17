@@ -51,7 +51,7 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
     ----
         y_true (ArrayLike): Ground truth (correct) target values.
         y_hat (ArrayLike): Estimated target values.
-        sel_metric (callable): Class name of the selected metric.
+        sel_metric (callable): Class name of the selected metric (AEPY's own) or sklearn metric
         label (str): Tag of the evaluated set.
     """
     logger = Logger()
@@ -62,17 +62,17 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
     # Filter out private functions
     all_metrics = [metric[0] for metric in all_metrics if not metric[0].startswith('_')]
 
-    # Check if the selected metric is avavilable in sklearn
-    if sel_metric in all_metrics:
+    # Check if the selected metric is available in sklearn
+    if type(sel_metric).__name__=='function' and sel_metric.__name__ in all_metrics:
         result = sel_metric(y_true, y_hat)
+        print('{} set results: [\n\t {}: {} \n]'.format(
+            label, sel_metric.__name__, result))
     else:
-        try:
-            result = sel_metric.calculate(y_true, y_hat)
-        except:
-            logger.log_error('Metric is not available in AEPY neither in Scikit-Learn.')
-
-    print('{} set results: [\n\t {}: {} \n]'.format(
-        label, sel_metric.__class__.__name__, result))
+        result = sel_metric.calculate(y_true, y_hat)
+        print('{} set results: [\n\t {}: {} \n]'.format(
+            label, sel_metric.__class__.__name__, result))
+    
+    return result
 
 
 def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
