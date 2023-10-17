@@ -32,7 +32,7 @@ class Logger:
 
         # Advanced configuration (colors and format) of the loggar
         formatter = ColoredFormatter(
-            "%(log_color)s%(asctime)s [%(levelname)s] %(message)s",
+            "%(asctime)s %(log_color)s[%(levelname)s]%(reset)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
             log_colors={
                     'DEBUG': 'cyan',
