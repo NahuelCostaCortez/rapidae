@@ -6,9 +6,9 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import mean_squared_error, r2_score
-
-from conf import RandomSeed
+from sklearn import metrics
+from inspect import getmembers, isfunction
+from conf import RandomSeed, Logger
 
 
 def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=False, show=False, path='./'):
@@ -43,7 +43,7 @@ def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=Fals
     return z
 
 
-def evaluate(y_true, y_hat, metric, label='test'):
+def evaluate(y_true, y_hat, sel_metric, label='test'):
     """
     Evaluates model results with a selected metric.
 
@@ -51,13 +51,28 @@ def evaluate(y_true, y_hat, metric, label='test'):
     ----
         y_true (ArrayLike): Ground truth (correct) target values.
         y_hat (ArrayLike): Estimated target values.
-        metric (callable): Class name of the selected metric.
+        sel_metric (callable): Class name of the selected metric.
         label (str): Tag of the evaluated set.
     """
-    metric.show_start_message()
-    result = metric.calculate(y_true, y_hat)
+    logger = Logger()
+
+    # Get all functions from the metrics module
+    all_metrics = getmembers(metrics, isfunction)
+
+    # Filter out private functions
+    all_metrics = [metric[0] for metric in all_metrics if not metric[0].startswith('_')]
+
+    # Check if the selected metric is avavilable in sklearn
+    if sel_metric in all_metrics:
+        result = sel_metric(y_true, y_hat)
+    else:
+        try:
+            result = sel_metric.calculate(y_true, y_hat)
+        except:
+            logger.log_error('Metric is not available in AEPY neither in Scikit-Learn.')
+
     print('{} set results: [\n\t {}: {} \n]'.format(
-        label, metric.__class__.__name__, result))
+        label, sel_metric.__class__.__name__, result))
 
 
 def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
