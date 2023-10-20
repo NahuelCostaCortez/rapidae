@@ -2,7 +2,7 @@
 Base class for implementing all the models.
 """
 
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 
@@ -23,33 +23,38 @@ class BaseAE(tf.keras.Model):
 
     def __init__(
         self,
-        model_config,
-        encoder: Optional[BaseEncoder] = None,
+        input_dim: Union[Tuple[int, ...], None] = None,
+        latent_dim: int = 2,
+        encoder:  Optional[BaseEncoder] = None,
         decoder: Optional[BaseDecoder] = None,
+        uses_default_encoder: bool = True,
+        uses_default_decoder: bool = True,
+        **kwargs
     ):
+    
         super(BaseAE, self).__init__()
-        self.input_dim = model_config.input_dim
-        self.latent_dim = model_config.latent_dim
+        self.input_dim = input_dim
+        self.latent_dim = latent_dim
 
         if encoder is None:
             Logger.log_warning('No encoder provided, using default MLP encoder')
             if self.input_dim is None:
                 raise AttributeError(
-                    "No inpu)t dimension provided!"
+                    "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.encoder = Encoder_MLP(model_config)
-        self.encoder = encoder
+            self.encoder = Encoder_MLP(self.input_dim, self.latent_dim)
+        self.encoder = encoder(self.input_dim, self.latent_dim, **kwargs)
 
         if decoder is None:
-            Logger.log_warning('No decoder provider, using default MLP decoder')
+            Logger.log_warning('No decoder provider, using default MLP decoder'),
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.decoder = Decoder_MLP(model_config)
-        self.decoder = decoder
+            self.decoder = Decoder_MLP(self.input_dim, self.latent_dim)
+        self.decoder = decoder(self.input_dim, self.latent_dim, **kwargs)
 
     # make the class callable
     # def __call__(self, *args, **kwargs):

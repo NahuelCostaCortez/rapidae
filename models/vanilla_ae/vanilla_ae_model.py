@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 
@@ -19,12 +19,13 @@ class VanillaAE(BaseAE):
 
     def __init__(
         self,
-        model_config: VanillaAEConfig,
-        encoder: Optional[BaseEncoder] = None,
-        decoder: Optional[BaseDecoder] = None,
+        input_dim: Union[Tuple[int, ...], None] = None,
+        latent_dim: int = 2,
+        encoder: callable = None,
+        decoder: callable = None,
     ):
 
-        BaseAE.__init__(self, model_config=model_config,
+        BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder)
 
         #if self.decoder is not False:

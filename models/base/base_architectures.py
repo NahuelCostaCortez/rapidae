@@ -12,10 +12,10 @@ class BaseEncoder(layers.Layer):
 	Base class for all encoders
 	"""
 
-	def __init__(self, args, name="encoder"):
+	def __init__(self, input_dim, latent_dim, name="encoder"):
 		super().__init__(name=name)
-		self.input_dim = args.input_dim
-		self.latent_dim = args.latent_dim
+		self.input_dim = input_dim
+		self.latent_dim = latent_dim
 		self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
 		self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
@@ -39,10 +39,10 @@ class BaseDecoder(layers.Layer):
  	Base class for all decoders
 	"""
 
-	def __init__(self, args, name="decoder"):
+	def __init__(self, input_dim, latent_dim, name="decoder"):
 		super().__init__(name=name)
-		self.input_dim = args.input_dim
-		self.latent_dim = args.latent_dim
+		self.input_dim = input_dim
+		self.latent_dim = latent_dim
 
 	def call(self, x):
 		""" 

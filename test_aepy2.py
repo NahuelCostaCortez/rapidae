@@ -8,7 +8,7 @@ from data.preprocessing import CMAPSS_preprocessor
 from data.utils import evaluate
 from metrics import cmapps_score
 from models.base import RecurrentDecoder, RecurrentEncoder
-from models.vae import VAE, VAEConfig
+from models.vae import VAE
 from pipelines import PreprocessPipeline, TrainingPipeline
 
 # ------------------------------ DATA -----------------------------------
@@ -42,10 +42,10 @@ epochs = 2
 optimizer = 'adam'
 
 # ----------------------------- MODEL -----------------------------------
-model_config = VAEConfig(input_dim=(
-    x_train.shape[1], x_train.shape[2]), latent_dim=2, exclude_decoder=True, regressor=True)
-model = VAE(model_config=model_config, encoder=RecurrentEncoder(
-    model_config), decoder=RecurrentDecoder(model_config))
+#model_config = VAEConfig(input_dim=(
+#    x_train.shape[1], x_train.shape[2]), latent_dim=2, exclude_decoder=True, regressor=True)
+model = VAE(input_dim=(x_train.shape[1], x_train.shape[2]), latent_dim=2, exclude_decoder=True,
+            regressor=True, encoder=RecurrentEncoder, decoder=RecurrentDecoder)
 # model_callbacks = utils.get_callbacks("p", model, x_train, y_train)
 
 train_data = dict(data=x_train, labels=y_train)

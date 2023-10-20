@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 
@@ -19,19 +19,23 @@ class VAE(BaseAE):
 
     def __init__(
         self,
-        model_config: VAEConfig,
-        encoder: Optional[BaseEncoder] = None,
-        decoder: Optional[BaseDecoder] = None,
+        input_dim: Union[Tuple[int, ...], None] = None,
+        latent_dim: int = 2,
+        masking_value: float = -99.0,
+        exclude_decoder: bool = False,
+        regressor: bool = False,
+        encoder: callable = None,
+        decoder: callable = None
     ):
-
-        BaseAE.__init__(self, model_config=model_config,
-                        encoder=encoder, decoder=decoder)
-        if model_config.regressor != None:
+        
+        BaseAE.__init__(self, input_dim, latent_dim,
+                        encoder=encoder, decoder=decoder, masking_value=masking_value)
+        if regressor != None:
             self.regressor = BaseRegressor()
             self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
 
         if self.decoder is not False:
-            self.decoder = decoder
+            #self.decoder = decoder
             self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
                 name="reconstruction_loss")
 
