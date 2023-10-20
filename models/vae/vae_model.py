@@ -4,8 +4,6 @@ import tensorflow as tf
 
 from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor
 
-from .vae_config import VAEConfig
-
 
 class VAE(BaseAE):
     """
