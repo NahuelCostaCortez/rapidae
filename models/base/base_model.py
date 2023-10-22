@@ -29,12 +29,14 @@ class BaseAE(tf.keras.Model):
         decoder: Optional[BaseDecoder] = None,
         uses_default_encoder: bool = True,
         uses_default_decoder: bool = True,
+        layers_conf: list = None,
         **kwargs
     ):
     
         super(BaseAE, self).__init__()
         self.input_dim = input_dim
         self.latent_dim = latent_dim
+        self.layers_conf = layers_conf
 
         if encoder is None:
             Logger.log_warning('No encoder provided, using default MLP encoder')
@@ -43,8 +45,8 @@ class BaseAE(tf.keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.encoder = Encoder_MLP(self.input_dim, self.latent_dim)
-        self.encoder = encoder(self.input_dim, self.latent_dim, **kwargs)
+            self.encoder = Encoder_MLP(self.input_dim, self.latent_dim, self.layers_conf)
+        self.encoder = encoder(self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
 
         if decoder is None:
             Logger.log_warning('No decoder provider, using default MLP decoder'),
@@ -53,8 +55,8 @@ class BaseAE(tf.keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.decoder = Decoder_MLP(self.input_dim, self.latent_dim)
-        self.decoder = decoder(self.input_dim, self.latent_dim, **kwargs)
+            self.decoder = Decoder_MLP(self.input_dim, self.latent_dim, self.layers_conf)
+        self.decoder = decoder(self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
 
     # make the class callable
     # def __call__(self, *args, **kwargs):

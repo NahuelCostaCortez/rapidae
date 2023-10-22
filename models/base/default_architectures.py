@@ -10,10 +10,12 @@ class Encoder_MLP(BaseEncoder):
     Vanilla MLP encoder
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
-        BaseEncoder.__init__(self, input_dim, latent_dim)
-        self.dense = layers.Dense(512, activation="relu")
-
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
+        #self.dense = layers.Dense(512, activation="relu")
+        layers_idx = [i for i in range(len(layers_conf))]
+        for depth, index in zip(layers_conf, layers_idx):
+            
     def call(self, x):
         x = self.dense(x)
         x_z_mean = self.z_mean(x)
@@ -26,8 +28,8 @@ class Decoder_MLP(BaseDecoder):
     Vanilla MLP decoder
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
-        BaseDecoder.__init__(self, input_dim, latent_dim)
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.dense = layers.Dense(512, activation="relu")
         self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
 
@@ -44,7 +46,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
     Encoder architecture from keras tutorial
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim)
         self.conv2d_1 = layers.Conv2D(
             32, 3, activation="relu", strides=2, padding="same")
@@ -68,7 +70,7 @@ class Decoder_Conv_MNIST(BaseDecoder):
     Decoder architecture from keras tutorial
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim)
         self.dense = layers.Dense(7 * 7 * 64, activation="relu")
         self.reshape = layers.Reshape((7, 7, 64))
@@ -95,7 +97,7 @@ class RecurrentEncoder(BaseEncoder):
     Encoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim)
         self.mask = layers.Masking(mask_value=kwargs['masking_value'])
         self.h = layers.Bidirectional(layers.LSTM(300))
@@ -113,7 +115,7 @@ class RecurrentDecoder(BaseDecoder):
     Decoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
     """
 
-    def __init__(self, input_dim, latent_dim, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim)
         self.h_decoded_1 = layers.RepeatVector(input_dim[0])
         self.h_decoded_2 = layers.Bidirectional(
@@ -134,7 +136,7 @@ class VanillaEncoder(layers.Layer):
     Vanilla encoder for normal AE
     """
 
-    def __init__(self, input_dim, latent_dim, name="encoder", **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, name="encoder", **kwargs):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -149,7 +151,7 @@ class VanillaDecoder(layers.Layer):
     Vanilla decoder for normal AE
     """
 
-    def __init__(self, input_dim, latent_dim, name='decoder', **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf, name='decoder', **kwargs):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -169,7 +171,7 @@ class BaseRegressor(layers.Layer):
     Simple regressor
     """
 
-    def __init__(self, name="regressor"):
+    def __init__(self, layers_conf, name="regressor"):
         super().__init__(name=name)
         self.dense = layers.Dense(200, activation='tanh')
         self.out = layers.Dense(1, name='reg_output')
