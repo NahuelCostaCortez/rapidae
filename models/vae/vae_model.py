@@ -28,7 +28,7 @@ class VAE(BaseAE):
         
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, masking_value=masking_value)
-        if regressor != None:
+        if regressor is not False:
             self.regressor = BaseRegressor()
             self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
 

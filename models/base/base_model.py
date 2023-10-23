@@ -36,10 +36,15 @@ class BaseAE(tf.keras.Model):
         super(BaseAE, self).__init__()
         self.input_dim = input_dim
         self.latent_dim = latent_dim
-        self.layers_conf = layers_conf
+
+        if layers_conf is None:
+            Logger().log_warning('No specific layer configuration has been provided. Creating default configuration...')
+            self.layers_conf = [512]
+        else:
+            self.layers_conf = layers_conf
 
         if encoder is None:
-            Logger.log_warning('No encoder provided, using default MLP encoder')
+            Logger().log_warning('No encoder provided, using default MLP encoder')
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"
@@ -49,7 +54,7 @@ class BaseAE(tf.keras.Model):
         self.encoder = encoder(self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
 
         if decoder is None:
-            Logger.log_warning('No decoder provider, using default MLP decoder'),
+            Logger().log_warning('No decoder provider, using default MLP decoder'),
             if self.input_dim is None:
                 raise AttributeError(
                     "No input dimension provided!"

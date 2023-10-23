@@ -3,7 +3,6 @@ from tensorflow.keras import layers
 
 from models.base import BaseDecoder, BaseEncoder
 
-# TODO: Hacer dinámica la creación de capas en decoders y encoders
 # ------------------- VANILLA MLP ENCODER-DECODER ------------------- #
 class Encoder_MLP(BaseEncoder):
     """
@@ -12,12 +11,16 @@ class Encoder_MLP(BaseEncoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
-        #self.dense = layers.Dense(512, activation="relu")
-        layers_idx = [i for i in range(len(layers_conf))]
-        for depth, index in zip(layers_conf, layers_idx):
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation="relu")
             
     def call(self, x):
-        x = self.dense(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
         x_z_mean = self.z_mean(x)
         x_log_var = self.z_log_var(x)
         return x_z_mean, x_log_var
@@ -30,12 +33,22 @@ class Decoder_MLP(BaseDecoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.dense = layers.Dense(512, activation="relu")
-        self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+        #self.dense = layers.Dense(512, activation="relu")
+        #self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation="relu")
+
+        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
 
     def call(self, z):
-        x = self.dense(z)
-        x = self.dense2(x)
+        #x = self.dense(z)
+        for name, layer in self.layers_dict.items():
+            z = layer(z)
+        x = self.dense_recons(z)
         return x
 # ------------------------------------------------------------------- #
 
@@ -47,17 +60,25 @@ class Encoder_Conv_MNIST(BaseEncoder):
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseEncoder.__init__(self, input_dim, latent_dim)
-        self.conv2d_1 = layers.Conv2D(
-            32, 3, activation="relu", strides=2, padding="same")
-        self.conv2d_2 = layers.Conv2D(
-            64, 3, activation="relu", strides=2, padding="same")
+        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
+        #self.conv2d_1 = layers.Conv2D(
+        #    32, 3, activation="relu", strides=2, padding="same")
+        #self.conv2d_2 = layers.Conv2D(
+        #    64, 3, activation="relu", strides=2, padding="same")
+        self.layers_dict = {}
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
+                                                                 strides=2, padding="same")
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
 
     def call(self, x):
-        x = self.conv2d_1(x)
-        x = self.conv2d_2(x)
+        #x = self.conv2d_1(x)
+        #x = self.conv2d_2(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
         x = self.flatten(x)
         x = self.dense(x)
         x_z_mean = self.z_mean(x)
@@ -71,22 +92,33 @@ class Decoder_Conv_MNIST(BaseDecoder):
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseDecoder.__init__(self, input_dim, latent_dim)
+        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.dense = layers.Dense(7 * 7 * 64, activation="relu")
         self.reshape = layers.Reshape((7, 7, 64))
-        self.conv2d_transpose_1 = layers.Conv2DTranspose(
-            64, 3, activation="relu", strides=2, padding="same")
-        self.conv2d_transpose_2 = layers.Conv2DTranspose(
-            32, 3, activation="relu", strides=2, padding="same")
-        self.conv2d_transpose_3 = layers.Conv2DTranspose(
+        #self.conv2d_transpose_1 = layers.Conv2DTranspose(
+        #    64, 3, activation="relu", strides=2, padding="same")
+        #self.conv2d_transpose_2 = layers.Conv2DTranspose(
+        #    32, 3, activation="relu", strides=2, padding="same")
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
+                                                                 strides=2, padding="same")
+
+        self.conv2d_transpose_recons = layers.Conv2DTranspose(
             1, 3, activation="sigmoid", padding="same")
 
     def call(self, z):
         x = self.dense(z)
         x = self.reshape(x)
-        x = self.conv2d_transpose_1(x)
-        x = self.conv2d_transpose_2(x)
-        x = self.conv2d_transpose_3(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        x = self.conv2d_transpose_recons(x)
+        #x = self.conv2d_transpose_1(x)
+        #x = self.conv2d_transpose_2(x)
+        #x = self.conv2d_transpose_3(x)
         return x
 # ------------------------------------------------------------------- #
 
