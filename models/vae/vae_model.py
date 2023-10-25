@@ -21,16 +21,20 @@ class VAE(BaseAE):
         latent_dim: int = 2,
         masking_value: float = -99.0,
         exclude_decoder: bool = False,
-        regressor: bool = False,
+        regressor: tf.keras.layers.Layer = None,
         encoder: callable = None,
-        decoder: callable = None
+        decoder: callable = None,
+        layers_conf: list = None,
     ):
         
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, masking_value=masking_value)
+                        encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
         if regressor is not False:
             self.regressor = BaseRegressor()
             self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
+        else:
+            self.regressor = False
+        
 
         if self.decoder is not False:
             #self.decoder = decoder
@@ -75,8 +79,8 @@ class VAE(BaseAE):
         metrics = [self.total_loss_tracker, self.kl_loss_tracker]
         if self.decoder != None:
             metrics.append(self.reconstruction_loss_tracker)
-        if self.regressor != None:
-            metrics.append(self.reg_loss_tracker)
+        #if self.regressor != None:
+        #    metrics.append(self.reg_loss_tracker)
         return metrics
 
     @tf.function
@@ -114,7 +118,11 @@ class VAE(BaseAE):
                 reconstruction_loss = tf.reduce_mean(
                     tf.keras.losses.mse(x, reconstruction)
                 )
-                total_loss = kl_loss + reg_loss + reconstruction_loss
+                print(self.regressor)
+                if self.regressor is not False:
+                    total_loss = kl_loss + reg_loss + reconstruction_loss
+                else:
+                    total_loss = kl_loss + reconstruction_loss
                 self.reconstruction_loss_tracker.update_state(
                     reconstruction_loss)
                 metrics["reconstruction_loss"] = reconstruction_loss

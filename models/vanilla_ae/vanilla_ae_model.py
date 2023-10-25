@@ -21,10 +21,11 @@ class VanillaAE(BaseAE):
         latent_dim: int = 2,
         encoder: callable = None,
         decoder: callable = None,
+        layers_conf: list = None
     ):
 
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder)
+                        encoder=encoder, decoder=decoder, layers_conf=layers_conf)
 
         #if self.decoder is not False:
         #    self.decoder = decoder

@@ -15,7 +15,7 @@ test_data = dict(data=x_test.astype(float), labels=y_test)
 #model_config = VAEConfig(input_dim=(
 #    x_train.shape[0], x_train.shape[1]), latent_dim=2)
 model = VAE(input_dim=(x_train.shape[0], x_train.shape[1]), latent_dim=2, 
-            encoder=Encoder_Conv_MNIST, decoder=Decoder_Conv_MNIST)
+            encoder=Encoder_Conv_MNIST, decoder=Decoder_Conv_MNIST, layers_conf=[32, 64])
 
 pipe = TrainingPipeline(name='pipeline_entrenamiento',
                         model=model, num_epochs=2)

@@ -73,7 +73,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
                                                                  strides=2, padding="same")
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
-
+        
     def call(self, x):
         #x = self.conv2d_1(x)
         #x = self.conv2d_2(x)
@@ -104,7 +104,7 @@ class Decoder_Conv_MNIST(BaseDecoder):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
+            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2DTranspose(depth, 3, activation="relu",
                                                                  strides=2, padding="same")
 
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
@@ -130,7 +130,7 @@ class RecurrentEncoder(BaseEncoder):
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseEncoder.__init__(self, input_dim, latent_dim)
+        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.mask = layers.Masking(mask_value=kwargs['masking_value'])
         self.h = layers.Bidirectional(layers.LSTM(300))
 
@@ -148,7 +148,7 @@ class RecurrentDecoder(BaseDecoder):
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseDecoder.__init__(self, input_dim, latent_dim)
+        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.h_decoded_1 = layers.RepeatVector(input_dim[0])
         self.h_decoded_2 = layers.Bidirectional(
             layers.LSTM(300, return_sequences=True))
@@ -172,10 +172,20 @@ class VanillaEncoder(layers.Layer):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
-        self.dense = layers.Dense(512, activation="relu")
+        self.layers_conf = layers_conf
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
+
+        #self.dense = layers.Dense(512, activation="relu")
     
     def call(self, x):
-        x = self.dense(x)
+        #x = self.dense(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
         return x
 
 class VanillaDecoder(layers.Layer):
@@ -187,12 +197,22 @@ class VanillaDecoder(layers.Layer):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
-        self.dense = layers.Dense(512, activation="relu")
-        self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
+        self.layers_conf = layers_conf
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
+
+        #self.dense = layers.Dense(512, activation="relu")
+        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
 
     def call(self, x):
-        x = self.dense(x)
-        x = self.dense2(x)
+        #x = self.dense(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        x = self.dense_recons(x)
         return x
 # ------------------------------------------------------------------- #
 
@@ -203,7 +223,7 @@ class BaseRegressor(layers.Layer):
     Simple regressor
     """
 
-    def __init__(self, layers_conf, name="regressor"):
+    def __init__(self, name="regressor"):
         super().__init__(name=name)
         self.dense = layers.Dense(200, activation='tanh')
         self.out = layers.Dense(1, name='reg_output')
