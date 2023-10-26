@@ -21,7 +21,7 @@ class VAE(BaseAE):
         latent_dim: int = 2,
         masking_value: float = -99.0,
         exclude_decoder: bool = False,
-        regressor: tf.keras.layers.Layer = None,
+        regressor_flag: bool = False,
         encoder: callable = None,
         decoder: callable = None,
         layers_conf: list = None,
@@ -29,12 +29,12 @@ class VAE(BaseAE):
         
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
-        if regressor is not False:
+        self.regressor_flag = regressor_flag
+        if self.regressor_flag is not False:
             self.regressor = BaseRegressor()
             self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
         else:
-            self.regressor = False
-        
+            self.regressor = None
 
         if self.decoder is not False:
             #self.decoder = decoder
@@ -118,15 +118,14 @@ class VAE(BaseAE):
                 reconstruction_loss = tf.reduce_mean(
                     tf.keras.losses.mse(x, reconstruction)
                 )
-                print(self.regressor)
-                if self.regressor is not False:
+                if self.regressor != None:
                     total_loss = kl_loss + reg_loss + reconstruction_loss
                 else:
                     total_loss = kl_loss + reconstruction_loss
                 self.reconstruction_loss_tracker.update_state(
                     reconstruction_loss)
                 metrics["reconstruction_loss"] = reconstruction_loss
-                total_loss += reconstruction_loss
+                #total_loss += reconstruction_loss
 
         grads = tape.gradient(total_loss, self.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))

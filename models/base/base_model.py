@@ -42,7 +42,6 @@ class BaseAE(tf.keras.Model):
             self.layers_conf = [512]
         else:
             self.layers_conf = layers_conf
-        Logger().log_info('The selected configuration of layers for the autoencoder is {}'.format(self.layers_conf))
 
         if encoder is None:
             Logger().log_warning('No encoder provided, using default MLP encoder')
