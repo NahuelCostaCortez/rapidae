@@ -87,3 +87,24 @@ def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
     random.seed(random_seed)
     np.random.seed(random_seed)
     tf.random.set_seed(random_seed)
+
+
+def plot_mnist_images(images, labels, num_images=10):
+    """
+    Visualizes MNIST images and their corresponding labels.
+
+    Args:
+        images (numpy.ndarray): An array of MNIST images.
+        labels (numpy.ndarray): An array of corresponding labels.
+        num_images (int): Number of images to display. Default is 10.
+    """
+    # Create a figure with subplots
+    fig, axes = plt.subplots(1, num_images, figsize=(20, 4))
+
+    for i in range(num_images):
+        # Display the image
+        axes[i].imshow(images[i], cmap='gray')
+        axes[i].set_title(f"Label: {labels[i]}")
+        axes[i].axis('off')
+
+    plt.show()

@@ -2,6 +2,7 @@ from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 
+from conf import Logger
 from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
 
@@ -21,22 +22,32 @@ class VAE(BaseAE):
         latent_dim: int = 2,
         masking_value: float = -99.0,
         exclude_decoder: bool = False,
-        downstream_task: str = '',
+        downstream_task: str = None,
         encoder: callable = None,
         decoder: callable = None,
         layers_conf: list = None,
+        **kwargs
     ):
         
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
         
-        self.downstream_task = downstream_task.lower()
-
-        if self.downstream_task == 'regression':
-            self.regressor = BaseRegressor()
-            self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
-        elif self.downstream_task == 'classification':
-            self.classifier = BaseClassifier()
+        self.downstream_task = downstream_task
+        if self.downstream_task is not None:
+            # Change string to lowercase
+            self.downstream_task = downstream_task.lower()
+            if self.downstream_task == 'regression':
+                Logger().log_info('Regressor available for the latent space of the autoencoder')
+                self.regressor = BaseRegressor()
+                self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
+            elif self.downstream_task == 'classification':
+                Logger().log_info('Classificator available for the latent space of the autoencoder')
+                self.classifier = BaseClassifier(kwargs['n_classes'])
+                self.clf_loss_tracker = tf.keras.metrics.Mean(name='clf_loss')
+            else:
+                Logger().log_warning('The downstream task is not a valid string. Currently there are available "regression" and "classification"')
+        else:
+            Logger().log_info('No specific dowstream task has been selected')
 
         if self.decoder is not False:
             #self.decoder = decoder
@@ -56,9 +67,12 @@ class VAE(BaseAE):
         outputs["z"] = z
         outputs["z_mean"] = z_mean
         outputs["z_log_var"] = z_log_var
-        if self.regressor != None:
+        if self.downstream_task == 'regression':
             reg_prediction = self.regressor(z)
             outputs["reg"] = reg_prediction
+        if self.downstream_task == 'classification':
+            clf_prediction = self.classifier(z)
+            outputs["clf"] = clf_prediction
         if self.decoder != None:
             recon_x = self.decoder(z)
             outputs["recon"] = recon_x
@@ -81,8 +95,10 @@ class VAE(BaseAE):
         metrics = [self.total_loss_tracker, self.kl_loss_tracker]
         if self.decoder != None:
             metrics.append(self.reconstruction_loss_tracker)
-        #if self.regressor != None:
-        #    metrics.append(self.reg_loss_tracker)
+        if self.downstream_task == 'regression':
+            metrics.append(self.reg_loss_tracker)
+        if self.downstream_task == 'classification':
+            metrics.append(self.clf_loss_tracker)
         return metrics
 
     @tf.function
@@ -104,7 +120,7 @@ class VAE(BaseAE):
             total_loss = kl_loss
 
             # Regressor
-            if self.regressor != None:
+            if self.downstream_task == 'regression':
                 reg_prediction = self.regressor(z)
                 reg_loss = tf.reduce_mean(
                     tf.keras.losses.mse(labels_x, reg_prediction)
@@ -113,6 +129,17 @@ class VAE(BaseAE):
                 metrics["reg_loss"] = reg_loss
 
                 total_loss += reg_loss
+            
+            # Classifier
+            if self.downstream_task == 'classification':
+                clf_prediction = self.classifier(z)
+                clf_loss = tf.reduce_mean(
+                    tf.keras.losses.categorical_crossentropy(labels_x, clf_prediction)
+                )
+                self.clf_loss_tracker.update_state(clf_loss)
+                metrics["clf_loss"] = clf_loss
+
+                total_loss += clf_loss
 
             # Reconstruction
             if self.decoder != None:
@@ -120,8 +147,10 @@ class VAE(BaseAE):
                 reconstruction_loss = tf.reduce_mean(
                     tf.keras.losses.mse(x, reconstruction)
                 )
-                if self.regressor != None:
+                if self.downstream_task == 'regression':
                     total_loss = kl_loss + reg_loss + reconstruction_loss
+                elif self.downstream_task == 'classification':
+                    total_loss = kl_loss + clf_loss + reconstruction_loss
                 else:
                     total_loss = kl_loss + reconstruction_loss
                 self.reconstruction_loss_tracker.update_state(
@@ -154,13 +183,22 @@ class VAE(BaseAE):
         total_loss = kl_loss
 
         # Regressor
-        if self.regressor != None:
+        if self.downstream_task == 'regression':
             reg_prediction = self.regressor(z)
             reg_loss = tf.reduce_mean(
                 tf.keras.losses.mse(labels_x, reg_prediction)
             )
             metrics["reg_loss"] = reg_loss
             total_loss += reg_loss
+        
+        # Classifier
+        if self.downstream_task == 'classifier':
+            clf_prediction = self.regressor(z)
+            clf_loss = tf.reduce_mean(
+                tf.keras.losses.categorical_crossentropy(labels_x, clf_prediction)
+            )
+            metrics["clf_loss"] = clf_loss
+            total_loss += clf_loss
 
         # Reconstruction
         if self.decoder != None:

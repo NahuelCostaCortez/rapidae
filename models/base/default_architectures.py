@@ -33,8 +33,6 @@ class Decoder_MLP(BaseDecoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
-        #self.dense = layers.Dense(512, activation="relu")
-        #self.dense2 = layers.Dense(self.input_dim[1], activation="sigmoid")
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -45,7 +43,6 @@ class Decoder_MLP(BaseDecoder):
         self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
 
     def call(self, z):
-        #x = self.dense(z)
         for name, layer in self.layers_dict.items():
             z = layer(z)
         x = self.dense_recons(z)
@@ -61,10 +58,6 @@ class Encoder_Conv_MNIST(BaseEncoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
-        #self.conv2d_1 = layers.Conv2D(
-        #    32, 3, activation="relu", strides=2, padding="same")
-        #self.conv2d_2 = layers.Conv2D(
-        #    64, 3, activation="relu", strides=2, padding="same")
         self.layers_dict = {}
         self.layers_idx = [i for i in range(len(layers_conf))]
 
@@ -75,8 +68,6 @@ class Encoder_Conv_MNIST(BaseEncoder):
         self.dense = layers.Dense(16, activation="relu")
         
     def call(self, x):
-        #x = self.conv2d_1(x)
-        #x = self.conv2d_2(x)
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.flatten(x)
@@ -95,10 +86,6 @@ class Decoder_Conv_MNIST(BaseDecoder):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.dense = layers.Dense(7 * 7 * 64, activation="relu")
         self.reshape = layers.Reshape((7, 7, 64))
-        #self.conv2d_transpose_1 = layers.Conv2DTranspose(
-        #    64, 3, activation="relu", strides=2, padding="same")
-        #self.conv2d_transpose_2 = layers.Conv2DTranspose(
-        #    32, 3, activation="relu", strides=2, padding="same")
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -116,9 +103,6 @@ class Decoder_Conv_MNIST(BaseDecoder):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.conv2d_transpose_recons(x)
-        #x = self.conv2d_transpose_1(x)
-        #x = self.conv2d_transpose_2(x)
-        #x = self.conv2d_transpose_3(x)
         return x
 # ------------------------------------------------------------------- #
 
@@ -179,11 +163,8 @@ class VanillaEncoder(layers.Layer):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
-
-        #self.dense = layers.Dense(512, activation="relu")
     
     def call(self, x):
-        #x = self.dense(x)
         for name, layer in self.layers_dict.items():
             x = layer(x)
         return x
@@ -205,11 +186,9 @@ class VanillaDecoder(layers.Layer):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
 
-        #self.dense = layers.Dense(512, activation="relu")
         self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
 
     def call(self, x):
-        #x = self.dense(x)
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.dense_recons(x)
@@ -238,14 +217,12 @@ class BaseClassifier(layers.Layer):
     Simple classifier to be applied to the latent space of an AE
     """
 
-    def __init__(self, n_classes, latent_dim, name='classifier'):
+    def __init__(self, n_classes, name='classifier'):
         super().__init__(name=name)
-        #self.latent_inputs = layers.Input(shape=(latent_dim,), name='z_sampling_clf')
         self.intermediate = layers.Dense(200, activation='relu')
         self.outputs = layers.Dense(n_classes, activation='softmax', name='class_output')
 
     def call(self, x):
-        #x = self.latent_inputs(x)
         x = self.intermediate(x)
         x = self.outputs(x)
         return x

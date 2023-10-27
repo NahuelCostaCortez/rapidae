@@ -48,10 +48,8 @@ epochs = 2
 optimizer = 'adam'
 
 # ----------------------------- MODEL -----------------------------------
-#model_config = VAEConfig(input_dim=(
-#    x_train.shape[1], x_train.shape[2]), latent_dim=2, exclude_decoder=True, regressor=True)
-model = VAE(input_dim=(x_train.shape[1], x_train.shape[2]), latent_dim=2, exclude_decoder=True,
-            regressor_flag=True, encoder=RecurrentEncoder, decoder=RecurrentDecoder)
+model = VAE(input_dim=(x_train.shape[1], x_train.shape[2]), latent_dim=2, 
+            downstream_task='classifier', encoder=RecurrentEncoder, decoder=RecurrentDecoder)
 # model_callbacks = utils.get_callbacks("p", model, x_train, y_train)
 
 train_data = dict(data=x_train, labels=y_train)
