@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 from sklearn.metrics import mean_squared_error
 
@@ -10,6 +11,11 @@ from metrics import cmapps_score
 from models.base import RecurrentDecoder, RecurrentEncoder
 from models.vae import VAE
 from pipelines import PreprocessPipeline, TrainingPipeline
+
+if tf.test.gpu_device_name():
+    print('GPU found')
+else:
+    print("No GPU found")
 
 # ------------------------------ DATA -----------------------------------
 dataset = 'FD003'

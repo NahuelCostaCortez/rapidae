@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 
-from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor
+from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
 
 class VAE(BaseAE):
@@ -21,7 +21,7 @@ class VAE(BaseAE):
         latent_dim: int = 2,
         masking_value: float = -99.0,
         exclude_decoder: bool = False,
-        regressor_flag: bool = False,
+        downstream_task: str = '',
         encoder: callable = None,
         decoder: callable = None,
         layers_conf: list = None,
@@ -29,12 +29,14 @@ class VAE(BaseAE):
         
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
-        self.regressor_flag = regressor_flag
-        if self.regressor_flag is not False:
+        
+        self.downstream_task = downstream_task.lower()
+
+        if self.downstream_task == 'regression':
             self.regressor = BaseRegressor()
             self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
-        else:
-            self.regressor = None
+        elif self.downstream_task == 'classification':
+            self.classifier = BaseClassifier()
 
         if self.decoder is not False:
             #self.decoder = decoder
@@ -62,7 +64,7 @@ class VAE(BaseAE):
             outputs["recon"] = recon_x
         return outputs
 
-    # TO-DO: cambiar a una función que se llame NormalSampler
+    # TODO: cambiar a una función que se llame NormalSampler
     class Sampling(tf.keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
 

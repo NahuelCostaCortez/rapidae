@@ -232,4 +232,21 @@ class BaseRegressor(layers.Layer):
         x = self.dense(x)
         x = self.out(x)
         return x
+    
+class BaseClassifier(layers.Layer):
+    """
+    Simple classifier to be applied to the latent space of an AE
+    """
+
+    def __init__(self, n_classes, latent_dim, name='classifier'):
+        super().__init__(name=name)
+        #self.latent_inputs = layers.Input(shape=(latent_dim,), name='z_sampling_clf')
+        self.intermediate = layers.Dense(200, activation='relu')
+        self.outputs = layers.Dense(n_classes, activation='softmax', name='class_output')
+
+    def call(self, x):
+        #x = self.latent_inputs(x)
+        x = self.intermediate(x)
+        x = self.outputs(x)
+        return x
 # ------------------------------------------------------------------- #
