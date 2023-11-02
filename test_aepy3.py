@@ -16,7 +16,7 @@ test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
 model = VanillaAE(input_dim=(x_train.shape[0], x_train.shape[1]), 
-                  latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[1024, 512, 256, 64, 32])
+                  latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='pipeline_entrenamiento',
                         model=model, num_epochs=30)
