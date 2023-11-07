@@ -3,7 +3,7 @@ from tensorflow.keras import layers
 
 from models.base import BaseDecoder, BaseEncoder
 
-# ------------------- VANILLA MLP ENCODER-DECODER ------------------- #
+# ------------------- VANILLA MLP VAE ------------------- #
 class Encoder_MLP(BaseEncoder):
     """
     Vanilla MLP encoder
@@ -146,7 +146,77 @@ class RecurrentDecoder(BaseDecoder):
 # ------------------------------------------------------------------- #
 
 
-# ---------------------  VANILLA ENCODER-DECODER -------------------- #
+# ---------------------- SPARSE ENCODER-DECODER --------------------- #
+class SparseEncoder(BaseEncoder):
+    """
+    Sparse Encoder
+    """
+
+    def __init__(self, input_dim, latent_dim, layers_conf, name="encoder", **kwargs):
+        super().__init__(name=name)
+        self.input_dim = input_dim
+        self.latent_dim = latent_dim
+        self.layers_conf = layers_conf
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
+                                                                 activation='sigmoid',
+                                                                 kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
+                                                                 activity_regularizer=sparse_regularizer)
+    
+    def call(self, x):
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        return x
+
+
+class SparseDecoder(BaseDecoder):
+    """
+    Sparse Decoder
+    """
+    
+    def __init__(self, input_dim, latent_dim, layers_conf, name='decoder', **kwargs):
+        super().__init__(name=name)
+        self.input_dim = input_dim
+        self.latent_dim = latent_dim
+        self.layers_conf = layers_conf
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, 
+                                                                 activation='sigmoid',
+                                                                 kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
+                                                                 activity_regularizer=sparse_regularizer)
+
+        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
+
+    def call(self, x):
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        x = self.dense_recons(x)
+        return x
+
+def sparse_regularizer(activation_matrix):
+    """
+    Function to define a custom regularizer based on Kullback-Leibler Divergence.
+    """
+    p = 0.01
+    beta = 3
+    p_hat = tf.keras.backend.mean(activation_matrix) 
+  
+    KL_divergence = p*(tf.keras.backend.log(p/p_hat)) + (1-p)*(tf.keras.backend.log(1-p/1-p_hat))
+    
+    sum = tf.keras.backend.sum(KL_divergence) 
+   
+    return beta * sum
+# ------------------------------------------------------------------- #
+
+# --------------------- VANILLA ENCODER-DECODER --------------------- #
 class VanillaEncoder(layers.Layer):
     """
     Vanilla encoder for normal AE
