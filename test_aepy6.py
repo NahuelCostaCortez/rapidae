@@ -4,8 +4,8 @@ from sklearn.metrics import accuracy_score
 from keras import utils
 from data.datasets import load_MNIST
 from data.utils import evaluate, display, add_noise
-from models.sae.sae_model import Sparse_AE
-from models.base.default_architectures import VanillaEncoder, VanillaDecoder
+from models.ae.ae_model import AE
+from models.base.default_architectures import SparseEncoder, SparseDecoder
 from pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
@@ -22,14 +22,14 @@ x_train = x_train.reshape(x_train.shape[0], -1)
 x_test = x_test.reshape(x_test.shape[0], -1)
 
 # Display some images to view the added noise
-display(x_train, x_train)
+#display(x_train, x_train)
 
 train_data = dict(data=x_train.astype(float), labels=y_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
-model = Sparse_AE(input_dim=(x_train.shape[0], x_train.shape[1]), 
-            latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
+model = AE(input_dim=(x_train.shape[0], x_train.shape[1]), 
+            latent_dim=2, encoder=SparseEncoder, decoder=SparseDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='pipeline_entrenamiento',
                         model=model, num_epochs=100)

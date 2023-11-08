@@ -152,11 +152,12 @@ class SparseEncoder(BaseEncoder):
     Sparse Encoder
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, name="encoder", **kwargs):
-        super().__init__(name=name)
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
+        self.lambda_ = 4
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -165,7 +166,7 @@ class SparseEncoder(BaseEncoder):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
                                                                  activation='sigmoid',
                                                                  kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
-                                                                 activity_regularizer=sparse_regularizer)
+                                                                 activity_regularizer=SparseRegularizer())
     
     def call(self, x):
         for name, layer in self.layers_dict.items():
@@ -178,11 +179,12 @@ class SparseDecoder(BaseDecoder):
     Sparse Decoder
     """
     
-    def __init__(self, input_dim, latent_dim, layers_conf, name='decoder', **kwargs):
-        super().__init__(name=name)
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
+        self.lambda_ = 4
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -191,7 +193,7 @@ class SparseDecoder(BaseDecoder):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, 
                                                                  activation='sigmoid',
                                                                  kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
-                                                                 activity_regularizer=sparse_regularizer)
+                                                                 activity_regularizer=SparseRegularizer())
 
         self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
 
@@ -201,10 +203,29 @@ class SparseDecoder(BaseDecoder):
         x = self.dense_recons(x)
         return x
 
+class SparseRegularizer(tf.keras.regularizers.Regularizer):
+    """
+    For sparse encoders and decoders
+    """
+    def __init__(self, p=0.01, beta=3):
+        self.p = p
+        self.beta = beta
+    
+    def __call__(self, x):
+        self.p_hat = tf.keras.backend.mean(x)
+        kl_divergence = self.p*(tf.keras.backend.log(self.p/self.p_hat)) + (1-self.p)*(tf.keras.backend.log(1-self.p/1-self.p_hat))
+        return self.beta * tf.keras.backend.sum(kl_divergence)
+    
+    def get_config(self):
+        return {'p': float(self.p),
+                'p_hat': float(self.p_hat),
+                'beta':float(self.beta)}
+
+"""
 def sparse_regularizer(activation_matrix):
-    """
-    Function to define a custom regularizer based on Kullback-Leibler Divergence.
-    """
+    
+    #Function to define a custom regularizer based on Kullback-Leibler Divergence.
+    
     p = 0.01
     beta = 3
     p_hat = tf.keras.backend.mean(activation_matrix) 
@@ -213,7 +234,8 @@ def sparse_regularizer(activation_matrix):
     
     sum = tf.keras.backend.sum(KL_divergence) 
    
-    return beta * sum
+    return beta * sum 
+"""  
 # ------------------------------------------------------------------- #
 
 # --------------------- VANILLA ENCODER-DECODER --------------------- #
