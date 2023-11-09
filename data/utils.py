@@ -89,30 +89,16 @@ def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
     tf.random.set_seed(random_seed)
 
 
-def plot_mnist_images(images, labels, num_images=10):
-    """
-    Visualizes MNIST images and their corresponding labels.
-
-    Args:
-        images (numpy.ndarray): An array of MNIST images.
-        labels (numpy.ndarray): An array of corresponding labels.
-        num_images (int): Number of images to display. Default is 10.
-    """
-    # Create a figure with subplots
-    fig, axes = plt.subplots(1, num_images, figsize=(20, 4))
-
-    for i in range(num_images):
-        # Display the image
-        axes[i].imshow(images[i], cmap='gray')
-        axes[i].set_title(f"Label: {labels[i]}")
-        axes[i].axis('off')
-
-    plt.show()
-
-
 def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
     """
-    Adds random noise to each image in the supplied array.
+    Adds random noise to each the supplied array.
+
+    Args
+    ----
+        array ():
+        noise_factor (): 
+        a_min ():
+        a_max ():
     """
     noisy_array = array + noise_factor * np.random.normal(
         loc=0.0, scale=1.0, size=array.shape
@@ -121,10 +107,16 @@ def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
     return np.clip(noisy_array, 0.0, 1.0)
 
 
-def display(array1, array2):
+def display_diff(array1, array2):
     """
     Displays ten random images from each one of the supplied arrays.
+    Useful for checking differences in processed images.
     Source: https://keras.io/examples/vision/autoencoder/
+
+    Args
+    ----
+        array1 ():
+        array2 ():
     """
 
     n = 10
