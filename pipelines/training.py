@@ -74,13 +74,13 @@ class TrainingPipeline(BasePipeline):
             callbacks = []
             if eval_data is None:
                 callbacks.append(EarlyStopping(
-                    monitor='loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='loss',
+                    monitor='total_loss', patience=10, verbose=1, mode='min'))
+                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
             else:
                 callbacks.append(EarlyStopping(
-                    monitor='val_loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='val_loss',
+                    monitor='val_total_loss', patience=10, verbose=1, mode='min'))
+                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='val_total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
 
         # set optimizer

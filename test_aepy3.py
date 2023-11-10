@@ -19,6 +19,6 @@ model = VanillaAE(input_dim=(x_train.shape[0], x_train.shape[1]),
                   latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='pipeline_entrenamiento',
-                        model=model, num_epochs=30)
+                        model=model, num_epochs=3)
 
 trained_model = pipe(train_data=train_data)

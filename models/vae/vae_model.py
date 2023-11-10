@@ -102,52 +102,54 @@ class VAE(BaseAE):
         return metrics
 
     def compute_losses(self, x, outputs, labels_x=None):
+        losses = {}
+
         # KL divergence loss
         kl_loss = -0.5 * (
             1 + outputs['z_log_var'] -  tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var'])
         )
-        kl_loss = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
+        losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
 
         # Regressor loss
-        reg_loss = 0
+        #reg_loss = 0
         if self.downstream_task == 'regression':
-            reg_loss = tf.reduce_mean(
+            losses['reg_loss'] = tf.reduce_mean(
                     tf.keras.losses.mse(labels_x, outputs['reg'])
                 )
         
         # Classifier loss
-        clf_loss = 0
+        #clf_loss = 0
         if self.downstream_task == 'classification':
-            clf_loss = tf.reduce_mean(
+            losses['clf_loss'] = tf.reduce_mean(
                     tf.keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
                 )
         
         # Reconstruction loss
-        recon_loss = 0
+        #recon_loss = 0
         if self.decoder is not None:
-            recon_loss = tf.reduce_mean(
+            losses['recon_loss'] = tf.reduce_mean(
                     tf.keras.losses.mse(x, outputs['recon']), axis=1
                 )
         
-        return kl_loss, recon_loss, reg_loss, clf_loss
-
-    def update_states(self, total_loss, kl_loss, recon_loss=None, reg_loss=None, clf_loss=None):
+        return losses
+    
+    def update_states(self, losses):
         metrics = {}
 
-        self.total_loss_tracker.update_state(total_loss)
+        self.total_loss_tracker.update_state(losses['total_loss'])
         metrics['total_loss'] = self.total_loss_tracker.result()
 
-        self.kl_loss_tracker.update_state(kl_loss)
+        self.kl_loss_tracker.update_state(losses['kl_loss'])
         metrics['kl_loss'] = self.kl_loss_tracker.result()
 
         if self.downstream_task == 'regression':
-            self.reg_loss_tracker.update_state(reg_loss)
+            self.reg_loss_tracker.update_state(losses['reg_loss'])
             metrics['reg_loss'] = self.reg_loss_tracker.result()
         if self.downstream_task == 'classification':
-            self.clf_loss_tracker.update_state(clf_loss)
+            self.clf_loss_tracker.update_state(losses['clf_loss'])
             metrics['clf_loss'] = self.clf_loss_tracker.result()
         if self.decoder is not None:
-            self.reconstruction_loss_tracker.update_state(recon_loss)
+            self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
             metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
         
         return metrics
@@ -160,17 +162,17 @@ class VAE(BaseAE):
         # Forward pass
         with tf.GradientTape() as tape:
             outputs = self(inputs)
-            kl_loss, recon_loss, reg_loss, clf_loss = self.compute_losses(x, outputs, labels_x)
-            total_loss = kl_loss + recon_loss + reg_loss + clf_loss
+            losses = self.compute_losses(x, outputs, labels_x)
+            losses['total_loss'] = sum(losses.values())
         
         # Compute gradients
-        grads = tape.gradient(total_loss, self.trainable_weights)
+        grads = tape.gradient(losses['total_loss'], self.trainable_weights)
 
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
 
         # Update metrics
-        metrics = self.update_states(total_loss, recon_loss, reg_loss, clf_loss)
+        metrics = self.update_states(losses)
 
         return metrics
 
@@ -181,10 +183,10 @@ class VAE(BaseAE):
 
         # Forward pass
         outputs = self(inputs)
-        kl_loss, recon_loss, reg_loss, clf_loss = self.compute_losses(x, outputs, labels_x)
-        total_loss = kl_loss + recon_loss + reg_loss + clf_loss
+        losses = self.compute_losses(x, outputs, labels_x)
+        losses['total_loss'] = sum(losses.values())
 
         # Upgrade metrics
-        metrics = self.update_states(total_loss, recon_loss, reg_loss, clf_loss)
+        metrics = self.update_states(losses)
 
         return metrics

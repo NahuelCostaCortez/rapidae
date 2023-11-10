@@ -29,7 +29,8 @@ class AE(BaseAE):
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
     
         #self.decoder = decoder
-        self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="loss")
+        self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss")
+        self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
     
     # keras model call function
     def call(self, inputs):
@@ -43,39 +44,62 @@ class AE(BaseAE):
     
     @property
     def metrics(self):
-        return [self.reconstruction_loss_tracker]
+        return [self.reconstruction_loss_tracker, self.total_loss_tracker]
     
+    def compute_losses(self, x, outputs, labels_x=None):
+        losses = {}
+
+        losses['recon_loss'] = tf.reduce_mean(
+                    tf.keras.losses.mse(x, outputs['recon'])
+                )
+        
+        return losses
+    
+    def update_states(self, losses):
+        metrics = {}
+
+        self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
+        metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
+
+        self.total_loss_tracker.update_state(losses['total_loss'])
+        metrics['total_loss'] = self.total_loss_tracker.result()
+
+        return metrics
+
     @tf.function
     def train_step(self, inputs):
-        x = inputs["data"]
-        with tf.GradientTape() as tape:
-            metrics = {}
-    
-            z = self.encoder(x)
-            reconstruction = self.decoder(z)
-            reconstruction_loss = tf.reduce_mean(
-                tf.keras.losses.mse(x, reconstruction)
-            )
-            metrics["loss"] = reconstruction_loss
+        x = inputs['data']
+        labels_x = inputs['labels']
 
-        grads = tape.gradient(reconstruction_loss, self.trainable_weights)
-        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
-        self.reconstruction_loss_tracker.update_state(reconstruction_loss)
+        # Forward pass
+        with tf.GradientTape() as tape:
+            outputs = self(inputs)
+            losses = self.compute_losses(x, outputs, labels_x)
+            losses['total_loss'] = sum(losses.values())
         
+        # Compute gradients
+        grads = tape.gradient(losses['total_loss'], self.trainable_weights)
+
+        # Update weights
+        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+
+        # Update metrics
+        metrics = self.update_states(losses)
+
         return metrics
     
     @tf.function
     def test_step(self, inputs):
-        x = inputs["data"]
-        labels_x = inputs["labels"]
+        x = inputs['data']
+        labels_x = inputs['labels']
 
-        metrics = {}
+        # Forward pass
+        outputs = self(inputs)
+        losses = self.compute_losses(x,losses, labels_x)
+        losses['total_loss'] = sum(losses.values())
 
-        z = self.encoder(x)
-        reconstruction = self.decoder(z)
-        reconstruction_loss = tf.reduce_mean(
-            tf.keras.losses.binary_crossentropy(x, reconstruction)
-        )
-        metrics["loss"] = reconstruction_loss
+        # Upgrade metrics
+        metrics = self.update_states(losses)
 
         return metrics
+    
