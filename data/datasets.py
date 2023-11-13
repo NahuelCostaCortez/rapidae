@@ -10,7 +10,6 @@ from shutil import rmtree
 import numpy as np
 import pandas as pd
 import requests
-from tensorflow.keras.datasets import mnist
 
 from conf import Logger
 

@@ -1,5 +1,6 @@
 from typing import Optional, Union, Tuple
 
+import keras_core as keras
 import tensorflow as tf
 
 from models.base import BaseAE, BaseDecoder, BaseEncoder
@@ -29,8 +30,8 @@ class AE(BaseAE):
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
     
         #self.decoder = decoder
-        self.reconstruction_loss_tracker = tf.keras.metrics.Mean(name="reconstruction_loss")
-        self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
+        self.reconstruction_loss_tracker = keras.metrics.Mean(name="reconstruction_loss")
+        self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
     
     # keras model call function
     def call(self, inputs):
@@ -50,8 +51,8 @@ class AE(BaseAE):
         losses = {}
 
         losses['recon_loss'] = tf.reduce_mean(
-                    tf.keras.losses.mse(x, outputs['recon'])
-                )
+                keras.losses.mean_squared_error(x, outputs['recon'])
+        )
         
         return losses
     

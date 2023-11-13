@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras_core import layers
 
 from models.base import BaseDecoder, BaseEncoder
 

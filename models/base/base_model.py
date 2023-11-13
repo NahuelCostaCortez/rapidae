@@ -4,13 +4,14 @@ Base class for implementing all the models.
 
 from typing import Optional, Tuple, Union
 
+import keras_core as keras
 import tensorflow as tf
 
 from .default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
 from conf import Logger
 
 
-class BaseAE(tf.keras.Model):
+class BaseAE(keras.Model):
     """
     Base class for Autoencoder based models.
 
@@ -67,7 +68,6 @@ class BaseAE(tf.keras.Model):
     # def __call__(self, *args, **kwargs):
     #    return self
 
-    @tf.function
     def call(self, inputs):
         """
         Main call pass outputing the VAE outputs.
@@ -75,10 +75,8 @@ class BaseAE(tf.keras.Model):
         """
         raise NotImplementedError
 
-    @tf.function
     def train_step(self, inputs):
         raise NotImplementedError
 
-    @tf.function
     def test_step(self, inputs):
         raise NotImplementedError

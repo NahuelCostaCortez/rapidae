@@ -1,7 +1,7 @@
 import numpy as np
 
 from sklearn.metrics import accuracy_score
-from keras import utils
+from keras_core import utils
 from data.datasets import load_MNIST
 from data.utils import evaluate, display_diff, add_noise
 from models.ae.ae_model import AE
@@ -28,7 +28,7 @@ x_test = x_test.reshape(x_test.shape[0], -1)
 x_test_noisy = x_test_noisy.reshape(x_test_noisy.shape[0], -1)
 
 # Display some images to view the added noise
-display_diff(x_train_noisy, x_train)
+#display_diff(x_train_noisy, x_train)
 
 train_data = dict(data=x_train_noisy.astype(float), labels=x_train)
 test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
@@ -37,8 +37,8 @@ test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
 model = AE(input_dim=(x_train_noisy.shape[0], x_train_noisy.shape[1]), 
             latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
-pipe = TrainingPipeline(name='pipeline_entrenamiento',
-                        model=model, num_epochs=100)
+pipe = TrainingPipeline(name='training_pipeline',
+                        model=model, num_epochs=10)
 
 trained_model = pipe(train_data=train_data)
 

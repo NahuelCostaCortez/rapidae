@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from keras import utils
 from data.datasets import load_MNIST
-from data.utils import evaluate, plot_mnist_images
+from data.utils import evaluate
 from models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
                                                Encoder_Conv_MNIST, Encoder_MLP)
 from models.vae.vae_model import VAE
@@ -22,14 +22,11 @@ y_test = utils.to_categorical(y_test, n_classes)
 train_data = dict(data=x_train.astype(float), labels=y_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
-# Show some images
-plot_mnist_images(x_train, y_train)
-
 # Model creation
 model = VAE(input_dim=(x_train.shape[0], x_train.shape[1]), latent_dim=10, downstream_task='classification',
             encoder=Encoder_Conv_MNIST, decoder=Decoder_Conv_MNIST, layers_conf=[32, 64], n_classes=n_classes)
 
-pipe = TrainingPipeline(name='pipeline_entrenamiento',
+pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=2)
 
 trained_model = pipe(train_data=train_data)

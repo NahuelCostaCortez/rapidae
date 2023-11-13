@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, Union
 
+import keras_core as keras
 import tensorflow as tf
 
 from conf import Logger
@@ -39,11 +40,11 @@ class VAE(BaseAE):
             if self.downstream_task == 'regression':
                 Logger().log_info('Regressor available for the latent space of the autoencoder')
                 self.regressor = BaseRegressor()
-                self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
+                self.reg_loss_tracker = keras.metrics.Mean(name="reg_loss")
             elif self.downstream_task == 'classification':
                 Logger().log_info('Classificator available for the latent space of the autoencoder')
                 self.classifier = BaseClassifier(kwargs['n_classes'])
-                self.clf_loss_tracker = tf.keras.metrics.Mean(name='clf_loss')
+                self.clf_loss_tracker = keras.metrics.Mean(name='clf_loss')
             else:
                 Logger().log_warning('The downstream task is not a valid string. Currently there are available "regression" and "classification"')
         else:
@@ -51,11 +52,11 @@ class VAE(BaseAE):
 
         if self.decoder is not False:
             #self.decoder = decoder
-            self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
+            self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
-        self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
-        self.kl_loss_tracker = tf.keras.metrics.Mean(name="kl_loss")
+        self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
+        self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
     @tf.function
@@ -79,7 +80,7 @@ class VAE(BaseAE):
         return outputs
 
     # TODO: cambiar a una función que se llame NormalSampler
-    class Sampling(tf.keras.layers.Layer):
+    class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
 
         def call(self, inputs):
@@ -111,24 +112,21 @@ class VAE(BaseAE):
         losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
 
         # Regressor loss
-        #reg_loss = 0
         if self.downstream_task == 'regression':
             losses['reg_loss'] = tf.reduce_mean(
-                    tf.keras.losses.mse(labels_x, outputs['reg'])
+                    keras.losses.mean_squared_error(labels_x, outputs['reg'])
                 )
         
         # Classifier loss
-        #clf_loss = 0
         if self.downstream_task == 'classification':
             losses['clf_loss'] = tf.reduce_mean(
-                    tf.keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
+                    keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
                 )
         
         # Reconstruction loss
-        #recon_loss = 0
         if self.decoder is not None:
             losses['recon_loss'] = tf.reduce_mean(
-                    tf.keras.losses.mse(x, outputs['recon']), axis=1
+                    keras.losses.mean_squared_error(x, outputs['recon'])
                 )
         
         return losses
@@ -154,7 +152,6 @@ class VAE(BaseAE):
         
         return metrics
         
-    @tf.function
     def train_step(self, inputs):
         x = inputs['data']
         labels_x = inputs['labels']
@@ -176,7 +173,6 @@ class VAE(BaseAE):
 
         return metrics
 
-    @tf.function
     def test_step(self, inputs):
         x = inputs["data"]
         labels_x = inputs["labels"]

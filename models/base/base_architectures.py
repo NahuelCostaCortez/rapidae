@@ -2,7 +2,7 @@
 Base class for defining the encoder and decoder architectures
 """
 
-import keras
+import keras_core as keras
 import tensorflow as tf
 from keras import layers
 
