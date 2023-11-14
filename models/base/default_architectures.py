@@ -1,4 +1,5 @@
 import tensorflow as tf
+import keras_core as keras
 from keras_core import layers
 
 from models.base import BaseDecoder, BaseEncoder
@@ -165,7 +166,7 @@ class SparseEncoder(BaseEncoder):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
                                                                  activation='sigmoid',
-                                                                 kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
+                                                                 kernel_regularizer=keras.regularizers.l2(self.lambda_/2),
                                                                  activity_regularizer=SparseRegularizer())
     
     def call(self, x):
@@ -192,7 +193,7 @@ class SparseDecoder(BaseDecoder):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, 
                                                                  activation='sigmoid',
-                                                                 kernel_regularizer=tf.keras.regularizers.l2(self.lambda_/2),
+                                                                 kernel_regularizer=keras.regularizers.l2(self.lambda_/2),
                                                                  activity_regularizer=SparseRegularizer())
 
         self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
@@ -203,7 +204,7 @@ class SparseDecoder(BaseDecoder):
         x = self.dense_recons(x)
         return x
 
-class SparseRegularizer(tf.keras.regularizers.Regularizer):
+class SparseRegularizer(keras.regularizers.Regularizer):
     """
     For sparse encoders and decoders
     """
@@ -212,9 +213,9 @@ class SparseRegularizer(tf.keras.regularizers.Regularizer):
         self.beta = beta
     
     def __call__(self, x):
-        self.p_hat = tf.keras.backend.mean(x)
-        kl_divergence = self.p*(tf.keras.backend.log(self.p/self.p_hat)) + (1-self.p)*(tf.keras.backend.log(1-self.p/1-self.p_hat))
-        return self.beta * tf.keras.backend.sum(kl_divergence)
+        self.p_hat = keras.backend.mean(x)
+        kl_divergence = self.p*(keras.backend.log(self.p/self.p_hat)) + (1-self.p)*(keras.backend.log(1-self.p/1-self.p_hat))
+        return self.beta * keras.backend.sum(kl_divergence)
     
     def get_config(self):
         return {'p': float(self.p),

@@ -110,24 +110,28 @@ class VAE(BaseAE):
             1 + outputs['z_log_var'] -  tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var'])
         )
         losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
+        print("KL Loss:", losses['kl_loss'])
 
         # Regressor loss
         if self.downstream_task == 'regression':
             losses['reg_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(labels_x, outputs['reg'])
                 )
+            print("REG Loss:", losses['reg_loss'])
         
         # Classifier loss
         if self.downstream_task == 'classification':
             losses['clf_loss'] = tf.reduce_mean(
                     keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
                 )
+            print("CLF Loss:", losses['clf_loss'])
         
         # Reconstruction loss
         if self.decoder is not None:
             losses['recon_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(x, outputs['recon'])
                 )
+            print("RECON Loss:", losses['recon_loss'])
         
         return losses
     
@@ -151,7 +155,8 @@ class VAE(BaseAE):
             metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
         
         return metrics
-        
+    
+    @tf.function    
     def train_step(self, inputs):
         x = inputs['data']
         labels_x = inputs['labels']
@@ -161,10 +166,10 @@ class VAE(BaseAE):
             outputs = self(inputs)
             losses = self.compute_losses(x, outputs, labels_x)
             losses['total_loss'] = sum(losses.values())
-        
+            
         # Compute gradients
         grads = tape.gradient(losses['total_loss'], self.trainable_weights)
-
+        
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
 
@@ -173,6 +178,7 @@ class VAE(BaseAE):
 
         return metrics
 
+    @tf.function
     def test_step(self, inputs):
         x = inputs["data"]
         labels_x = inputs["labels"]

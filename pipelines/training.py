@@ -75,12 +75,12 @@ class TrainingPipeline(BasePipeline):
             if eval_data is None:
                 callbacks.append(EarlyStopping(
                     monitor='total_loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='total_loss',
+                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
             else:
                 callbacks.append(EarlyStopping(
                     monitor='val_total_loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=self.output_dir, monitor='val_total_loss',
+                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='val_total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
 
         # set optimizer
@@ -102,7 +102,7 @@ class TrainingPipeline(BasePipeline):
                        verbose=2)
 
         # restore the best model
-        self.model.load_weights(self.output_dir)
+        self.model.load_weights(os.path.join(self.output_dir, 'model.weights.h5'))
 
         if save_model is False:
             os.remove(self.output_dir)

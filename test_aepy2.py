@@ -17,6 +17,8 @@ if tf.test.gpu_device_name():
 else:
     print("No GPU found")
 
+print(tf.__version__)
+
 # ------------------------------ DATA -----------------------------------
 dataset = 'FD003'
 # sensors to work with: T30, T50, P30, PS30, phi

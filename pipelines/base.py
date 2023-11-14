@@ -33,4 +33,4 @@ class BasePipeline(ABC):
         self.logger.log_info('Creating folder in {}'.format(folder_path))
         
         os.makedirs(folder_path)
-        self.output_dir = str(folder_path) + '/'
+        self.output_dir = str(folder_path) 
