@@ -3,6 +3,7 @@ from typing import Optional, Tuple, Union
 import keras_core as keras
 import tensorflow as tf
 
+from keras_core import layers
 from conf import Logger
 from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
@@ -59,7 +60,6 @@ class VAE(BaseAE):
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
-    @tf.function
     def call(self, inputs):
         x = inputs["data"]
         z_mean, z_log_var = self.encoder(x)
@@ -80,7 +80,7 @@ class VAE(BaseAE):
         return outputs
 
     # TODO: cambiar a una función que se llame NormalSampler
-    class Sampling(keras.layers.Layer):
+    class Sampling(layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
 
         def call(self, inputs):
