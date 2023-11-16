@@ -1,7 +1,7 @@
 from typing import Union
 
-from pipelines.base import BasePipeline
-from conf import Logger
+from aepy.pipelines.base import BasePipeline
+from aepy.conf import Logger
 
 
 class PreprocessPipeline(BasePipeline):

@@ -2,12 +2,12 @@ import numpy as np
 
 from sklearn.metrics import accuracy_score
 from keras import utils
-from data.datasets import load_MNIST
-from data.utils import evaluate
-from models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
+from aepy.data.datasets import load_MNIST
+from aepy.data.utils import evaluate
+from aepy.models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
                                                Encoder_Conv_MNIST, Encoder_MLP)
-from models.vae.vae_model import VAE
-from pipelines.training import TrainingPipeline
+from aepy.models.vae.vae_model import VAE
+from aepy.pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(persistant=True)

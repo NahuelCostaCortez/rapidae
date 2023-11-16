@@ -1,8 +1,8 @@
-from data.datasets import load_MNIST
-from data.utils import evaluate
-from models.vanilla_ae.vanilla_ae_model import VanillaAE
-from models.base.default_architectures import VanillaEncoder, VanillaDecoder
-from pipelines.training import TrainingPipeline
+from aepy.data.datasets import load_MNIST
+from aepy.data.utils import evaluate
+from aepy.models.vanilla_ae.vanilla_ae_model import VanillaAE
+from aepy.models.base.default_architectures import VanillaEncoder, VanillaDecoder
+from aepy.pipelines.training import TrainingPipeline
 
 
 # Load MNIST dataset

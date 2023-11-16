@@ -1,12 +1,15 @@
+import sys
+sys.path.append('/home/lucas/experiment/aepy')
+
 import numpy as np
 
 from sklearn.metrics import accuracy_score
 from keras_core import utils
-from data.datasets import load_MNIST
-from data.utils import evaluate, display_diff, add_noise
-from models.ae.ae_model import AE
-from models.base.default_architectures import SparseEncoder, SparseDecoder
-from pipelines.training import TrainingPipeline
+from aepy.data.datasets import load_MNIST
+from aepy.data.utils import evaluate, display_diff, add_noise
+from aepy.models.ae.ae_model import AE
+from aepy.models.base.default_architectures import SparseEncoder, SparseDecoder
+from aepy.pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(persistant=True)

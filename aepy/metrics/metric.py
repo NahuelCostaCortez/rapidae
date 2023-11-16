@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from conf import Logger
+from aepy.conf import Logger
 
 
 class Metric(ABC):

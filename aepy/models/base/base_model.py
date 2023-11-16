@@ -7,8 +7,8 @@ from typing import Optional, Tuple, Union
 import keras_core as keras
 import tensorflow as tf
 
-from .default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
-from conf import Logger
+from aepy.models.base.default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP
+from aepy.conf import Logger
 
 
 class BaseAE(keras.Model):

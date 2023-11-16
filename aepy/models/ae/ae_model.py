@@ -3,7 +3,7 @@ from typing import Optional, Union, Tuple
 import keras_core as keras
 import tensorflow as tf
 
-from models.base import BaseAE, BaseDecoder, BaseEncoder
+from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder
 
 
 class AE(BaseAE):

@@ -1,6 +1,6 @@
 import numpy as np
 
-from .metric import Metric
+from aepy.metrics.metric import Metric
 
 
 class CMAPSS_Score(Metric):

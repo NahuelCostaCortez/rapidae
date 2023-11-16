@@ -5,8 +5,8 @@ from typing import Optional
 from keras_core.callbacks import EarlyStopping, ModelCheckpoint
 from keras_core.optimizers import Adam
 
-from models.base import BaseAE
-from pipelines.base import BasePipeline
+from aepy.models.base import BaseAE
+from aepy.pipelines.base import BasePipeline
 
 
 class TrainingPipeline(BasePipeline):

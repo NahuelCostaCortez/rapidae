@@ -2,7 +2,7 @@ import tensorflow as tf
 import keras_core as keras
 from keras_core import layers
 
-from models.base import BaseDecoder, BaseEncoder
+from aepy.models.base import BaseDecoder, BaseEncoder
 
 # ------------------- VANILLA MLP VAE ------------------- #
 class Encoder_MLP(BaseEncoder):

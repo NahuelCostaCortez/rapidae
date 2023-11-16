@@ -3,14 +3,14 @@ import tensorflow as tf
 
 from sklearn.metrics import mean_squared_error
 
-from data import utils
-from data.datasets import load_CMAPSS
-from data.preprocessing import CMAPSS_preprocessor
-from data.utils import evaluate
-from metrics import cmapps_score
-from models.base import RecurrentDecoder, RecurrentEncoder
-from models.vae import VAE
-from pipelines import PreprocessPipeline, TrainingPipeline
+from aepy.data import utils
+from aepy.data.datasets import load_CMAPSS
+from aepy.data.preprocessing import CMAPSS_preprocessor
+from aepy.data.utils import evaluate
+from aepy.metrics import cmapps_score
+from aepy.models.base import RecurrentDecoder, RecurrentEncoder
+from aepy.models.vae import VAE
+from aepy.pipelines import PreprocessPipeline, TrainingPipeline
 
 if tf.test.gpu_device_name():
     print('GPU found')

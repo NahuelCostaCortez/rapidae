@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from conf import Logger
+from aepy.conf import Logger
 
 
 def get_data_from_url(url):
@@ -72,7 +72,7 @@ def load_MNIST(persistant=False):
     url_base = 'http://yann.lecun.com/exdb/mnist/'
     filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
                     't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
-    data_dir = os.path.join('datasets', 'mnist_data')
+    data_dir = os.path.join('..', 'datasets', 'mnist_data')
 
     train_img_path = os.path.join(data_dir, filenames[0])
     train_lbl_path = os.path.join(data_dir, filenames[1])

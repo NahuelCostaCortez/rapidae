@@ -4,8 +4,8 @@ import keras_core as keras
 import tensorflow as tf
 
 from keras_core import layers
-from conf import Logger
-from models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
+from aepy.conf import Logger
+from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
 
 class VAE(BaseAE):
@@ -82,7 +82,6 @@ class VAE(BaseAE):
     # TODO: cambiar a una función que se llame NormalSampler
     class Sampling(layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
-
         def call(self, inputs):
             z_mean, z_log_var = inputs
             batch = tf.shape(z_mean)[0]
@@ -102,6 +101,7 @@ class VAE(BaseAE):
             metrics.append(self.clf_loss_tracker)
         return metrics
 
+    @tf.function
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
@@ -135,6 +135,7 @@ class VAE(BaseAE):
         
         return losses
     
+    @tf.function
     def update_states(self, losses):
         metrics = {}
 
