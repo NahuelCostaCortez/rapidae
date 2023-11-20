@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from sklearn.metrics import mean_squared_error
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate

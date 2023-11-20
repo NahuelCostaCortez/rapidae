@@ -1,11 +1,15 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import numpy as np
 
-from sklearn.metrics import accuracy_score
-from keras import utils
+from sklearn.metrics import accuracy_score, classification_report
+from keras_core import utils
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate
-from aepy.models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
-                                               Encoder_Conv_MNIST, Encoder_MLP)
+from aepy.models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST
 from aepy.models.vae.vae_model import VAE
 from aepy.pipelines.training import TrainingPipeline
 
@@ -19,11 +23,14 @@ n_classes = len(set(y_train))
 y_train = utils.to_categorical(y_train, n_classes)
 y_test = utils.to_categorical(y_test, n_classes)
 
+#x_train = np.expand_dims(x_train, -1).astype("float32") / 255
+#x_test = np.expand_dims(x_test, -1).astype("float32") / 255
+
 train_data = dict(data=x_train.astype(float), labels=y_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
-model = VAE(input_dim=(x_train.shape[0], x_train.shape[1]), latent_dim=10, downstream_task='classification',
+model = VAE(input_dim=(x_train.shape[0], x_train.shape[1]), latent_dim=2, downstream_task='classification',
             encoder=Encoder_Conv_MNIST, decoder=Decoder_Conv_MNIST, layers_conf=[32, 64], n_classes=n_classes)
 
 pipe = TrainingPipeline(name='training_pipeline',
@@ -36,3 +43,6 @@ y_hat = trained_model.predict(test_data)
 evaluate(y_true=np.argmax(test_data['labels'], axis=1), 
          y_hat=np.argmax(y_hat['clf'], axis=1),
          sel_metric=accuracy_score)
+
+target_names = ['class 0', 'class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6', 'class 7', 'class 8', 'class 9']
+print(classification_report(y_test, np.argmax(y_hat, axis=1), target_names=target_names))
