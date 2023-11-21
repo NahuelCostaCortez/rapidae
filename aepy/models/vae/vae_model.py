@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, Union
 
+import keras_core as keras
 import tensorflow as tf
 
 from aepy.conf import Logger
@@ -39,11 +40,13 @@ class VAE(BaseAE):
             if self.downstream_task == 'regression':
                 Logger().log_info('Regressor available for the latent space of the autoencoder')
                 self.regressor = BaseRegressor()
-                self.reg_loss_tracker = tf.keras.metrics.Mean(name="reg_loss")
+                self.reg_loss_tracker = keras.metrics.Mean(name="reg_loss")
             elif self.downstream_task == 'classification':
                 Logger().log_info('Classificator available for the latent space of the autoencoder')
                 self.classifier = BaseClassifier(kwargs['n_classes'])
-                self.clf_loss_tracker = tf.keras.metrics.Mean(name='clf_loss')
+                self.weight_vae = kwargs['weight_vae'] if 'weight_vae' in kwargs else 1.0
+                self.weight_clf = kwargs['weight_clf'] if 'weight_clf' in kwargs else 1.0
+                self.clf_loss_tracker = keras.metrics.Mean(name='clf_loss')
             else:
                 Logger().log_warning('The downstream task is not a valid string. Currently there are available "regression" and "classification"')
         else:
@@ -51,11 +54,11 @@ class VAE(BaseAE):
 
         if self.decoder is not False:
             #self.decoder = decoder
-            self.reconstruction_loss_tracker = tf.keras.metrics.Mean(
+            self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
-        self.total_loss_tracker = tf.keras.metrics.Mean(name="total_loss")
-        self.kl_loss_tracker = tf.keras.metrics.Mean(name="kl_loss")
+        self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
+        self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
     @tf.function
@@ -101,6 +104,55 @@ class VAE(BaseAE):
             metrics.append(self.clf_loss_tracker)
         return metrics
 
+    def compute_losses(self, x, outputs, labels_x=None):
+        losses = {}
+
+        # KL loss
+        kl_loss = -0.5 * (1 + outputs['z_log_var'] -
+                              tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
+        losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
+
+        # Regressor loss
+        if self.downstream_task == 'regression':
+            losses['reg_loss'] = tf.reduce_mean(
+                    keras.losses.mean_squared_error(labels_x, outputs['reg'])
+            )
+
+        # Classifier loss
+        if self.downstream_task == 'classification':
+            losses['clf_loss'] = tf.reduce_mean(
+                    keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
+                )
+
+        # Reconstruction loss
+        if self.decoder is not None:
+            losses['recon_loss'] = tf.reduce_mean(
+                    keras.losses.mean_squared_error(x, outputs['recon'])
+                )
+        
+        return losses    
+
+    @tf.function
+    def train_step(self, inputs):
+        x = inputs['data']
+        labels_x = inputs['labels']
+
+        # Forward pass
+        with tf.GradientTape() as tape:
+            outputs = self(inputs)
+            losses = self.compute_losses(x, outputs, labels_x)
+            losses['total_loss'] = sum(losses.values())
+
+        # Compute gradients
+        grads = tape.gradient(losses['total_loss'], self.trainable_weights)
+
+        # Update weights
+        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+
+        # Update metrics
+        metrics = self.update_states(losses)
+
+
     @tf.function
     def train_step(self, inputs):
         x = inputs["data"]
@@ -123,7 +175,7 @@ class VAE(BaseAE):
             if self.downstream_task == 'regression':
                 reg_prediction = self.regressor(z)
                 reg_loss = tf.reduce_mean(
-                    tf.keras.losses.mse(labels_x, reg_prediction)
+                    keras.losses.mean_squared_error(labels_x, reg_prediction)
                 )
                 self.reg_loss_tracker.update_state(reg_loss)
                 metrics["reg_loss"] = reg_loss
@@ -134,7 +186,7 @@ class VAE(BaseAE):
             if self.downstream_task == 'classification':
                 clf_prediction = self.classifier(z)
                 clf_loss = tf.reduce_mean(
-                    tf.keras.losses.categorical_crossentropy(labels_x, clf_prediction)
+                    keras.losses.categorical_crossentropy(labels_x, clf_prediction)
                 )
                 self.clf_loss_tracker.update_state(clf_loss)
                 metrics["clf_loss"] = clf_loss
@@ -145,7 +197,7 @@ class VAE(BaseAE):
             if self.decoder != None:
                 reconstruction = self.decoder(z)
                 reconstruction_loss = tf.reduce_mean(
-                    tf.keras.losses.mse(x, reconstruction)
+                    keras.losses.mean_squared_error(x, reconstruction)
                 )
                 if self.downstream_task == 'regression':
                     total_loss = kl_loss + reg_loss + reconstruction_loss
@@ -186,7 +238,7 @@ class VAE(BaseAE):
         if self.downstream_task == 'regression':
             reg_prediction = self.regressor(z)
             reg_loss = tf.reduce_mean(
-                tf.keras.losses.mse(labels_x, reg_prediction)
+                keras.losses.mean_squared_error(labels_x, reg_prediction)
             )
             metrics["reg_loss"] = reg_loss
             total_loss += reg_loss
@@ -195,7 +247,7 @@ class VAE(BaseAE):
         if self.downstream_task == 'classifier':
             clf_prediction = self.regressor(z)
             clf_loss = tf.reduce_mean(
-                tf.keras.losses.categorical_crossentropy(labels_x, clf_prediction)
+                keras.losses.categorical_crossentropy(labels_x, clf_prediction)
             )
             metrics["clf_loss"] = clf_loss
             total_loss += clf_loss
@@ -204,7 +256,7 @@ class VAE(BaseAE):
         if self.decoder != None:
             reconstruction = self.decoder(z)
             reconstruction_loss = tf.reduce_mean(
-                tf.keras.losses.mse(x, reconstruction)
+                keras.losses.mean_squared_error(x, reconstruction)
             )
             metrics["reconstruction_loss"] = reconstruction_loss
             total_loss += reconstruction_loss
