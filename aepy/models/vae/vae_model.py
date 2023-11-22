@@ -1,3 +1,4 @@
+import sys
 from typing import Optional, Tuple, Union
 
 import keras_core as keras
@@ -82,7 +83,7 @@ class VAE(BaseAE):
         return outputs
 
     # TODO: cambiar a una función que se llame NormalSampler
-    class Sampling(tf.keras.layers.Layer):
+    class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
 
         def call(self, inputs):
@@ -103,7 +104,7 @@ class VAE(BaseAE):
         if self.downstream_task == 'classification':
             metrics.append(self.clf_loss_tracker)
         return metrics
-
+    
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
@@ -111,26 +112,51 @@ class VAE(BaseAE):
         kl_loss = -0.5 * (1 + outputs['z_log_var'] -
                               tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
         losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
+        tf.print('kl loss: ', losses['kl_loss'], output_stream=sys.stdout)
 
         # Regressor loss
         if self.downstream_task == 'regression':
             losses['reg_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(labels_x, outputs['reg'])
             )
+            tf.print('reg loss: ', losses['reg_loss'], output_stream=sys.stdout)
 
         # Classifier loss
         if self.downstream_task == 'classification':
             losses['clf_loss'] = tf.reduce_mean(
                     keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
                 )
+            tf.print('clf loss: ', losses['clf_loss'], output_stream=sys.stdout)
 
         # Reconstruction loss
         if self.decoder is not None:
             losses['recon_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(x, outputs['recon'])
                 )
+            tf.print('recon loss: ', losses['recon_loss'], output_stream=sys.stdout)
         
         return losses    
+
+    def update_states(self, losses, total_loss):
+        metrics = {}
+
+        self.total_loss_tracker.update_state(total_loss)
+        metrics['total_loss'] = self.total_loss_tracker.result()
+
+        self.kl_loss_tracker.update_state(losses['kl_loss'])
+        metrics['kl_loss']= self.kl_loss_tracker.result()
+
+        if self.downstream_task == 'regression':
+            self.reg_loss_tracker.update_state(losses['reg_loss'])
+            metrics['reg_loss'] = self.reg_loss_tracker.result()
+        if self.downstream_task == 'classification':
+            self.clf_loss_tracker.update_state(losses['clf_loss'])
+            metrics['clf_loss'] = self.clf_loss_tracker.result()
+        if self.decoder is not None:
+            self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
+            metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
+        
+        return metrics
 
     @tf.function
     def train_step(self, inputs):
@@ -141,18 +167,25 @@ class VAE(BaseAE):
         with tf.GradientTape() as tape:
             outputs = self(inputs)
             losses = self.compute_losses(x, outputs, labels_x)
-            losses['total_loss'] = sum(losses.values())
+            tf.print('ESTO ES UNA PRUEBA', output_stream=sys.stdout)
+            tf.print('kl loss: ', losses['kl_loss'], output_stream=sys.stdout)
+            tf.print('clf loss: ', losses['clf_loss'], output_stream=sys.stdout)
+            tf.print('recon loss: ', losses['recon_loss'], output_stream=sys.stdout)
+            total_loss = sum(losses.values())
+            tf.print('total loss: ', total_loss, output_stream=sys.stderr)
 
         # Compute gradients
-        grads = tape.gradient(losses['total_loss'], self.trainable_weights)
+        grads = tape.gradient(total_loss, self.trainable_weights)
 
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
 
         # Update metrics
-        metrics = self.update_states(losses)
+        metrics = self.update_states(losses, total_loss)
 
+        return metrics
 
+    """
     @tf.function
     def train_step(self, inputs):
         x = inputs["data"]
@@ -216,7 +249,8 @@ class VAE(BaseAE):
         metrics["loss"] = total_loss
 
         return metrics
-
+        """
+    
     @tf.function
     def test_step(self, inputs):
         x = inputs["data"]

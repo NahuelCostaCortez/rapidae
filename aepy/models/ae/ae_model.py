@@ -96,7 +96,7 @@ class AE(BaseAE):
 
         # Forward pass
         outputs = self(inputs)
-        losses = self.compute_losses(x,losses, labels_x)
+        losses = self.compute_losses(x, outputs, labels_x)
         losses['total_loss'] = sum(losses.values())
 
         # Upgrade metrics
