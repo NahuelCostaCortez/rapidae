@@ -62,7 +62,6 @@ class VAE(BaseAE):
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
-    @tf.function
     def call(self, inputs):
         x = inputs["data"]
         z_mean, z_log_var = self.encoder(x)
@@ -80,18 +79,18 @@ class VAE(BaseAE):
         if self.decoder != None:
             recon_x = self.decoder(z)
             outputs["recon"] = recon_x
+        print(outputs)
         return outputs
 
     # TODO: cambiar a una función que se llame NormalSampler
     class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
-
         def call(self, inputs):
             z_mean, z_log_var = inputs
             batch = tf.shape(z_mean)[0]
             dim = tf.shape(z_mean)[1]
             # added seed for reproducibility
-            epsilon = tf.random.normal(shape=(batch, dim), seed=42)
+            epsilon = tf.keras.backend.random_normal(shape=(batch, dim), seed=42)
             return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
     @property
@@ -112,30 +111,26 @@ class VAE(BaseAE):
         kl_loss = -0.5 * (1 + outputs['z_log_var'] -
                               tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
         losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
-        tf.print('kl loss: ', losses['kl_loss'], output_stream=sys.stdout)
 
         # Regressor loss
         if self.downstream_task == 'regression':
             losses['reg_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(labels_x, outputs['reg'])
             )
-            tf.print('reg loss: ', losses['reg_loss'], output_stream=sys.stdout)
 
         # Classifier loss
         if self.downstream_task == 'classification':
             losses['clf_loss'] = tf.reduce_mean(
                     keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
                 )
-            tf.print('clf loss: ', losses['clf_loss'], output_stream=sys.stdout)
 
         # Reconstruction loss
         if self.decoder is not None:
             losses['recon_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(x, outputs['recon'])
                 )
-            tf.print('recon loss: ', losses['recon_loss'], output_stream=sys.stdout)
         
-        return losses    
+        return losses
 
     def update_states(self, losses, total_loss):
         metrics = {}
@@ -166,17 +161,19 @@ class VAE(BaseAE):
         # Forward pass
         with tf.GradientTape() as tape:
             outputs = self(inputs)
-            losses = self.compute_losses(x, outputs, labels_x)
-            tf.print('ESTO ES UNA PRUEBA', output_stream=sys.stdout)
-            tf.print('kl loss: ', losses['kl_loss'], output_stream=sys.stdout)
-            tf.print('clf loss: ', losses['clf_loss'], output_stream=sys.stdout)
-            tf.print('recon loss: ', losses['recon_loss'], output_stream=sys.stdout)
+            losses = self.compute_losses(x, outputs, labels_x) # devolder losses una por una
             total_loss = sum(losses.values())
-            tf.print('total loss: ', total_loss, output_stream=sys.stderr)
-
+            """
+            if self.downstream_task == 'regression':
+                total_loss += reg_loss
+            if self.downstream_task == 'classification':
+                total_loss += clf_loss
+            if self.decoder is not None:
+                total_loss += recon_loss
+            """
         # Compute gradients
         grads = tape.gradient(total_loss, self.trainable_weights)
-
+        print(self.trainable_weights)
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
 
@@ -184,6 +181,19 @@ class VAE(BaseAE):
         metrics = self.update_states(losses, total_loss)
 
         return metrics
+
+    @tf.function
+    def test_step(self, inputs):
+        x = inputs['data']
+        labels_x = inputs['labels']
+
+        # Forward pass
+        outputs = self(inputs)
+        losses = self.compute_losses(x, outputs, labels_x)
+        total_loss = sum(losses.values())
+
+        # Upgrade metrics
+        metrics = self.upgrade_states(losses, total_loss)
 
     """
     @tf.function
@@ -244,12 +254,13 @@ class VAE(BaseAE):
                 #total_loss += reconstruction_loss
 
         grads = tape.gradient(total_loss, self.trainable_weights)
+        print(grads)
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
         self.total_loss_tracker.update_state(total_loss)
         metrics["loss"] = total_loss
 
         return metrics
-        """
+        
     
     @tf.function
     def test_step(self, inputs):
@@ -298,3 +309,4 @@ class VAE(BaseAE):
         metrics["loss"] = total_loss
 
         return metrics
+        """

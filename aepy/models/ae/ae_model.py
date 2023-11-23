@@ -76,6 +76,7 @@ class AE(BaseAE):
         with tf.GradientTape() as tape:
             outputs = self(inputs)
             losses = self.compute_losses(x, outputs, labels_x)
+            print(losses)
             losses['total_loss'] = sum(losses.values())
         
         # Compute gradients
