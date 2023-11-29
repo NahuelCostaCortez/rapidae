@@ -279,7 +279,8 @@ class VanillaDecoder(layers.Layer):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
 
-        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
+        print(input_dim)
+        self.dense_recons = layers.Dense(self.input_dim[1]*self.input_dim[1], activation="sigmoid")
 
     def call(self, x):
         for name, layer in self.layers_dict.items():
