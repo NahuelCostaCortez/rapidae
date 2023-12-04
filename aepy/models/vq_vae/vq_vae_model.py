@@ -37,7 +37,7 @@ class VQ_VAE(BaseAE):
         self.num_embeddings = num_embeddings
 
         # Create VQ layer
-        self.vq_layer = VectorQuantizer(num_embeddings, latent_dim, name='vector_quantizer')
+        self.vq_layer = VectorQuantizer(self.num_embeddings, self.latent_dim, name='vector_quantizer')
 
         self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
@@ -46,8 +46,9 @@ class VQ_VAE(BaseAE):
     def call(self, inputs):
         x = inputs['data']
         encoder_outputs = self.encoder(x)
-        quantized_latents = self.vq_layer(encoder_outputs)
+        quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
         outputs={}
+        outputs['vq_loss'] = vq_loss[0]
         outputs['quantized_latents'] = quantized_latents
         recon_x = self.decoder(quantized_latents)
         outputs['recon'] = recon_x
@@ -67,6 +68,8 @@ class VQ_VAE(BaseAE):
         losses['recon_loss'] = tf.reduce_mean(
                     keras.losses.mean_squared_error(x, outputs['recon'])
                 )
+        # VQ loss was already computed in Vector Quantized layer
+        losses['vq_loss'] = outputs['vq_loss']
         
         return losses
 
@@ -96,7 +99,7 @@ class VQ_VAE(BaseAE):
             total_loss = sum(losses.values())
 
         # Compute gradients
-        grads = tape.gradients(total_loss, self.trainable_weights)
+        grads = tape.gradient(total_loss, self.trainable_weights)
 
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
@@ -106,7 +109,7 @@ class VQ_VAE(BaseAE):
 
         return metrics
 
-    @tf.fuction
+    @tf.function
     def test_step(self, inputs):
         x = inputs['data']
         labels_x = inputs['labels']
@@ -177,4 +180,4 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Derive the indices for minimum distances.
         encoding_indices = tf.argmin(distances, axis=1)
-        return encoding_indices
+        return encoding_indices, self.losses

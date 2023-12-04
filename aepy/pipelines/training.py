@@ -91,7 +91,7 @@ class TrainingPipeline(BasePipeline):
             exit(-1)
 
         # compile and fit the model
-        self.model.compile(optimizer=optimizer)
+        self.model.compile(optimizer=optimizer, run_eagerly=True)
         
         self.model.fit(train_data,
                        validation_data=eval_data,
