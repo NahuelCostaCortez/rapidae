@@ -11,7 +11,7 @@ from keras_core import utils
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate, display_diff, add_noise
 from aepy.models.vq_vae.vq_vae_model import VQ_VAE
-from aepy.models.base.default_architectures import VanillaEncoder, VanillaDecoder
+from aepy.models.base.default_architectures import Encoder_Conv_VQ_MNIST, Decoder_Conv_VQ_MNIST
 from aepy.pipelines.training import TrainingPipeline
 
 if tf.test.gpu_device_name():
@@ -36,7 +36,7 @@ test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
 model = VQ_VAE(input_dim=(x_train.shape[0], x_train.shape[1]), 
-            latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
+            latent_dim=2, encoder=Encoder_Conv_VQ_MNIST, decoder=Decoder_Conv_VQ_MNIST, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=10)

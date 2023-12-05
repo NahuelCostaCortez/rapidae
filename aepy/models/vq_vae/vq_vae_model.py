@@ -167,7 +167,7 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Straight-through estimator.
         quantized = x + tf.stop_gradient(quantized - x)
-        return quantized
+        return quantized, self.losses
 
     def get_code_indices(self, flattened_inputs):
         # Calculate L2-normalized distance between the inputs and the codes.
@@ -180,4 +180,4 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Derive the indices for minimum distances.
         encoding_indices = tf.argmin(distances, axis=1)
-        return encoding_indices, self.losses
+        return encoding_indices

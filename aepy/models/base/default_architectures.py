@@ -107,6 +107,59 @@ class Decoder_Conv_MNIST(BaseDecoder):
         return x
 # ------------------------------------------------------------------- #
 
+# ----------------- CONV ENCODER-DECODER FOR VQ-VAE ----------------- #
+class Encoder_Conv_VQ_MNIST(BaseEncoder):
+    """
+    Encoder architecture from keras tutorial
+    """
+
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
+        self.layers_dict = {}
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
+                                                                 strides=2, padding="same")
+        #self.flatten = layers.Flatten()
+        self.encoder_outputs = layers.Conv2D(depth, 3, activation="relu", strides=2, padding="same")
+        
+    def call(self, x):
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        x = self.encoder_outputs(x)
+        return x
+
+
+class Decoder_Conv_VQ_MNIST(BaseDecoder):
+    """
+    Decoder architecture from keras tutorial
+    """
+
+    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
+        self.dense = layers.Dense(7 * 7 * 64, activation="relu")
+        self.reshape = layers.Reshape((7, 7, 64))
+        self.layers_dict = {}
+
+        self.layers_idx = [i for i in range(len(layers_conf))]
+
+        for depth, idx in zip(self.layers_conf, self.layers_idx):
+            self.layers_dict['conv2d_' + str(idx)] = layers.Conv2DTranspose(depth, 3, activation="relu",
+                                                                 strides=2, padding="same")
+
+        self.conv2d_transpose_recons = layers.Conv2DTranspose(
+            1, 3, activation="sigmoid", padding="same")
+
+    def call(self, z):
+        x = self.dense(z)
+        x = self.reshape(x)
+        for name, layer in self.layers_dict.items():
+            x = layer(x)
+        x = self.conv2d_transpose_recons(x)
+        return x
+
+# ------------------------------------------------------------------- #
 
 # ------------------ ENCODER-DECODER FROM RVE paper ----------------- #
 class RecurrentEncoder(BaseEncoder):
