@@ -1,6 +1,8 @@
 import keras_core as keras
 import tensorflow as tf
 
+
+
 class VectorQuantizer(keras.layers.Layer):
     def __init__(self, num_embeddings, embedding_dim, beta=0.25, **kwargs):
         super().__init__(**kwargs)
