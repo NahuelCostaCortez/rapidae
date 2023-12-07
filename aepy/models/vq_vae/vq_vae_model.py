@@ -34,9 +34,6 @@ class VQ_VAE(BaseAE):
         
         self.num_embeddings = num_embeddings
         
-        print(self.num_embeddings)
-        print(self.latent_dim)
-        print(input_dim)
         # Create VQ layer
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
                                         embedding_dim=self.latent_dim)
@@ -150,38 +147,38 @@ class VectorQuantizer(keras.layers.Layer):
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
         input_shape = tf.shape(x)
-        print(input_shape)
+        #print(input_shape)
         flattened = tf.reshape(x, [-1, self.embedding_dim])
-        print(flattened.shape)
-        print('Quantizarion process')
+        #print(flattened.shape)
+        #print('Quantizarion process')
         # Quantization
         encoding_indices = self.get_code_indices(flattened)
-        print(encoding_indices.shape)
+        #print(encoding_indices.shape)
         encodings = tf.one_hot(encoding_indices, self.num_embeddings)
-        print(encodings)
+        #print(encodings)
         quantized = tf.matmul(encodings, self.embeddings, transpose_b=True)
-        print(quantized)
+        #print(quantized)
 
-        print('Pre-reshape')
+        #print('Pre-reshape')
         # Reshape the quantized values back to the original input shape
         quantized = tf.reshape(quantized, input_shape)
-        print('Post-reshape')
-        print(quantized.shape)
+        #print('Post-reshape')
+        #print(quantized.shape)
         # Calculate vector quantization loss and add that to the layer. You can learn more
         # about adding losses to different layers here:
         # https://keras.io/guides/making_new_layers_and_models_via_subclassing/. Check
         # the original paper to get a handle on the formulation of the loss function
         commitment_loss = tf.reduce_mean((tf.stop_gradient(quantized) - x) ** 2)
         codebook_loss = tf.reduce_mean((quantized - tf.stop_gradient(x)) ** 2)
-        print(commitment_loss)
-        print(codebook_loss)
+        #print(commitment_loss)
+        #print(codebook_loss)
         self.add_loss(self.beta * commitment_loss + codebook_loss)
-        print('Post-add_loss')
+        #print('Post-add_loss')
         # Straight-through estimator.
         quantized = x + tf.stop_gradient(quantized - x)
-        print('Last step')
-        print(quantized.shape)
-        print(self.losses)
+        #print('Last step')
+        #print(quantized.shape)
+        #print(self.losses)
         return quantized, self.losses
 
     def get_code_indices(self, flattened_inputs):
