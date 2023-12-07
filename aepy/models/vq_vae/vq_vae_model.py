@@ -22,7 +22,6 @@ class VQ_VAE(BaseAE):
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
         latent_dim: int = 2,
-        train_variance: float = 32,
         num_embeddings: int = 128,
         encoder: callable = None,
         decoder: callable = None,
@@ -32,12 +31,13 @@ class VQ_VAE(BaseAE):
         
         BaseAE.__init__(self, input_dim, latent_dim,
                 encoder=encoder, decoder=decoder, layers_conf=layers_conf)
-
-        self.train_variance = train_variance
+        
         self.num_embeddings = num_embeddings
 
         # Create VQ layer
-        self.vq_layer = VectorQuantizer(self.num_embeddings, self.latent_dim, name='vector_quantizer')
+        self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
+                                        embedding_dim=self.latent_dim, 
+                                        name='vector_quantizer')
 
         self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
@@ -48,7 +48,7 @@ class VQ_VAE(BaseAE):
         encoder_outputs = self.encoder(x)
         quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
         outputs={}
-        outputs['vq_loss'] = vq_loss[0]
+        outputs['vq_loss'] = vq_loss
         outputs['quantized_latents'] = quantized_latents
         recon_x = self.decoder(quantized_latents)
         outputs['recon'] = recon_x
@@ -167,7 +167,8 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Straight-through estimator.
         quantized = x + tf.stop_gradient(quantized - x)
-        return quantized, self.losses
+
+        return quantized, self.losses[0]
 
     def get_code_indices(self, flattened_inputs):
         # Calculate L2-normalized distance between the inputs and the codes.
@@ -180,4 +181,5 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Derive the indices for minimum distances.
         encoding_indices = tf.argmin(distances, axis=1)
+        
         return encoding_indices

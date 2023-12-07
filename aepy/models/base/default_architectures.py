@@ -122,7 +122,7 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
                                                                  strides=2, padding="same")
         #self.flatten = layers.Flatten()
-        self.encoder_outputs = layers.Conv2D(depth, 3, activation="relu", strides=2, padding="same")
+        self.encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")
         
     def call(self, x):
         for name, layer in self.layers_dict.items():
@@ -138,8 +138,6 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.dense = layers.Dense(7 * 7 * 64, activation="relu")
-        self.reshape = layers.Reshape((7, 7, 64))
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -149,11 +147,9 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
                                                                  strides=2, padding="same")
 
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
-            1, 3, activation="sigmoid", padding="same")
+            1, 3, padding="same")
 
-    def call(self, z):
-        x = self.dense(z)
-        x = self.reshape(x)
+    def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.conv2d_transpose_recons(x)
@@ -309,10 +305,12 @@ class VanillaEncoder(layers.Layer):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
-    
+
+        self.enc_layer = layers.Dense(latent_dim, activation='relu')    
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
+        x = self.enc_layer(x)
         return x
 
 class VanillaDecoder(layers.Layer):
@@ -332,8 +330,7 @@ class VanillaDecoder(layers.Layer):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
 
-        print(input_dim)
-        self.dense_recons = layers.Dense(self.input_dim[1]*self.input_dim[1], activation="sigmoid")
+        self.dense_recons = layers.Dense(self.input_dim, activation="sigmoid")
 
     def call(self, x):
         for name, layer in self.layers_dict.items():

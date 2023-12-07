@@ -89,7 +89,7 @@ class VAE(BaseAE):
             batch = tf.shape(z_mean)[0]
             dim = tf.shape(z_mean)[1]
             # added seed for reproducibility
-            epsilon = tf.keras.backend.random_normal(shape=(batch, dim), seed=42)
+            epsilon = tf.random.normal(shape=(batch, dim), seed=42)
             return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
     @property

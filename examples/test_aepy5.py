@@ -38,8 +38,9 @@ x_test_noisy = x_test_noisy.reshape(x_test_noisy.shape[0], -1)
 train_data = dict(data=x_train_noisy.astype(float), labels=x_train)
 test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
 
+print(x_train_noisy.shape)
 # Model creation
-model = AE(input_dim=(x_train_noisy.shape[0], x_train_noisy.shape[1]), 
+model = AE(input_dim=x_train_noisy.shape[1], 
             latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='training_pipeline',

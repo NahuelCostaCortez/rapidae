@@ -17,6 +17,8 @@ train_data = dict(data=x_train.astype(float), labels=y_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
+print(x_train.shape[0])
+print(x_train.shape[1])
 model = VAE(input_dim=(x_train.shape[0], x_train.shape[1]), latent_dim=2, 
             encoder=Encoder_Conv_MNIST, decoder=Decoder_Conv_MNIST, layers_conf=[32, 64])
 

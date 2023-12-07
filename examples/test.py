@@ -1,6 +1,12 @@
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import keras_core as keras
 import tensorflow as tf
 
+from aepy.models.base.default_architectures import Encoder_Conv_VQ_MNIST, Decoder_Conv_VQ_MNIST
 
 
 class VectorQuantizer(keras.layers.Layer):
@@ -63,9 +69,33 @@ class VectorQuantizer(keras.layers.Layer):
 
 
 if __name__ == "__main__":
+    if tf.test.gpu_device_name():
+        print('GPU found')
+    else:
+        print("No GPU found")
+
+    """
     inputs = tf.random.normal(shape=(128, 7, 7, 32))
     print(inputs.shape)
     print(inputs)
     vq = VectorQuantizer(num_embeddings=64, embedding_dim=32)
     outputs = vq(inputs)
     print(outputs[0].shape)
+    """
+
+    inputs = tf.random.normal(shape=(128, 28, 28, 1))
+    print(inputs.shape)
+    print(inputs.shape[1])
+    print(inputs.shape[2])
+    enc = Encoder_Conv_VQ_MNIST(input_dim=(inputs.shape[1], inputs.shape[2]), latent_dim=2, layers_conf=[32, 64])
+    encoded = enc(inputs)
+    print(encoded.shape)
+
+    vq = VectorQuantizer(num_embeddings=64, embedding_dim=enc.latent_dim)
+    quantized_latents, vq_loss = vq(encoded)
+    print(quantized_latents.shape)
+
+    dec = Decoder_Conv_VQ_MNIST(input_dim=(inputs.shape[1], inputs.shape[2]), latent_dim=2, layers_conf=[32, 64])
+    decoded = dec(quantized_latents)
+    print(decoded.shape)
+
