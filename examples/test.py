@@ -19,13 +19,22 @@ class VectorQuantizer(keras.layers.Layer):
         self.beta = beta
 
         # Initialize the embeddings which we will quantize.
+        """
         w_init = tf.random_uniform_initializer()
-        self.embeddings = tf.Variable(
+        self.embeddings = keras.Variable(
             initial_value=w_init(
                 shape=(self.embedding_dim, self.num_embeddings), dtype="float32"
             ),
             trainable=True,
             name="embeddings_vqvae",
+        )
+        """
+        self.embeddings = self.add_weight(
+            shape=(self.embedding_dim, self.num_embeddings),
+            dtype='float32',
+            trainable=True,
+            name='embeddings_vqvae',
+            initializer=keras.initializers.RandomUniform,
         )
 
     def call(self, x):
@@ -73,15 +82,6 @@ if __name__ == "__main__":
         print('GPU found')
     else:
         print("No GPU found")
-
-    """
-    inputs = tf.random.normal(shape=(128, 7, 7, 32))
-    print(inputs.shape)
-    print(inputs)
-    vq = VectorQuantizer(num_embeddings=64, embedding_dim=32)
-    outputs = vq(inputs)
-    print(outputs[0].shape)
-    """
 
     inputs = tf.random.normal(shape=(128, 28, 28, 1))
     print(inputs.shape)

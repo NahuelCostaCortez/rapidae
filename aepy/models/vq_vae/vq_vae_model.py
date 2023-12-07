@@ -33,11 +33,13 @@ class VQ_VAE(BaseAE):
                 encoder=encoder, decoder=decoder, layers_conf=layers_conf)
         
         self.num_embeddings = num_embeddings
-
+        
+        print(self.num_embeddings)
+        print(self.latent_dim)
+        print(input_dim)
         # Create VQ layer
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
-                                        embedding_dim=self.latent_dim, 
-                                        name='vector_quantizer')
+                                        embedding_dim=self.latent_dim)
 
         self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
@@ -46,11 +48,12 @@ class VQ_VAE(BaseAE):
     def call(self, inputs):
         x = inputs['data']
         encoder_outputs = self.encoder(x)
+        print(encoder_outputs.shape)
         quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
         outputs={}
         outputs['vq_loss'] = vq_loss
         outputs['quantized_latents'] = quantized_latents
-        recon_x = self.decoder(quantized_latents)
+        recon_x = self.decoder(encoder_outputs)
         outputs['recon'] = recon_x
 
         return outputs
@@ -147,28 +150,39 @@ class VectorQuantizer(keras.layers.Layer):
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
         input_shape = tf.shape(x)
+        print(input_shape)
         flattened = tf.reshape(x, [-1, self.embedding_dim])
-
+        print(flattened.shape)
+        print('Quantizarion process')
         # Quantization
         encoding_indices = self.get_code_indices(flattened)
+        print(encoding_indices.shape)
         encodings = tf.one_hot(encoding_indices, self.num_embeddings)
+        print(encodings)
         quantized = tf.matmul(encodings, self.embeddings, transpose_b=True)
+        print(quantized)
 
+        print('Pre-reshape')
         # Reshape the quantized values back to the original input shape
         quantized = tf.reshape(quantized, input_shape)
-
+        print('Post-reshape')
+        print(quantized.shape)
         # Calculate vector quantization loss and add that to the layer. You can learn more
         # about adding losses to different layers here:
         # https://keras.io/guides/making_new_layers_and_models_via_subclassing/. Check
         # the original paper to get a handle on the formulation of the loss function
         commitment_loss = tf.reduce_mean((tf.stop_gradient(quantized) - x) ** 2)
         codebook_loss = tf.reduce_mean((quantized - tf.stop_gradient(x)) ** 2)
+        print(commitment_loss)
+        print(codebook_loss)
         self.add_loss(self.beta * commitment_loss + codebook_loss)
-
+        print('Post-add_loss')
         # Straight-through estimator.
         quantized = x + tf.stop_gradient(quantized - x)
-
-        return quantized, self.losses[0]
+        print('Last step')
+        print(quantized.shape)
+        print(self.losses)
+        return quantized, self.losses
 
     def get_code_indices(self, flattened_inputs):
         # Calculate L2-normalized distance between the inputs and the codes.
