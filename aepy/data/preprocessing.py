@@ -131,7 +131,7 @@ def CMAPSS_preprocessor(train, test, y_test, sensors=['s_3', 's_4', 's_7', 's_11
 
     Args
     ----
-    train (DataFrame): Training data.
+        train (DataFrame): Training data.
         test (DataFrame): Test data.
         y_test (DataFrame): Test labels.
         sensors (list): List of sensors to use.
@@ -141,7 +141,7 @@ def CMAPSS_preprocessor(train, test, y_test, sensors=['s_3', 's_4', 's_7', 's_11
 
     Returns
     -------
-    x_train, y_train, x_val, y_val, x_test, y_test preprocessed
+        x_train, y_train, x_val, y_val, x_test, y_test preprocessed
     '''
     # create RUL values according to the piece-wise target function
 

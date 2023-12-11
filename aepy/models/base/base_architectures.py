@@ -9,10 +9,21 @@ from keras_core import layers
 
 class BaseEncoder(layers.Layer):
 	"""
-	Base class for all encoders
+	Base class for defining encoder architectures. It includes common functionality and attributes
+    shared by different encoder implementations.
 	"""
 
 	def __init__(self, input_dim, latent_dim, layers_conf, name="encoder"):
+		"""
+		Constructor for the encoder.
+
+		Args
+		----
+			input_dim (int): The dimensionality of the input data.
+    		latent_dim (int): The dimensionality of the latent space.
+    		layers_conf (list): The configuration of layers in the encoder architecture.
+    		name(str): Name for the instanced encoder.
+		"""
 		super().__init__(name=name)
 		self.input_dim = input_dim
 		self.latent_dim = latent_dim
@@ -37,10 +48,21 @@ class BaseEncoder(layers.Layer):
 
 class BaseDecoder(layers.Layer):
 	"""
- 	Base class for all decoders
+ 	Base class for defining decoder architectures. It includes common functionality and attributes
+    shared by different encoder implementations.
 	"""
 
 	def __init__(self, input_dim, latent_dim, layers_conf, name="decoder"):
+		"""
+		Constructor for the decoder.
+
+		Args
+		----
+			input_dim (int): The dimensionality of the input data.
+    		latent_dim (int): The dimensionality of the latent space.
+    		layers_conf (list): The configuration of layers in the encoder architecture.
+    		name(str): Name for the instanced encoder.
+		"""
 		super().__init__(name=name)
 		self.input_dim = input_dim
 		self.latent_dim = latent_dim
