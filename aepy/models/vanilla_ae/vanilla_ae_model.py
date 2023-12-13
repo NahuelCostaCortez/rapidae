@@ -4,7 +4,7 @@ import tensorflow as tf
 
 from models.base import BaseAE, BaseDecoder, BaseEncoder
 
-
+# TODO: Delete --> Legacy code
 class VanillaAE(BaseAE):
     """
     Vanilla Autoencoder (AE) model.

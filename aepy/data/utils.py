@@ -26,7 +26,7 @@ def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=Fals
         save (bool): Flag for saving the generated plot.
         show (bool): Flag for showing the generated plot.
         path (str): Path where the plot will be stored.
-    
+
     Returns
     -------
     z (numpy.ndarray): The latent space representation of the input data.
@@ -50,7 +50,7 @@ def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=Fals
         plt.show()
     if save:
         plt.savefig(path+exp_name+'_latent_space.png')
-        
+
     return z
 
 
@@ -67,7 +67,7 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
         y_hat (ArrayLike): Estimated target values.
         sel_metric (callable): The selected metric, either a custom metric from AEPY or a metric from scikit-learn.
         label (str): Tag of the evaluated set (e.g., 'test', 'validation').
-    
+
     Returns
     -------
     result: The result of the evaluation based on the selected metric.
@@ -78,10 +78,11 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
     all_metrics = getmembers(metrics, isfunction)
 
     # Filter out private functions
-    all_metrics = [metric[0] for metric in all_metrics if not metric[0].startswith('_')]
+    all_metrics = [metric[0]
+                   for metric in all_metrics if not metric[0].startswith('_')]
 
     # Check if the selected metric is available in sklearn
-    if type(sel_metric).__name__=='function' and sel_metric.__name__ in all_metrics:
+    if type(sel_metric).__name__ == 'function' and sel_metric.__name__ in all_metrics:
         result = sel_metric(y_true, y_hat)
         print('{} set results: [\n\t {}: {} \n]'.format(
             label, sel_metric.__name__, result))
@@ -89,7 +90,7 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
         result = sel_metric.calculate(y_true, y_hat)
         print('{} set results: [\n\t {}: {} \n]'.format(
             label, sel_metric.__class__.__name__, result))
-    
+
     return result
 
 
@@ -120,7 +121,7 @@ def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
         noise_factor (float): The magnitude of the random noise to be added (default is 0.4).
         a_min (float): The minimum value after adding noise (default is 0).
         a_max (float): The maximum value after adding noise (default is 1).
-    
+
     Returns
     -------
         numpy.ndarray: The array with added noise, clipped to the specified range.

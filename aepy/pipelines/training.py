@@ -62,11 +62,6 @@ class TrainingPipeline(BasePipeline):
                        - EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='min')
                        - ModelCheckpoint(filepath=checkpoint_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
         """
-
-        # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
-        # timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        # folder_path = os.path.join(self.output_dir, f"training_{timestamp}")
-        # os.makedirs(folder_path)
         super().__call__()
 
         if callbacks is None:
@@ -92,7 +87,7 @@ class TrainingPipeline(BasePipeline):
 
         # compile and fit the model
         self.model.compile(optimizer=optimizer, run_eagerly=True)
-        
+
         self.model.fit(train_data,
                        validation_data=eval_data,
                        shuffle=True,
@@ -102,7 +97,8 @@ class TrainingPipeline(BasePipeline):
                        verbose=2)
 
         # restore the best model
-        self.model.load_weights(os.path.join(self.output_dir, 'model.weights.h5'))
+        self.model.load_weights(os.path.join(
+            self.output_dir, 'model.weights.h5'))
 
         if save_model is False:
             os.remove(self.output_dir)

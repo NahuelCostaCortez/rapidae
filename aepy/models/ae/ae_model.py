@@ -9,13 +9,13 @@ from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder
 class AE(BaseAE):
     """
     Vanilla Autoencoder model.
-    
+
     Args:
         model_config (BaseAEConfig): configuration object for the model
         encoder (BaseEncoder): An instance of BaseEncoder. Default: None
         decoder (BaseDecoder): An instance of BaseDecoder. Default: None
     """
-    
+
     def __init__(
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
@@ -25,14 +25,15 @@ class AE(BaseAE):
         layers_conf: list = None,
         **kwargs
     ):
-    
-        BaseAE.__init__(self, input_dim, latent_dim, 
+
+        BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
-    
-        #self.decoder = decoder
-        self.reconstruction_loss_tracker = keras.metrics.Mean(name="reconstruction_loss")
+
+        # self.decoder = decoder
+        self.reconstruction_loss_tracker = keras.metrics.Mean(
+            name="reconstruction_loss")
         self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
-    
+
     # keras model call function
     def call(self, inputs):
         x = inputs["data"]
@@ -42,20 +43,20 @@ class AE(BaseAE):
         outputs["z"] = z
         outputs["recon"] = recon_x
         return outputs
-    
+
     @property
     def metrics(self):
         return [self.reconstruction_loss_tracker, self.total_loss_tracker]
-    
+
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
         losses['recon_loss'] = tf.reduce_mean(
-                keras.losses.mean_squared_error(x, outputs['recon'])
+            keras.losses.mean_squared_error(x, outputs['recon'])
         )
-        
+
         return losses
-    
+
     def update_states(self, losses):
         metrics = {}
 
@@ -78,7 +79,7 @@ class AE(BaseAE):
             losses = self.compute_losses(x, outputs, labels_x)
             print(losses)
             losses['total_loss'] = sum(losses.values())
-        
+
         # Compute gradients
         grads = tape.gradient(losses['total_loss'], self.trainable_weights)
 
@@ -89,7 +90,7 @@ class AE(BaseAE):
         metrics = self.update_states(losses)
 
         return metrics
-    
+
     @tf.function
     def test_step(self, inputs):
         x = inputs['data']
@@ -104,4 +105,3 @@ class AE(BaseAE):
         metrics = self.update_states(losses)
 
         return metrics
-    

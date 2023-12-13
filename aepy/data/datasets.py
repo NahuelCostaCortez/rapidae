@@ -71,7 +71,7 @@ def load_MNIST(persistant=False):
     """
     url_base = 'http://yann.lecun.com/exdb/mnist/'
     filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
-                    't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
+                 't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
     data_dir = os.path.join('..', 'datasets', 'mnist_data')
 
     train_img_path = os.path.join(data_dir, filenames[0])
@@ -80,7 +80,7 @@ def load_MNIST(persistant=False):
     test_lbl_path = os.path.join(data_dir, filenames[3])
 
     logger = Logger()
-    
+
     # Create a directory to store the downloaded files
     os.makedirs(data_dir, exist_ok=True)
 
@@ -100,7 +100,7 @@ def load_MNIST(persistant=False):
     x_test = load_mnist_images(test_img_path)
     y_test = load_mnist_labels(test_lbl_path)
 
-    # If required delete data 
+    # If required delete data
     if not persistant:
         logger.log_info('Deleting MNIST data...')
         rmtree(data_dir)

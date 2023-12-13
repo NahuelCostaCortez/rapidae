@@ -9,7 +9,7 @@ from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder
 class CAE(BaseAE):
     """
     Contractive Autoencoder model.
-    
+
     Args:
         model_config (BaseAEConfig): configuration object for the model
         encoder (BaseEncoder): An instance of BaseEncoder. Default: None
@@ -27,9 +27,11 @@ class CAE(BaseAE):
     ):
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
-        
-        self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
-        self.contractive_loss_tracker = keras.metrics.Mean(name='contractive_loss')
+
+        self.reconstruction_loss_tracker = keras.metrics.Mean(
+            name='reconstruction_loss')
+        self.contractive_loss_tracker = keras.metrics.Mean(
+            name='contractive_loss')
         self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
 
     def call(self, inputs):
@@ -39,14 +41,16 @@ class CAE(BaseAE):
         outputs = {}
         outputs['x_hidden'] = x_hid
         outputs['recon'] = recon_x
+        print(x.shape)
+        print(recon_x.shape)
         return outputs
-    
+
     @property
     def metrics(self):
         return [self.reconstruction_loss_tracker,
                 self.contractive_loss_tracker,
                 self.total_loss_tracker]
-    
+
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
@@ -65,9 +69,10 @@ class CAE(BaseAE):
         W = tf.transpose(W)  # N_hidden x N
         h = outputs['x_hidden']
         dh = h * (1 - h)  # N_batch x N_hidden
-    
+
         # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
-        contractive_loss = lambda_ * tf.reduce_sum(tf.linalg.matmul(dh**2, tf.square(W)), axis=1)
+        contractive_loss = lambda_ * \
+            tf.reduce_sum(tf.linalg.matmul(dh**2, tf.square(W)), axis=1)
 
         losses['contractive_loss'] = contractive_loss
 
@@ -96,9 +101,9 @@ class CAE(BaseAE):
         with tf.GradientTape() as tape:
             outputs = self(inputs)
             losses = self.compute_losses(x, outputs, labels_x)
-            #print(losses)
+            # print(losses)
             losses['total_loss'] = sum(losses.values())
-        
+
         # Compute gradients
         grads = tape.gradient(losses['total_loss'], self.trainable_weights)
 
@@ -109,7 +114,7 @@ class CAE(BaseAE):
         metrics = self.update_states(losses)
 
         return metrics
-    
+
     @tf.function
     def test_step(self, inputs):
         x = inputs['data']

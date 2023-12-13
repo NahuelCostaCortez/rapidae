@@ -7,7 +7,13 @@ from aepy.models.base import BaseDecoder, BaseEncoder
 # ------------------- VANILLA MLP VAE ------------------- #
 class Encoder_MLP(BaseEncoder):
     """
-    Vanilla MLP encoder
+    Vanilla multi-layer perceptron (MLP) encoder architecture for a variational autoencoder (VAE).
+
+    Args
+    ----
+    input_dim (int): Dimensionality of the input data.
+    latent_dim (int): Dimensionality of the latent space.
+    layers_conf (list): Configuration of layers in the encoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -17,8 +23,9 @@ class Encoder_MLP(BaseEncoder):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation="relu")
-            
+            self.layers_dict['dense_' +
+                             str(idx)] = layers.Dense(depth, activation="relu")
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -29,7 +36,13 @@ class Encoder_MLP(BaseEncoder):
 
 class Decoder_MLP(BaseDecoder):
     """
-    Vanilla MLP decoder
+    Vanilla multi-layer perceptron (MLP) decoder architecture for a variational autoencoder (VAE).
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -39,9 +52,11 @@ class Decoder_MLP(BaseDecoder):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation="relu")
+            self.layers_dict['dense_' +
+                             str(idx)] = layers.Dense(depth, activation="relu")
 
-        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
+        self.dense_recons = layers.Dense(
+            self.input_dim[1], activation="sigmoid")
 
     def call(self, z):
         for name, layer in self.layers_dict.items():
@@ -54,7 +69,13 @@ class Decoder_MLP(BaseDecoder):
 # --------------- ENCODER-DECODER FROM KERAS TUTORIAL --------------- #
 class Encoder_Conv_MNIST(BaseEncoder):
     """
-    Encoder architecture from keras tutorial
+    Convolutional encoder architecture from keras tutorial for a variational autoencoder (VAE).
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -64,10 +85,10 @@ class Encoder_Conv_MNIST(BaseEncoder):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
-                                                                 strides=2, padding="same")
+                                                                   strides=2, padding="same")
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
-        
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -80,7 +101,13 @@ class Encoder_Conv_MNIST(BaseEncoder):
 
 class Decoder_Conv_MNIST(BaseDecoder):
     """
-    Decoder architecture from keras tutorial
+    Convolutional decoder architecture from keras tutorial for a variational autoencoder (VAE).
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -93,7 +120,7 @@ class Decoder_Conv_MNIST(BaseDecoder):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2DTranspose(depth, 3, activation="relu",
-                                                                 strides=2, padding="same")
+                                                                            strides=2, padding="same")
 
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
             1, 3, activation="sigmoid", padding="same")
@@ -110,7 +137,13 @@ class Decoder_Conv_MNIST(BaseDecoder):
 # ----------------- CONV ENCODER-DECODER FOR VQ-VAE ----------------- #
 class Encoder_Conv_VQ_MNIST(BaseEncoder):
     """
-    Encoder architecture from keras tutorial
+    Encoder architecture from keras tutorial for a vector quantization variational autoencoder (VQ-VAE).
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -120,10 +153,10 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
-                                                                 strides=2, padding="same")
-        #self.flatten = layers.Flatten()
+                                                                   strides=2, padding="same")
+        # self.flatten = layers.Flatten()
         self.encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")
-        
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -133,7 +166,13 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
 
 class Decoder_Conv_VQ_MNIST(BaseDecoder):
     """
-    Decoder architecture from keras tutorial
+    Decoder architecture from keras tutorial for a vector quantization variational autoencoder (VQ-VAE).
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -144,7 +183,7 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2DTranspose(depth, 3, activation="relu",
-                                                                 strides=2, padding="same")
+                                                                            strides=2, padding="same")
 
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
             1, 3, padding="same")
@@ -161,6 +200,13 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
 class RecurrentEncoder(BaseEncoder):
     """
     Encoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
+        masking_value (float): Value for masking sequences.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -179,6 +225,13 @@ class RecurrentEncoder(BaseEncoder):
 class RecurrentDecoder(BaseDecoder):
     """
     Decoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
+
+    Args
+    ----
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
+        masking_value (float): Value for masking sequences.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -199,7 +252,7 @@ class RecurrentDecoder(BaseDecoder):
 # ---------------------- SPARSE ENCODER-DECODER --------------------- #
 class SparseEncoder(BaseEncoder):
     """
-    Sparse Encoder
+    Sparse encoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -207,7 +260,7 @@ class SparseEncoder(BaseEncoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = 4
+        self.lambda_ = 4  # TODO: Make lambda a customizable param
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -215,9 +268,10 @@ class SparseEncoder(BaseEncoder):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
                                                                  activation='sigmoid',
-                                                                 kernel_regularizer=keras.regularizers.l2(self.lambda_/2),
+                                                                 kernel_regularizer=keras.regularizers.l2(
+                                                                     self.lambda_/2),
                                                                  activity_regularizer=SparseRegularizer())
-    
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -226,26 +280,28 @@ class SparseEncoder(BaseEncoder):
 
 class SparseDecoder(BaseDecoder):
     """
-    Sparse Decoder
+    Sparse decoder architecture.
     """
-    
+
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = 4
+        self.lambda_ = 4  # TODO: Make lambda a customizable param
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, 
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
                                                                  activation='sigmoid',
-                                                                 kernel_regularizer=keras.regularizers.l2(self.lambda_/2),
+                                                                 kernel_regularizer=keras.regularizers.l2(
+                                                                     self.lambda_/2),
                                                                  activity_regularizer=SparseRegularizer())
 
-        self.dense_recons = layers.Dense(self.input_dim[1], activation="sigmoid")
+        self.dense_recons = layers.Dense(
+            self.input_dim[1], activation="sigmoid")
 
     def call(self, x):
         for name, layer in self.layers_dict.items():
@@ -253,23 +309,32 @@ class SparseDecoder(BaseDecoder):
         x = self.dense_recons(x)
         return x
 
+
 class SparseRegularizer(keras.regularizers.Regularizer):
     """
-    For sparse encoders and decoders
+    Inherits from keras.regularizers.Regularizer and represents a regularization term for sparsity.
+
+    Args
+    ----
+        p (float): Target sparsity probability. Default is 0.01
+        beta (int): Regularization strength. Default is 3.
     """
+
     def __init__(self, p=0.01, beta=3):
         self.p = p
         self.beta = beta
-    
+
     def __call__(self, x):
         self.p_hat = tf.keras.backend.mean(x)
-        kl_divergence = self.p*(tf.keras.backend.log(self.p/self.p_hat)) + (1-self.p)*(tf.keras.backend.log(1-self.p/1-self.p_hat))
+        kl_divergence = self.p*(tf.keras.backend.log(self.p/self.p_hat)) + \
+            (1-self.p)*(tf.keras.backend.log(1-self.p/1-self.p_hat))
         return self.beta * tf.keras.backend.sum(kl_divergence)
-    
+
     def get_config(self):
         return {'p': float(self.p),
                 'p_hat': float(self.p_hat),
-                'beta':float(self.beta)}
+                'beta': float(self.beta)}
+
 
 """
 def sparse_regularizer(activation_matrix):
@@ -285,13 +350,21 @@ def sparse_regularizer(activation_matrix):
     sum = tf.keras.backend.sum(KL_divergence) 
    
     return beta * sum 
-"""  
+"""
 # ------------------------------------------------------------------- #
 
 # --------------------- VANILLA ENCODER-DECODER --------------------- #
+
+
 class VanillaEncoder(layers.Layer):
     """
-    Vanilla encoder for normal AE
+    Vanilla encoder for normal autoencoder (AE).
+
+    Args
+    ----
+        input_dim: Dimensionality of the input data.
+        latent_dim: Dimensionality of the latent space.
+        layers_conf: Configuration of layers in the encoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, name="encoder", **kwargs):
@@ -304,18 +377,27 @@ class VanillaEncoder(layers.Layer):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
+            self.layers_dict['dense_' +
+                             str(idx)] = layers.Dense(depth, activation='relu')
 
-        self.enc_layer = layers.Dense(latent_dim, activation='relu')    
+        self.enc_layer = layers.Dense(latent_dim, activation='relu')
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.enc_layer(x)
         return x
 
+
 class VanillaDecoder(layers.Layer):
     """
-    Vanilla decoder for normal AE
+    Vanilla decoder for normal autoencoder (AE).
+
+    Args
+    ----
+        input_dim: Dimensionality of the input data.
+        latent_dim: Dimensionality of the latent space.
+        layers_conf: Configuration of layers in the decoder architecture.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, name='decoder', **kwargs):
@@ -328,7 +410,8 @@ class VanillaDecoder(layers.Layer):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='relu')
+            self.layers_dict['dense_' +
+                             str(idx)] = layers.Dense(depth, activation='relu')
 
         self.dense_recons = layers.Dense(self.input_dim, activation="sigmoid")
 
@@ -343,7 +426,13 @@ class VanillaDecoder(layers.Layer):
 # ------------------------ ADDITIONAL MODULES ----------------------- #
 class BaseRegressor(layers.Layer):
     """
-    Simple regressor
+    Architecture for simple regressor compound by 2 Dense layers with 200 and 1 cells.
+    Currently not customizable.
+
+    Args
+    ----
+        name (str): Name of the regressor layer.
+
     """
 
     def __init__(self, name="regressor"):
@@ -355,16 +444,23 @@ class BaseRegressor(layers.Layer):
         x = self.dense(x)
         x = self.out(x)
         return x
-    
+
+
 class BaseClassifier(layers.Layer):
     """
     Simple classifier to be applied to the latent space of an AE
+
+    Args
+    ----
+        n_classes (int): Number of classes for classification.
+        name (str): Name of the classifier layer.
     """
 
     def __init__(self, n_classes, name='classifier'):
         super().__init__(name=name)
         self.intermediate = layers.Dense(200, activation='relu')
-        self.outputs = layers.Dense(n_classes, activation='softmax', name='class_output')
+        self.outputs = layers.Dense(
+            n_classes, activation='softmax', name='class_output')
 
     def call(self, x):
         x = self.intermediate(x)

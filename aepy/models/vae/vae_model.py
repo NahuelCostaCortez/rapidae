@@ -30,10 +30,10 @@ class VAE(BaseAE):
         layers_conf: list = None,
         **kwargs
     ):
-        
+
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
-        
+
         self.downstream_task = downstream_task
         if self.downstream_task is not None:
             # Change string to lowercase
@@ -54,7 +54,7 @@ class VAE(BaseAE):
             Logger().log_info('No specific dowstream task has been selected')
 
         if self.decoder is not False:
-            #self.decoder = decoder
+            # self.decoder = decoder
             self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
@@ -84,6 +84,7 @@ class VAE(BaseAE):
     # TODO: cambiar a una función que se llame NormalSampler
     class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
+
         def call(self, inputs):
             z_mean, z_log_var = inputs
             batch = tf.shape(z_mean)[0]
@@ -102,33 +103,34 @@ class VAE(BaseAE):
         if self.downstream_task == 'classification':
             metrics.append(self.clf_loss_tracker)
         return metrics
-    
+
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
         # KL loss
         kl_loss = -0.5 * (1 + outputs['z_log_var'] -
-                              tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
+                          tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
         losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
 
         # Regressor loss
         if self.downstream_task == 'regression':
             losses['reg_loss'] = tf.reduce_mean(
-                    keras.losses.mean_squared_error(labels_x, outputs['reg'])
+                keras.losses.mean_squared_error(labels_x, outputs['reg'])
             )
 
         # Classifier loss
         if self.downstream_task == 'classification':
             losses['clf_loss'] = tf.reduce_mean(
-                    keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
-                )
+                keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
+            )
 
         # Reconstruction loss
+        # TODO: Check masking issues
         if self.decoder is not None:
             losses['recon_loss'] = tf.reduce_mean(
-                    keras.losses.mean_squared_error(x, outputs['recon'])
-                )
-        
+                keras.losses.mean_squared_error(x, outputs['recon'])
+            )
+
         return losses
 
     def update_states(self, losses, total_loss):
@@ -138,7 +140,7 @@ class VAE(BaseAE):
         metrics['total_loss'] = self.total_loss_tracker.result()
 
         self.kl_loss_tracker.update_state(losses['kl_loss'])
-        metrics['kl_loss']= self.kl_loss_tracker.result()
+        metrics['kl_loss'] = self.kl_loss_tracker.result()
 
         if self.downstream_task == 'regression':
             self.reg_loss_tracker.update_state(losses['reg_loss'])
@@ -149,7 +151,7 @@ class VAE(BaseAE):
         if self.decoder is not None:
             self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
             metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
-        
+
         return metrics
 
     @tf.function
@@ -164,15 +166,19 @@ class VAE(BaseAE):
 
             if self.downstream_task == 'classification':
                 if self.decoder is not None:
-                    total_loss = self.weight_vae * (losses['kl_loss'] + losses['recon_loss']) + self.weight_clf * losses['clf_loss']
+                    total_loss = self.weight_vae * \
+                        (losses['kl_loss'] + losses['recon_loss']) + \
+                        self.weight_clf * losses['clf_loss']
                 else:
-                    total_loss = self.weight_vae * losses['kl_loss'] + self.weight_clf * losses['clf_loss']
+                    total_loss = self.weight_vae * \
+                        losses['kl_loss'] + self.weight_clf * \
+                        losses['clf_loss']
             else:
                 total_loss = sum(losses.values())
 
         # Compute gradients
         grads = tape.gradient(total_loss, self.trainable_weights)
-        
+
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
 
@@ -191,9 +197,12 @@ class VAE(BaseAE):
         losses = self.compute_losses(x, outputs, labels_x)
         if self.downstream_task == 'classification':
             if self.decoder is not None:
-                total_loss = self.weight_vae * (losses['kl_loss'] + losses['recon_loss']) + self.weight_clf * losses['clf_loss']
+                total_loss = self.weight_vae * \
+                    (losses['kl_loss'] + losses['recon_loss']) + \
+                    self.weight_clf * losses['clf_loss']
             else:
-                total_loss = self.weight_vae * losses['kl_loss'] + self.weight_clf * losses['clf_loss']
+                total_loss = self.weight_vae * \
+                    losses['kl_loss'] + self.weight_clf * losses['clf_loss']
         else:
             total_loss = sum(losses.values())
 

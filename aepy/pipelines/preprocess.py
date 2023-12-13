@@ -15,10 +15,10 @@ class PreprocessPipeline(BasePipeline):
 
         # TODO: check dataset format
 
-
         # The preprocessor contains a list of methods, these will be applied in order to the data
         if type(self.preprocessor) == list:
-            self.logger.log_info('Selected preprocessor is a bunch of functions.')
+            self.logger.log_info(
+                'Selected preprocessor is a bunch of functions.')
             for i in self.preprocessor:
                 # TODO
                 pass

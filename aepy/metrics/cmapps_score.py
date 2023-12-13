@@ -28,8 +28,7 @@ class CMAPSS_Score(Metric):
         for true, hat in zip(y_true, y_hat):
             subs = hat - true
             if subs < 0:
-                 results = results + np.exp(-subs/10)[0]-1
+                results = results + np.exp(-subs/10)[0]-1
             else:
                 results = results + np.exp(subs/13)[0]-1
         return np.array(results)
-    

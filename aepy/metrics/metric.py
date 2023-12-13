@@ -20,4 +20,5 @@ class Metric(ABC):
         Prints name of the selected metric in the terminal. Logging purposes
         """
         self.logger = Logger()
-        self.logger.log_info('+++ Metric {} +++'.format(self.__class__.__name__))
+        self.logger.log_info(
+            '+++ Metric {} +++'.format(self.__class__.__name__))

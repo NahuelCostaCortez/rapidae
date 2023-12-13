@@ -13,13 +13,19 @@ from aepy.conf import Logger
 
 class BaseAE(keras.Model):
     """
-    Base class for Autoencoder based models.
+    Base class for for implementing various autoencoder-based models. It includes functionality for
+    initializing the encoder and decoder, as well as defining the main call pass for obtaining the model outputs during
+    inference. Child classes should implement the 'call', 'train_step', and 'test_step' methods for specific use cases.
 
     Args
     ----
-        model_config (BaseAEConfig): configuration object for the model
-        encoder (BaseEncoder): An instance of BaseEncoder. Default: None
-        decoder (BaseDecoder): An instance of BaseDecoder. Default: None
+        input_dim (Union[Tuple[int, ...], None]): The dimensionality of the input data. Default is None.
+        latent_dim (int): The dimensionality of the latent space. Default is 2.
+        encoder (BaseEncoder): An instance of BaseEncoder. Default is None
+        decoder (BaseDecoder): An instance of BaseDecoder. Default is None
+        uses_default_encoder (bool): Flag indicating whether the default MLP encoder should be used. Default is True.
+        uses_default_decoder (bool): Flag indicating whether the default MLP decoder should be used. Default is True.
+        layers_conf (list): The configuration of layers in the encoder and decoder architectures. Default is None.
     """
 
     def __init__(
@@ -33,13 +39,14 @@ class BaseAE(keras.Model):
         layers_conf: list = None,
         **kwargs
     ):
-    
+
         super(BaseAE, self).__init__()
         self.input_dim = input_dim
         self.latent_dim = latent_dim
 
         if layers_conf is None:
-            Logger().log_warning('No specific layer configuration has been provided. Creating default configuration...')
+            Logger().log_warning(
+                'No specific layer configuration has been provided. Creating default configuration...')
             self.layers_conf = [512]
         else:
             self.layers_conf = layers_conf
@@ -51,8 +58,10 @@ class BaseAE(keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.encoder = Encoder_MLP(self.input_dim, self.latent_dim, self.layers_conf)
-        self.encoder = encoder(self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
+            self.encoder = Encoder_MLP(
+                self.input_dim, self.latent_dim, self.layers_conf)
+        self.encoder = encoder(
+            self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
 
         if decoder is None:
             Logger().log_warning('No decoder provider, using default MLP decoder'),
@@ -61,8 +70,10 @@ class BaseAE(keras.Model):
                     "No input dimension provided!"
                     "'input_dim' must be provided in the model config"
                 )
-            self.decoder = Decoder_MLP(self.input_dim, self.latent_dim, self.layers_conf)
-        self.decoder = decoder(self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
+            self.decoder = Decoder_MLP(
+                self.input_dim, self.latent_dim, self.layers_conf)
+        self.decoder = decoder(
+            self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
 
     # make the class callable
     # def __call__(self, *args, **kwargs):
