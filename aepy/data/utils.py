@@ -2,6 +2,7 @@
 Class for common data utilities.
 """
 import random
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np

@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-os.environ["KERAS_BACKEND"] = "tensorflow"
+os.environ["KERAS_BACKEND"] = "torch"
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from keras_core import utils
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate, display_diff, add_noise
-from aepy.models.ae.ae_model import AE
+from aepy.models.backend_ag_ae import BAG_AE
 from aepy.models.base.default_architectures import VanillaEncoder, VanillaDecoder
 from aepy.pipelines.training import TrainingPipeline
 
@@ -41,7 +41,7 @@ test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
 
 print(x_train_noisy.shape)
 # Model creation
-model = AE(input_dim=x_train_noisy.shape[1], 
+model = BAG_AE(input_dim=x_train_noisy.shape[1], 
             latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='training_pipeline',
