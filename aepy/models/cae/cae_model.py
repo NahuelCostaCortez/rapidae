@@ -41,8 +41,8 @@ class CAE(BaseAE):
         outputs = {}
         outputs['x_hidden'] = x_hid
         outputs['recon'] = recon_x
-        print(x.shape)
-        print(recon_x.shape)
+        #print(x.shape)
+        #print(recon_x.shape)
         return outputs
 
     @property
@@ -55,24 +55,24 @@ class CAE(BaseAE):
         losses = {}
 
         # Reconstruction loss
-        losses['recon_loss'] = tf.reduce_mean(
+        losses['recon_loss'] = keras.ops.mean(
             keras.losses.mean_squared_error(x, outputs['recon'])
         )
 
         # Contractive loss
         lambda_ = 1e-4
-        n_layers = len(self.encoder.layers_dict)
-        last_layer_name = f'dense_{n_layers - 1}'
-        last_layer = self.encoder.layers_dict.get(last_layer_name)
+        #n_layers = len(self.encoder.layers_dict)
+        #last_layer_name = f'dense_{n_layers - 1}'
+        last_layer = self.encoder.enc_layer
 
         W = last_layer.weights[0]  # N x N_hidden
-        W = tf.transpose(W)  # N_hidden x N
+        W = keras.ops.transpose(W)  # N_hidden x N
         h = outputs['x_hidden']
         dh = h * (1 - h)  # N_batch x N_hidden
 
         # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
         contractive_loss = lambda_ * \
-            tf.reduce_sum(tf.linalg.matmul(dh**2, tf.square(W)), axis=1)
+            keras.ops.sum(keras.ops.matmul(dh**2, keras.ops.square(W)), axis=1)
 
         losses['contractive_loss'] = contractive_loss
 

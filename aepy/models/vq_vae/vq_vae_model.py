@@ -65,7 +65,7 @@ class VQ_VAE(BaseAE):
     def compute_losses(self, x, outputs, labels_x=None):
         losses = {}
 
-        losses['recon_loss'] = tf.reduce_mean(
+        losses['recon_loss'] = keras.ops.mean(
                     keras.losses.mean_squared_error(x, outputs['recon'])
                 )
         # VQ loss was already computed in Vector Quantized layer
@@ -157,28 +157,28 @@ class VectorQuantizer(keras.layers.Layer):
     def call(self, x):
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
-        input_shape = tf.shape(x)
-        flattened = tf.reshape(x, [-1, self.embedding_dim])
+        input_shape = keras.ops.shape(x)
+        flattened = keras.ops.reshape(x, [-1, self.embedding_dim])
 
         # Quantization
         encoding_indices = self.get_code_indices(flattened)
-        encodings = tf.one_hot(encoding_indices, self.num_embeddings)
-        quantized = tf.matmul(encodings, self.embeddings, transpose_b=True)
+        encodings = keras.ops.one_hot(encoding_indices, self.num_embeddings)
+        quantized = keras.ops.matmul(encodings, keras.ops.transpose(self.embeddings))
 
         # Reshape the quantized values back to the original input shape
-        quantized = tf.reshape(quantized, input_shape)
+        quantized = keras.ops.reshape(quantized, input_shape)
 
         # Calculate vector quantization loss and add that to the layer. You can learn more
         # about adding losses to different layers here:
         # https://keras.io/guides/making_new_layers_and_models_via_subclassing/. Check
         # the original paper to get a handle on the formulation of the loss function
-        commitment_loss = tf.reduce_mean((tf.stop_gradient(quantized) - x) ** 2)
-        codebook_loss = tf.reduce_mean((quantized - tf.stop_gradient(x)) ** 2)
+        commitment_loss = keras.ops.mean((keras.ops.stop_gradient(quantized) - x) ** 2)
+        codebook_loss = keras.ops.mean((quantized - keras.ops.stop_gradient(x)) ** 2)
 
         self.add_loss(self.beta * commitment_loss + codebook_loss)
 
         # Straight-through estimator.
-        quantized = x + tf.stop_gradient(quantized - x)
+        quantized = x + keras.ops.stop_gradient(quantized - x)
 
         return quantized, self.losses
 
@@ -193,14 +193,14 @@ class VectorQuantizer(keras.layers.Layer):
         tf.Tensor: Indices for minimum distances.
         """
         # Calculate L2-normalized distance between the inputs and the codes.
-        similarity = tf.matmul(flattened_inputs, self.embeddings)
+        similarity = keras.ops.matmul(flattened_inputs, self.embeddings)
         distances = (
-            tf.reduce_sum(flattened_inputs ** 2, axis=1, keepdims=True)
-            + tf.reduce_sum(self.embeddings ** 2, axis=0)
+            keras.ops.sum(flattened_inputs ** 2, axis=1, keepdims=True)
+            + keras.ops.sum(self.embeddings ** 2, axis=0)
             - 2 * similarity
         )
 
         # Derive the indices for minimum distances.
-        encoding_indices = tf.argmin(distances, axis=1)
+        encoding_indices = keras.ops.argmin(distances, axis=1)
         
         return encoding_indices

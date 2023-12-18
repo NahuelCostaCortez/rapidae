@@ -29,11 +29,7 @@ class BAG_AE(BaseAE):
 
     # keras model call function
     def call(self, inputs):
-        x, y = inputs
-        #print('INSIDE_CALL')
-        #print(x.shape)
-        #print(y)
-        #print('OUTSIDE_CALL')
+        x = inputs['data']
         z = self.encoder(x)
         recon_x = self.decoder(z)
         outputs = {}
@@ -42,10 +38,7 @@ class BAG_AE(BaseAE):
         return outputs
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        print('x[0].shape:')
-        print(type(x[0]))
-        print('y_pred.shape:')
-        print(type(y_pred['recon']))
-        loss = keras.ops.sum(keras.losses.mean_squared_error(x[0], y_pred['recon']))
+        #print(y.shape)
+        loss = keras.ops.sum(keras.losses.mean_squared_error(x['data'], y_pred['recon']))
         return loss
     

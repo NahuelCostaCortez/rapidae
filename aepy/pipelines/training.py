@@ -45,10 +45,8 @@ class TrainingPipeline(BasePipeline):
 
     def __call__(
             self,
-            x,
-            y=None,
-            x_eval=None,
-            y_eval=None,
+            train_data,
+            eval_data=None,
             callbacks: Optional[list] = None,
             save_model: bool = True,):
         """
@@ -69,15 +67,15 @@ class TrainingPipeline(BasePipeline):
         if callbacks is None:
             # set callbacks
             callbacks = []
-            if x_eval is None:
+            if eval_data is None:
                 callbacks.append(EarlyStopping(
-                    monitor='loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='loss',
+                    monitor='total_loss', patience=10, verbose=1, mode='min'))
+                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
             else:
                 callbacks.append(EarlyStopping(
-                    monitor='val_loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='val_loss',
+                    monitor='val_total_loss', patience=10, verbose=1, mode='min'))
+                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='val_total_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
 
         # set optimizer
@@ -90,8 +88,8 @@ class TrainingPipeline(BasePipeline):
         # compile and fit the model
         self.model.compile(optimizer=optimizer, run_eagerly=True)
 
-        self.model.fit((x, y),
-                       validation_data=(x_eval, y_eval),
+        self.model.fit(train_data,
+                       validation_data=eval_data,
                        shuffle=True,
                        epochs=self.num_epochs,
                        batch_size=self.batch_size,
