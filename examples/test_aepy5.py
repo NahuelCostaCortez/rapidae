@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-os.environ["KERAS_BACKEND"] = "tensorflow"
+os.environ["KERAS_BACKEND"] = "torch"
 
 import numpy as np
 
@@ -45,7 +45,7 @@ model = AE(input_dim=x_train_noisy.shape[1],
             latent_dim=2, encoder=VanillaEncoder, decoder=VanillaDecoder, layers_conf=[64, 32])
 
 pipe = TrainingPipeline(name='training_pipeline',
-                        model=model, num_epochs=10)
+                        model=model, num_epochs=100)
 
 trained_model = pipe(train_data=train_data)
 

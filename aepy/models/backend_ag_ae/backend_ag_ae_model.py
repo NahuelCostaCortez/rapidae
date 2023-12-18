@@ -24,18 +24,16 @@ class BAG_AE(BaseAE):
         layers_conf: list = None,
         **kwargs
     ):
-
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
 
-        # self.decoder = decoder
-        self.reconstruction_loss_tracker = keras.metrics.Mean(
-            name="reconstruction_loss")
-        self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
-
     # keras model call function
     def call(self, inputs):
-        x = inputs["data"]
+        x, y = inputs
+        #print('INSIDE_CALL')
+        #print(x.shape)
+        #print(y)
+        #print('OUTSIDE_CALL')
         z = self.encoder(x)
         recon_x = self.decoder(z)
         outputs = {}
@@ -43,23 +41,11 @@ class BAG_AE(BaseAE):
         outputs["recon"] = recon_x
         return outputs
 
-    @property
-    def metrics(self):
-        return [self.reconstruction_loss_tracker, self.total_loss_tracker]
-
-    def compute_loss(self, x, outputs=None):
-        loss = keras.ops.sum(keras.losses.mean_squared_error(x, outputs['recon']))
+    def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        print('x[0].shape:')
+        print(type(x[0]))
+        print('y_pred.shape:')
+        print(type(y_pred['recon']))
+        loss = keras.ops.sum(keras.losses.mean_squared_error(x[0], y_pred['recon']))
         return loss
     
-    """
-    def compute_losses(self, x, outputs, labels_x=None):
-        losses = {}
-
-        losses['recon_loss'] = tf.reduce_mean(
-            keras.losses.mean_squared_error(x, outputs['recon'])
-        )
-
-        return losses
-    """
-
-

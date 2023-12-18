@@ -74,7 +74,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
     Args
     ----
         input_dim (int): Dimensionality of the input data.
-        latent_dim (int): Dimensionality of the latent space.
+        late RecurrentEncodernt_dim (int): Dimensionality of the latent space.
         layers_conf (list): Configuration of layers in the encoder architecture.
     """
 

@@ -79,7 +79,7 @@ class BaseAE(keras.Model):
     # def __call__(self, *args, **kwargs):
     #    return self
 
-    @tf.function
+    #@tf.function
     def call(self, inputs):
         """
         Main call pass outputing the VAE outputs.
@@ -87,10 +87,12 @@ class BaseAE(keras.Model):
         """
         raise NotImplementedError
 
-    @tf.function
-    def train_step(self, inputs):
-        raise NotImplementedError
+    #@tf.function
+    #def train_step(self, inputs):
+    #    #raise NotImplementedError
+    #    pass
 
-    @tf.function
-    def test_step(self, inputs):
-        raise NotImplementedError
+    #                                            
+    #def test_step(self, inputs):
+    #    #raise NotImplementedError
+    #    pass
