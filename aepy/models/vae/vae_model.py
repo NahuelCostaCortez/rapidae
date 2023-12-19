@@ -62,8 +62,8 @@ class VAE(BaseAE):
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
-    def call(self, inputs):
-        x = inputs["data"]
+    def call(self, x):
+        #x = inputs["data"]
         z_mean, z_log_var = self.encoder(x)
         z = self.Sampling()([z_mean, z_log_var])
         outputs = {}
@@ -92,7 +92,51 @@ class VAE(BaseAE):
             # added seed for reproducibility
             epsilon = keras.random.normal(shape=(batch, dim), seed=42)
             return z_mean + keras.ops.exp(0.5 * z_log_var) * epsilon
+    
+    def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        # KL loss
+        kl_loss = self.kl_loss(y, y_pred)
 
+        # Reconstruction loss
+        # TODO: Check masking issues
+        if self.decoder is not None:
+            recon_loss = self.reconstruction_loss(y ,y_pred, x=x)
+
+        # Regressor lossx
+        if self.downstream_task == 'regression':
+            reg_loss = self.reg_loss(y, y_pred)
+
+        # Classifier loss
+        if self.downstream_task == 'classification':
+            clf_loss = self.clf_loss(y, y_pred)
+        
+        if self.downstream_task == 'classification':
+            if self.decoder is not None:
+                loss = self.weight_vae * \
+                    (kl_loss + recon_loss) + \
+                    self.weight_clf * clf_loss
+            else:
+                loss = self.weight_vae * \
+                    kl_loss + self.weight_clf * \
+                    clf_loss
+
+        return loss
+    
+    def kl_loss(self, y_true, y_pred):
+        kl_loss = -0.5 * (1 + y_pred['z_log_var'] -
+                          keras.ops.square(y_pred['z_mean']) - keras.ops.exp(y_pred['z_log_var']))
+        return keras.ops.mean(keras.ops.sum(kl_loss, axis=1))
+    
+    def reconstruction_loss(self, y_true, y_pred, **kwargs):
+        return keras.ops.mean(keras.losses.mean_squared_error(kwargs['x'], y_pred['recon']))
+    
+    def reg_loss(self, y_true, y_pred):
+        return keras.ops.mean(keras.losses.mean_squared_error(y_true, y_pred['reg']))
+    
+    def clf_loss(self, y_true, y_pred):
+        return keras.ops.mean(keras.losses.categorical_crossentropy(y_true, y_pred['clf']))
+    
+    """
     @property
     def metrics(self):
         metrics = [self.total_loss_tracker, self.kl_loss_tracker]
@@ -187,36 +231,6 @@ class VAE(BaseAE):
 
         return metrics
     
-    def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        kl_loss = -0.5 * (1 + y_pred['z_log_var'] -
-                          keras.ops.square(y_pred['z_mean']) - keras.ops.exp(y_pred['z_log_var']))
-        kl_loss = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
-
-        # Reconstruction loss
-        # TODO: Check masking issues
-        if self.decoder is not None:
-            recon_loss = tf.reduce_mean(
-                keras.losses.mean_squared_error(x, y_pred['recon'])
-            )
-
-        # Regressor loss
-        if self.downstream_task == 'regression':
-            reg_loss = tf.reduce_mean(
-                keras.losses.mean_squared_error(y, y_pred['reg'])
-            )
-            #return kl_loss +
-
-        # Classifier loss
-        if self.downstream_task == 'classification':
-            clf_loss = tf.reduce_mean(
-                keras.losses.categorical_crossentropy(y, y_pred['clf'])
-            )
-
-        
-        
-        return loss
-
-
     @tf.function
     def test_step(self, inputs):
         x = inputs['data']
@@ -240,3 +254,4 @@ class VAE(BaseAE):
         metrics = self.update_states(losses, total_loss)
 
         return metrics
+    """

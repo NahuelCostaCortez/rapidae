@@ -35,6 +35,7 @@ class TrainingPipeline(BasePipeline):
         learning_rate=0.001,
         batch_size=128,
         num_epochs=100,
+        metrics=None
     ):
         super().__init__(name, output_dir)
         self.model = model
@@ -42,6 +43,7 @@ class TrainingPipeline(BasePipeline):
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_epochs = num_epochs
+        self.metrics = metrics
 
     def __call__(
             self,
@@ -88,7 +90,8 @@ class TrainingPipeline(BasePipeline):
             exit(-1)
 
         # compile and fit the model
-        self.model.compile(optimizer=optimizer, run_eagerly=True)
+        if self.metrics is not None:
+            self.model.compile(optimizer=optimizer, run_eagerly=True, metrics=self.metrics)
 
         if x_eval is None:
             self.model.fit(
