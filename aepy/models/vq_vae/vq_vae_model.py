@@ -145,7 +145,8 @@ class VectorQuantizer(keras.layers.Layer):
         self.beta = beta
 
         # Initialize the embeddings which we will quantize.
-        w_init = tf.random_uniform_initializer()
+        w_init = keras.initializers.random_uniform()
+        #w_init = tf.random_uniform_initializer()
         self.embeddings = tf.Variable(
             initial_value=w_init(
                 shape=(self.embedding_dim, self.num_embeddings), dtype="float32"

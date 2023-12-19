@@ -38,8 +38,8 @@ x_test_noisy = x_test_noisy.reshape(x_test_noisy.shape[0], -1)
 # Display some images to view the added noise
 #display_diff(x_train_noisy, x_train)
 
-train_data = dict(data=x_train_noisy.astype(float), labels=x_train)
-test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
+#train_data = dict(data=x_train_noisy.astype(float), labels=x_train)
+#test_data = dict(data=x_test_noisy.astype(float), labels=y_test)
 
 # Model creation
 model = BAG_AE(input_dim=x_train_noisy.shape[1], 
@@ -48,7 +48,8 @@ model = BAG_AE(input_dim=x_train_noisy.shape[1],
 pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=10)
 
-trained_model = pipe(train_data=train_data)
+#trained_model = pipe(train_data=train_data)
+trained_model = pipe(x=x_train_noisy.astype(float), y=x_train)
 
 y_hat = trained_model.predict(x_test_noisy.astype(float))
 
