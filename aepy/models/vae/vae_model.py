@@ -95,21 +95,27 @@ class VAE(BaseAE):
     
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         # KL loss
-        kl_loss = self.kl_loss(y, y_pred)
+        kl_loss = -0.5 * (1 + y_pred['z_log_var'] -
+                          keras.ops.square(y_pred['z_mean']) - keras.ops.exp(y_pred['z_log_var']))
+        kl_loss = keras.ops.mean(keras.ops.sum(kl_loss, axis=1))
+        self.kl_loss_tracker.update_state(kl_loss)
 
         # Reconstruction loss
         # TODO: Check masking issues
         if self.decoder is not None:
-            recon_loss = self.reconstruction_loss(y ,y_pred, x=x)
-
+            recon_loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
+            self.reconstruction_loss_tracker.update_state(recon_loss)
+    
         # Regressor lossx
         if self.downstream_task == 'regression':
-            reg_loss = self.reg_loss(y, y_pred)
+            reg_loss = keras.ops.mean(keras.losses.mean_squared_error(y, y_pred['reg']))
+            self.reg_loss_tracker.update_state(reg_loss)
 
         # Classifier loss
         if self.downstream_task == 'classification':
-            clf_loss = self.clf_loss(y, y_pred)
-        
+            clf_loss = keras.ops.mean(keras.losses.categorical_crossentropy(y, y_pred['clf']))
+            self.clf_loss_tracker.update_state(clf_loss)
+    
         if self.downstream_task == 'classification':
             if self.decoder is not None:
                 loss = self.weight_vae * \
@@ -119,24 +125,29 @@ class VAE(BaseAE):
                 loss = self.weight_vae * \
                     kl_loss + self.weight_clf * \
                     clf_loss
+        
+        if self.downstream_task == 'regression':
+            if self.decoder is not None:
+                loss = kl_loss + recon_loss + reg_loss
+            else:
+                loss = kl_loss + clf_loss
+        self.total_loss_tracker.update_state(loss) # DELETE!
 
         return loss
+
+"""
+class VAECallback(keras.callbacks.Callback):
+
+    def __init__(self, _model, x, y):
+        super().__init__()
+        self._model = _model
+        self.x = x
+        self.y = y
+
+    def on_epoch_end(self, epoch, logs=None):
+        keys = list(logs.keys())
+        print("End epoch {} of training; got log keys: {}".format(epoch, keys))
     
-    def kl_loss(self, y_true, y_pred):
-        kl_loss = -0.5 * (1 + y_pred['z_log_var'] -
-                          keras.ops.square(y_pred['z_mean']) - keras.ops.exp(y_pred['z_log_var']))
-        return keras.ops.mean(keras.ops.sum(kl_loss, axis=1))
-    
-    def reconstruction_loss(self, y_true, y_pred, **kwargs):
-        return keras.ops.mean(keras.losses.mean_squared_error(kwargs['x'], y_pred['recon']))
-    
-    def reg_loss(self, y_true, y_pred):
-        return keras.ops.mean(keras.losses.mean_squared_error(y_true, y_pred['reg']))
-    
-    def clf_loss(self, y_true, y_pred):
-        return keras.ops.mean(keras.losses.categorical_crossentropy(y_true, y_pred['clf']))
-    
-    """
     @property
     def metrics(self):
         metrics = [self.total_loss_tracker, self.kl_loss_tracker]
