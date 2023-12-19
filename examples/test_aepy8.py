@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-os.environ["KERAS_BACKEND"] = "tensorflow"
+os.environ["KERAS_BACKEND"] = "torch"
 
 import numpy as np
 #import torch
@@ -49,7 +49,7 @@ pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=10)
 
 #trained_model = pipe(train_data=train_data)
-trained_model = pipe(x=x_train_noisy.astype(float), y=x_train)
+trained_model = pipe(x=x_train_noisy.astype(float), y=x_train.astype(float))
 
 y_hat = trained_model.predict(x_test_noisy.astype(float))
 

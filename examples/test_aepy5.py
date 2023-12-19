@@ -47,7 +47,7 @@ model = AE(input_dim=x_train_noisy.shape[1],
 pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=100)
 
-trained_model = pipe(train_data=train_data)
+trained_model = pipe(train_data)
 
 y_hat = trained_model.predict(test_data)
 

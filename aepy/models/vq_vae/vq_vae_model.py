@@ -38,7 +38,7 @@ class VQ_VAE(BaseAE):
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
                                         embedding_dim=self.latent_dim)
 
-        self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
+        self.total_loss_tracker = keras.metrics.Mean(name='loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
         self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
 
@@ -77,7 +77,7 @@ class VQ_VAE(BaseAE):
         metrics = {}
         
         self.total_loss_tracker.update_state(total_loss)
-        metrics['total_loss'] = self.total_loss_tracker.result()
+        metrics['loss'] = self.total_loss_tracker.result()
 
         self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
         metrics['recontruction_loss'] = self.reconstruction_loss_tracker.result()

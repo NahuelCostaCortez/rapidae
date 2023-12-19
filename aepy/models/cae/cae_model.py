@@ -32,7 +32,7 @@ class CAE(BaseAE):
             name='reconstruction_loss')
         self.contractive_loss_tracker = keras.metrics.Mean(
             name='contractive_loss')
-        self.total_loss_tracker = keras.metrics.Mean(name='total_loss')
+        self.total_loss_tracker = keras.metrics.Mean(name='loss')
 
     def call(self, inputs):
         x = inputs['data']
@@ -87,8 +87,8 @@ class CAE(BaseAE):
         self.contractive_loss_tracker.update_state(losses['contractive_loss'])
         metrics['contractive_loss'] = self.contractive_loss_tracker.result()
 
-        self.total_loss_tracker.update_state(losses['total_loss'])
-        metrics['total_loss'] = self.total_loss_tracker.result()
+        self.total_loss_tracker.update_state(losses['loss'])
+        metrics['loss'] = self.total_loss_tracker.result()
 
         return metrics
 
@@ -102,10 +102,10 @@ class CAE(BaseAE):
             outputs = self(inputs)
             losses = self.compute_losses(x, outputs, labels_x)
             # print(losses)
-            losses['total_loss'] = sum(losses.values())
+            losses['loss'] = sum(losses.values())
 
         # Compute gradients
-        grads = tape.gradient(losses['total_loss'], self.trainable_weights)
+        grads = tape.gradient(losses['loss'], self.trainable_weights)
 
         # Update weights
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
@@ -123,7 +123,7 @@ class CAE(BaseAE):
         # Forward pass
         outputs = self(inputs)
         losses = self.compute_losses(x, outputs, labels_x)
-        losses['total_loss'] = sum(losses.values())
+        losses['loss'] = sum(losses.values())
 
         # Upgrade metrics
         metrics = self.update_states(losses)

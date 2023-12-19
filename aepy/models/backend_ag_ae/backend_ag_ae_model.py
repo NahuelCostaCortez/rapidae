@@ -29,21 +29,17 @@ class BAG_AE(BaseAE):
 
     # keras model call function
     def call(self, x):
-        #sprint(len(inputs))
-        #x, y = inputs 
-        #x = inputs['data']
         z = self.encoder(x)
         recon_x = self.decoder(z)
         outputs = {}
         outputs["z"] = z
         outputs["recon"] = recon_x
         return outputs
-    """
+    
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        print(y.shape)
-        loss = keras.ops.sum(keras.losses.mean_squared_error(y, y_pred['recon']))
+        #print(y.shape)
+        loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
         return loss
-    """
-
-    def train_step(self, *args, **kwargs):
-        print("llego")
+    
+    #def train_step(self, *args, **kwargs):
+    #    print("llego")

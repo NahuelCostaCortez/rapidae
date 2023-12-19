@@ -35,12 +35,14 @@ train_data = dict(data=x_train.astype(float), labels=x_train)
 test_data = dict(data=x_test.astype(float), labels=y_test)
 
 # Model creation
-print(x_train.shape[0])
-print(x_train.shape[1])
 model = VQ_VAE(input_dim=(x_train.shape[0], x_train.shape[1]), num_embeddings=64,
             latent_dim=2, encoder=Encoder_Conv_VQ_MNIST, decoder=Decoder_Conv_VQ_MNIST, layers_conf=[32, 64])
 
 pipe = TrainingPipeline(name='training_pipeline',
                         model=model, num_epochs=10)
 
-trained_model = pipe(train_data=train_data)
+trained_model = pipe(train_data)
+
+y_hat = trained_model.predict(test_data)
+
+display_diff(x_test, y_hat['recon'])
