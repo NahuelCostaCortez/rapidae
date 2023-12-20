@@ -1,6 +1,6 @@
 from typing import Optional, Union, Tuple
 
-import keras_core as keras
+import keras
 if keras.backend.backend() == 'tensorflow':
     import tensorflow as tf
 elif keras.backend.backend() == 'torch':

@@ -4,7 +4,7 @@ Base class for implementing all the models.
 
 from typing import Optional, Tuple, Union
 
-import keras_core as keras
+import keras
 import tensorflow as tf
 
 from aepy.models.base.default_architectures import BaseDecoder, BaseEncoder, Decoder_MLP, Encoder_MLP

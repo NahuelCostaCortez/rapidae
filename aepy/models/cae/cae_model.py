@@ -1,6 +1,6 @@
 from typing import Optional, Union, Tuple
 
-import keras_core as keras
+import keras
 import tensorflow as tf
 
 from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder

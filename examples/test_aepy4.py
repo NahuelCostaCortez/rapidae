@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import numpy as np
 
 from sklearn.metrics import accuracy_score, classification_report
-from keras_core import utils
+from keras import utils
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate
 from aepy.models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST

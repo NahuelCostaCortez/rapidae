@@ -7,7 +7,7 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 import numpy as np
 
 from sklearn.metrics import accuracy_score
-from keras_core import utils
+from keras import utils
 from aepy.data.datasets import load_MNIST
 from aepy.data.utils import evaluate, display_diff, add_noise
 from aepy.models.ae.ae_model import AE

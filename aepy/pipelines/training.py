@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 from typing import Optional
 
-from keras_core.callbacks import EarlyStopping, ModelCheckpoint
-from keras_core.optimizers import Adam
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.optimizers import Adam
 
 from aepy.models.base import BaseAE
 from aepy.pipelines.base import BasePipeline
