@@ -2,7 +2,7 @@ import os
 from abc import ABC
 from datetime import datetime
 
-from aepy.conf import Logger
+from rapidae.conf import Logger
 
 
 class BasePipeline(ABC):

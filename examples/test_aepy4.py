@@ -7,11 +7,11 @@ import numpy as np
 
 from sklearn.metrics import accuracy_score, classification_report
 from keras import utils
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate
-from aepy.models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST
-from aepy.models.vae.vae_model import VAE
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate
+from rapidae.models.base.default_architectures import Decoder_Conv_MNIST, Encoder_Conv_MNIST
+from rapidae.models.vae.vae_model import VAE
+from rapidae.pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(persistant=True)

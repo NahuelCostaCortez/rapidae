@@ -3,7 +3,7 @@ from typing import Optional, Union, Tuple
 import keras
 import tensorflow as tf
 
-from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder
+from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder
 
 
 class CAE(BaseAE):
@@ -23,11 +23,13 @@ class CAE(BaseAE):
             encoder: callable = None,
             decoder: callable = None,
             layers_conf: list = None,
+            lambda_ = 1e-4,
             **kwargs
     ):
         BaseAE.__init__(self, input_dim, latent_dim,
                         encoder=encoder, decoder=decoder, layers_conf=layers_conf)
-
+        
+        self.lambda_ = lambda_
         self.reconstruction_loss_tracker = keras.metrics.Mean(
             name='reconstruction_loss')
         self.contractive_loss_tracker = keras.metrics.Mean(
@@ -60,7 +62,6 @@ class CAE(BaseAE):
         )
 
         # Contractive loss
-        lambda_ = 1e-4
         #n_layers = len(self.encoder.layers_dict)
         #last_layer_name = f'dense_{n_layers - 1}'
         last_layer = self.encoder.enc_layer
@@ -71,7 +72,7 @@ class CAE(BaseAE):
         dh = h * (1 - h)  # N_batch x N_hidden
 
         # N_batch x N_hidden * N_hidden x 1 = N_batch x 1
-        contractive_loss = lambda_ * \
+        contractive_loss = self.lambda_ * \
             keras.ops.sum(keras.ops.matmul(dh**2, keras.ops.square(W)), axis=1)
 
         losses['contractive_loss'] = contractive_loss

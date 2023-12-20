@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from aepy.conf import Logger
+from rapidae.conf import Logger
 
 
 def get_data_from_url(url):

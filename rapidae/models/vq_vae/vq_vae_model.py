@@ -4,8 +4,8 @@ from typing import Optional, Tuple, Union
 import keras
 import tensorflow as tf
 
-from aepy.conf import Logger
-from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
+from rapidae.conf import Logger
+from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
 
 class VQ_VAE(BaseAE):

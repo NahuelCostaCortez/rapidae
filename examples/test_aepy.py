@@ -4,12 +4,12 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from sklearn.metrics import mean_squared_error
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate
-from aepy.models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate
+from rapidae.models.base.default_architectures import (Decoder_Conv_MNIST, Decoder_MLP,
                                                Encoder_Conv_MNIST, Encoder_MLP)
-from aepy.models.vae.vae_model import VAE
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.models.vae.vae_model import VAE
+from rapidae.pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(persistant=True)

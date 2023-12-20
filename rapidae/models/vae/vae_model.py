@@ -4,8 +4,8 @@ from typing import Optional, Tuple, Union
 import keras
 import tensorflow as tf
 
-from aepy.conf import Logger
-from aepy.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
+from rapidae.conf import Logger
+from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
 
 
 class VAE(BaseAE):
@@ -106,7 +106,7 @@ class VAE(BaseAE):
             recon_loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
             self.reconstruction_loss_tracker.update_state(recon_loss)
     
-        # Regressor lossx
+        # Regressor loss
         if self.downstream_task == 'regression':
             reg_loss = keras.ops.mean(keras.losses.mean_squared_error(y, y_pred['reg']))
             self.reg_loss_tracker.update_state(reg_loss)
@@ -134,135 +134,3 @@ class VAE(BaseAE):
         #self.total_loss_tracker.update_state(loss) # DELETE!
 
         return loss
-
-"""
-class VAECallback(keras.callbacks.Callback):
-
-    def __init__(self, _model, x, y):
-        super().__init__()
-        self._model = _model
-        self.x = x
-        self.y = y
-
-    def on_epoch_end(self, epoch, logs=None):
-        keys = list(logs.keys())
-        print("End epoch {} of training; got log keys: {}".format(epoch, keys))
-    
-    @property
-    def metrics(self):
-        metrics = [self.total_loss_tracker, self.kl_loss_tracker]
-        if self.decoder != None:
-            metrics.append(self.reconstruction_loss_tracker)
-        if self.downstream_task == 'regression':
-            metrics.append(self.reg_loss_tracker)
-        if self.downstream_task == 'classification':
-            metrics.append(self.clf_loss_tracker)
-        return metrics
-
-    def compute_losses(self, x, outputs, labels_x=None):
-        losses = {}
-
-        # KL loss
-        kl_loss = -0.5 * (1 + outputs['z_log_var'] -
-                          tf.square(outputs['z_mean']) - tf.exp(outputs['z_log_var']))
-        losses['kl_loss'] = tf.reduce_mean(tf.reduce_sum(kl_loss, axis=1))
-
-        # Regressor loss
-        if self.downstream_task == 'regression':
-            losses['reg_loss'] = tf.reduce_mean(
-                keras.losses.mean_squared_error(labels_x, outputs['reg'])
-            )
-
-        # Classifier loss
-        if self.downstream_task == 'classification':
-            losses['clf_loss'] = tf.reduce_mean(
-                keras.losses.categorical_crossentropy(labels_x, outputs['clf'])
-            )
-
-        # Reconstruction loss
-        # TODO: Check masking issues
-        if self.decoder is not None:
-            losses['recon_loss'] = tf.reduce_mean(
-                keras.losses.mean_squared_error(x, outputs['recon'])
-            )
-
-        return losses
-
-    def update_states(self, losses, total_loss):
-        metrics = {}
-
-        self.total_loss_tracker.update_state(total_loss)
-        metrics['total_loss'] = self.total_loss_tracker.result()
-
-        self.kl_loss_tracker.update_state(losses['kl_loss'])
-        metrics['kl_loss'] = self.kl_loss_tracker.result()
-
-        if self.downstream_task == 'regression':
-            self.reg_loss_tracker.update_state(losses['reg_loss'])
-            metrics['reg_loss'] = self.reg_loss_tracker.result()
-        if self.downstream_task == 'classification':
-            self.clf_loss_tracker.update_state(losses['clf_loss'])
-            metrics['clf_loss'] = self.clf_loss_tracker.result()
-        if self.decoder is not None:
-            self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
-            metrics['reconstruction_loss'] = self.reconstruction_loss_tracker.result()
-
-        return metrics
-
-    @tf.function
-    def train_step(self, inputs):
-        x = inputs['data']
-        labels_x = inputs['labels']
-
-        # Forward pass
-        with tf.GradientTape() as tape:
-            outputs = self(inputs)
-            losses = self.compute_losses(x, outputs, labels_x)
-
-            if self.downstream_task == 'classification':
-                if self.decoder is not None:
-                    total_loss = self.weight_vae * \
-                        (losses['kl_loss'] + losses['recon_loss']) + \
-                        self.weight_clf * losses['clf_loss']
-                else:
-                    total_loss = self.weight_vae * \
-                        losses['kl_loss'] + self.weight_clf * \
-                        losses['clf_loss']
-            else:
-                total_loss = sum(losses.values())
-
-        # Compute gradients
-        grads = tape.gradient(total_loss, self.trainable_weights)
-
-        # Update weights
-        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
-
-        # Update metrics
-        metrics = self.update_states(losses, total_loss)
-
-        return metrics
-    
-    @tf.function
-    def test_step(self, inputs):
-        x = inputs['data']
-        labels_x = inputs['labels']
-
-        # Forward pass
-        outputs = self(inputs)
-        losses = self.compute_losses(x, outputs, labels_x)
-        if self.downstream_task == 'classification':
-            if self.decoder is not None:
-                total_loss = self.weight_vae * \
-                    (losses['kl_loss'] + losses['recon_loss']) + \
-                    self.weight_clf * losses['clf_loss']
-            else:
-                total_loss = self.weight_vae * \
-                    losses['kl_loss'] + self.weight_clf * losses['clf_loss']
-        else:
-            total_loss = sum(losses.values())
-
-        # Upgrade metrics
-        metrics = self.update_states(losses, total_loss)
-
-        return metrics
-    """

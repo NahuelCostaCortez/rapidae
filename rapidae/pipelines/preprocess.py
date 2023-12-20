@@ -1,7 +1,7 @@
 from typing import Union
 
-from aepy.pipelines.base import BasePipeline
-from aepy.conf import Logger
+from rapidae.pipelines.base import BasePipeline
+from rapidae.conf import Logger
 
 
 class PreprocessPipeline(BasePipeline):

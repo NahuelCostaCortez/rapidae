@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn import metrics
 from inspect import getmembers, isfunction
-from aepy.conf import RandomSeed, Logger
+from rapidae.conf import RandomSeed, Logger
 
 
 def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=False, show=False, path='./'):

@@ -8,11 +8,11 @@ import tensorflow as tf
 from sklearn.metrics import accuracy_score
 from keras import utils
 
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate, display_diff, add_noise
-from aepy.models.vq_vae.vq_vae_model import VQ_VAE
-from aepy.models.base.default_architectures import Encoder_Conv_VQ_MNIST, Decoder_Conv_VQ_MNIST
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate, display_diff, add_noise
+from rapidae.models.vq_vae.vq_vae_model import VQ_VAE
+from rapidae.models.base.default_architectures import Encoder_Conv_VQ_MNIST, Decoder_Conv_VQ_MNIST
+from rapidae.pipelines.training import TrainingPipeline
 
 if tf.test.gpu_device_name():
     print('GPU found')

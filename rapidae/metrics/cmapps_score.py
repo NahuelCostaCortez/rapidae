@@ -1,6 +1,6 @@
 import numpy as np
 
-from aepy.metrics.metric import Metric
+from rapidae.metrics.metric import Metric
 
 
 class CMAPSS_Score(Metric):

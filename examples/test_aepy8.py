@@ -8,11 +8,11 @@ import numpy as np
 #import torch
 from sklearn.metrics import accuracy_score
 from keras import utils
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate, display_diff, add_noise
-from aepy.models.backend_ag_ae import BAG_AE
-from aepy.models.base.default_architectures import VanillaEncoder, VanillaDecoder
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate, display_diff, add_noise
+from rapidae.models.backend_ag_ae import BAG_AE
+from rapidae.models.base.default_architectures import VanillaEncoder, VanillaDecoder
+from rapidae.pipelines.training import TrainingPipeline
 
 #print(torch.cuda.get_device_name(0))
 

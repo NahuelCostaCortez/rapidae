@@ -3,11 +3,11 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate
-from aepy.models.vanilla_ae.vanilla_ae_model import VanillaAE
-from aepy.models.base.default_architectures import VanillaEncoder, VanillaDecoder
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate
+from rapidae.models.vanilla_ae.vanilla_ae_model import VanillaAE
+from rapidae.models.base.default_architectures import VanillaEncoder, VanillaDecoder
+from rapidae.pipelines.training import TrainingPipeline
 
 
 # Load MNIST dataset

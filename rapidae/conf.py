@@ -20,13 +20,13 @@ class Logger:
     """
     _instance = None
 
-    def __new__(cls, log_file=os.path.join('..', 'aepy.log')):
+    def __new__(cls, log_file=os.path.join('..', 'rapidae.log')):
         if cls._instance is None:
             cls._instance = super(Logger, cls).__new__(cls)
             cls._instance._initialize_logger(log_file=log_file)
         return cls._instance
 
-    def _initialize_logger(self, log_file='aepy.log'):
+    def _initialize_logger(self, log_file='rapidae.log'):
         # Create directory if needed
         #if not path.exists(Directory.BASE):
         #    makedirs(Directory.BASE)
@@ -52,7 +52,7 @@ class Logger:
             filename=log_file
         )
 
-        self.logger = logging.getLogger("AEPY_logger")
+        self.logger = logging.getLogger("RAPIDAE_logger")
 
         # Display logs on console
         console_handler = logging.StreamHandler()

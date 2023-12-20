@@ -7,11 +7,11 @@ import numpy as np
 
 from sklearn.metrics import accuracy_score
 from keras import utils
-from aepy.data.datasets import load_MNIST
-from aepy.data.utils import evaluate, display_diff, add_noise
-from aepy.models.ae.ae_model import AE
-from aepy.models.base.default_architectures import SparseEncoder, SparseDecoder
-from aepy.pipelines.training import TrainingPipeline
+from rapidae.data.datasets import load_MNIST
+from rapidae.data.utils import evaluate, display_diff, add_noise
+from rapidae.models.ae.ae_model import AE
+from rapidae.models.base.default_architectures import SparseEncoder, SparseDecoder
+from rapidae.pipelines.training import TrainingPipeline
 
 # Load MNIST dataset
 x_train, y_train, x_test, y_test = load_MNIST(persistant=True)
