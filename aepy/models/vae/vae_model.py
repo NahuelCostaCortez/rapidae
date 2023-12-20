@@ -58,7 +58,7 @@ class VAE(BaseAE):
             self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
-        self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
+        #self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
@@ -131,7 +131,7 @@ class VAE(BaseAE):
                 loss = kl_loss + recon_loss + reg_loss
             else:
                 loss = kl_loss + clf_loss
-        self.total_loss_tracker.update_state(loss) # DELETE!
+        #self.total_loss_tracker.update_state(loss) # DELETE!
 
         return loss
 
