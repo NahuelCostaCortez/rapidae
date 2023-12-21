@@ -3,3 +3,4 @@ output_dir/
 mnist_data
 .vscode
 rapidae.log
+dist/

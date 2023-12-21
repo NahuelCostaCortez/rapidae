@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rapidae"
+version = "0.0.2"
+authors = [
+  { name="Nahuel Costa", email="costanahuel@gmail.com" },
+  { name="Lucas Pérez", email="lucasperezca22@gmail.com" }
+]
+description = "A small example package"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+keywords = [
+    "machine learning",
+    "deep learning",
+    "autoencoder",
+    "variational autoencoder"
+]
+dependencies = [
+  "colorlog",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "requests",
+  "scikit-learn",
+  "keras>=3.0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/NahuelCostaCortez/rapidae"
+Issues = "https://github.com/NahuelCostaCortez/rapidae/issues"
