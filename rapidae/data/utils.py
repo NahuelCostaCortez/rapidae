@@ -6,7 +6,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
+import tensorflow as tf # TODO: DELETE THIS IMPORT
 from sklearn import metrics
 from inspect import getmembers, isfunction
 from rapidae.conf import RandomSeed, Logger
@@ -107,7 +107,7 @@ def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
     # Set Random seed of an experiment
     random.seed(random_seed)
     np.random.seed(random_seed)
-    tf.random.set_seed(random_seed)
+    tf.random.set_seed(random_seed) # TODO: DELETE THIS
 
 
 def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
