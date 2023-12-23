@@ -1,7 +1,8 @@
-import sys
+import os
 from typing import Optional, Tuple, Union
 
 import keras
+import numpy as np
 import tensorflow as tf
 
 from rapidae.conf import Logger
@@ -38,15 +39,18 @@ class VQ_VAE(BaseAE):
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
                                         embedding_dim=self.latent_dim)
 
-        self.total_loss_tracker = keras.metrics.Mean(name='loss')
+        #self.total_loss_tracker = keras.metrics.Mean(name='loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
         self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
 
-    def call(self, inputs):
-        x = inputs['data']
+    def call(self, x):
+        #x = inputs['data']
         encoder_outputs = self.encoder(x)
-        print(encoder_outputs.shape)
+        #print(encoder_outputs.shape)
         quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
+        if vq_loss == []:
+            vq_loss = 0.0
+        vq_loss = tf.convert_to_tensor(vq_loss)
         outputs={}
         outputs['vq_loss'] = vq_loss
         outputs['quantized_latents'] = quantized_latents
@@ -54,7 +58,20 @@ class VQ_VAE(BaseAE):
         outputs['recon'] = recon_x
 
         return outputs
+    
+    def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        recon_loss = keras.ops.mean(
+                    keras.losses.mean_squared_error(x, y_pred['recon'])
+                )
+        self.reconstruction_loss_tracker.update_state(recon_loss)
+        
+        # VQ loss was already computed in Vector Quantized layer
+        vq_loss = y_pred['vq_loss']
+        self.vq_loss_tracker.update_state(vq_loss)
 
+        return recon_loss + vq_loss
+
+    """
     @property
     def metrics(self):
         metrics = [self.total_loss_tracker,
@@ -123,6 +140,7 @@ class VQ_VAE(BaseAE):
         metrics = self.update_states(losses, total_loss)
 
         return metrics
+    """
 
 class VectorQuantizer(keras.layers.Layer):
     """
@@ -146,13 +164,12 @@ class VectorQuantizer(keras.layers.Layer):
 
         # Initialize the embeddings which we will quantize.
         w_init = keras.initializers.random_uniform()
-        #w_init = tf.random_uniform_initializer()
-        self.embeddings = tf.Variable(
-            initial_value=w_init(
-                shape=(self.embedding_dim, self.num_embeddings), dtype="float32"
-            ),
-            trainable=True,
-            name="embeddings_vqvae",
+        self.embeddings = self.add_weight(
+            shape = [self.embedding_dim, self.num_embeddings],
+            initializer = w_init,
+            name = 'embeddings_vqvae',
+            trainable = True, 
+            dtype='float32'
         )
 
     def call(self, x):

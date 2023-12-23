@@ -2,7 +2,6 @@ import sys
 from typing import Optional, Tuple, Union
 
 import keras
-import tensorflow as tf
 
 from rapidae.conf import Logger
 from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
