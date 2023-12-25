@@ -2,8 +2,6 @@ import os
 from typing import Optional, Tuple, Union
 
 import keras
-import numpy as np
-import tensorflow as tf
 
 from rapidae.conf import Logger
 from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder, BaseRegressor, BaseClassifier
@@ -44,15 +42,10 @@ class VQ_VAE(BaseAE):
         self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
 
     def call(self, x):
-        #x = inputs['data']
         encoder_outputs = self.encoder(x)
-        #print(encoder_outputs.shape)
         quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
-        if vq_loss == []:
-            vq_loss = 0.0
-        vq_loss = tf.convert_to_tensor(vq_loss)
         outputs={}
-        outputs['vq_loss'] = vq_loss
+        outputs['vq_loss'] = keras.ops.array(vq_loss)
         outputs['quantized_latents'] = quantized_latents
         recon_x = self.decoder(encoder_outputs)
         outputs['recon'] = recon_x
@@ -65,82 +58,11 @@ class VQ_VAE(BaseAE):
                 )
         self.reconstruction_loss_tracker.update_state(recon_loss)
         
-        # VQ loss was already computed in Vector Quantized layer
+        # VQ loss was already computed inside the Vector Quantized layer
         vq_loss = y_pred['vq_loss']
         self.vq_loss_tracker.update_state(vq_loss)
 
         return recon_loss + vq_loss
-
-    """
-    @property
-    def metrics(self):
-        metrics = [self.total_loss_tracker,
-                   self.reconstruction_loss_tracker,
-                   self.vq_loss_tracker]
-        return metrics
-    
-    def compute_losses(self, x, outputs, labels_x=None):
-        losses = {}
-
-        losses['recon_loss'] = keras.ops.mean(
-                    keras.losses.mean_squared_error(x, outputs['recon'])
-                )
-        # VQ loss was already computed in Vector Quantized layer
-        losses['vq_loss'] = outputs['vq_loss']
-        
-        return losses
-
-    def update_states(self, losses, total_loss):
-        metrics = {}
-        
-        self.total_loss_tracker.update_state(total_loss)
-        metrics['loss'] = self.total_loss_tracker.result()
-
-        self.reconstruction_loss_tracker.update_state(losses['recon_loss'])
-        metrics['recontruction_loss'] = self.reconstruction_loss_tracker.result()
-
-        self.vq_loss_tracker.update_state(losses['vq_loss'])
-        metrics['vq_loss'] = self.vq_loss_tracker.result()
-
-        return metrics
-    
-    @tf.function
-    def train_step(self, inputs):
-        x = inputs['data']
-        labels_x = inputs['labels']
-
-        # Forward pass
-        with tf.GradientTape() as tape:
-            outputs = self(inputs)
-            losses = self.compute_losses(x, outputs, labels_x)
-            total_loss = sum(losses.values())
-
-        # Compute gradients
-        grads = tape.gradient(total_loss, self.trainable_weights)
-
-        # Update weights
-        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
-
-        # Update metrics
-        metrics = self.update_states(losses, total_loss)
-
-        return metrics
-
-    @tf.function
-    def test_step(self, inputs):
-        x = inputs['data']
-        labels_x = inputs['labels']
-
-        # Forward pass
-        outputs = self(inputs)
-        losses = self.compute_losses(x, outputs, labels_x)
-        total_loss = sum(losses.values())
-
-        # Update metrics
-        metrics = self.update_states(losses, total_loss)
-
-        return metrics
-    """
 
 class VectorQuantizer(keras.layers.Layer):
     """
@@ -159,10 +81,10 @@ class VectorQuantizer(keras.layers.Layer):
         self.embedding_dim = embedding_dim
         self.num_embeddings = num_embeddings
 
-        # The `beta` parameter is best kept between [0.25, 2] as per the paper.
+        # The `beta` parameter is best kept between [0.25, 2] as per the paper
         self.beta = beta
 
-        # Initialize the embeddings which we will quantize.
+        # Initialize the embeddings which we will quantize
         w_init = keras.initializers.random_uniform()
         self.embeddings = self.add_weight(
             shape = [self.embedding_dim, self.num_embeddings],
@@ -210,7 +132,7 @@ class VectorQuantizer(keras.layers.Layer):
         Returns:
         tf.Tensor: Indices for minimum distances.
         """
-        # Calculate L2-normalized distance between the inputs and the codes.
+        # Calculate L2-normalized distance between the inputs and the codes
         similarity = keras.ops.matmul(flattened_inputs, self.embeddings)
         distances = (
             keras.ops.sum(flattened_inputs ** 2, axis=1, keepdims=True)
@@ -218,7 +140,7 @@ class VectorQuantizer(keras.layers.Layer):
             - 2 * similarity
         )
 
-        # Derive the indices for minimum distances.
+        # Derive the indices for minimum distances
         encoding_indices = keras.ops.argmin(distances, axis=1)
         
         return encoding_indices

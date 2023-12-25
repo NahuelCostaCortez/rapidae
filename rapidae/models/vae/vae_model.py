@@ -80,7 +80,7 @@ class VAE(BaseAE):
             outputs["recon"] = recon_x
         return outputs
 
-    # TODO: cambiar a una función que se llame NormalSampler
+    # TODO: change to function named NormalSampler
     class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
 
@@ -130,6 +130,5 @@ class VAE(BaseAE):
                 loss = kl_loss + recon_loss + reg_loss
             else:
                 loss = kl_loss + clf_loss
-        #self.total_loss_tracker.update_state(loss) # DELETE!
 
         return loss

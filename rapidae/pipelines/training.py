@@ -67,7 +67,7 @@ class TrainingPipeline(BasePipeline):
         super().__call__()
 
         if callbacks is None:
-            # set callbacks
+            # Set callbacks
             callbacks = []
             if x_eval is None:
                 callbacks.append(EarlyStopping(
@@ -80,14 +80,14 @@ class TrainingPipeline(BasePipeline):
                 callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='val_loss',
                                  verbose=1, save_best_only=True, mode='min', save_weights_only=True))
 
-        # set optimizer
+        # Set optimizer
         if self.optimizer == 'adam':
             optimizer = Adam(learning_rate=self.learning_rate)
         else:
             self.logger.log_error('Unimplemented optimizer')
             exit(-1)
 
-        # compile and fit the model
+        # Compile and fit the model
         self.model.compile(optimizer=optimizer, run_eagerly=True)
 
         if x_eval is None:
@@ -110,7 +110,7 @@ class TrainingPipeline(BasePipeline):
                         callbacks=callbacks,
                         verbose=2)
 
-        # restore the best model
+        # Restore the best model
         self.model.load_weights(os.path.join(
             self.output_dir, 'model.weights.h5'))
 

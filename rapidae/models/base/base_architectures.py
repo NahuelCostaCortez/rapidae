@@ -3,7 +3,6 @@ Base class for defining the encoder and decoder architectures
 """
 
 import keras as keras
-import tensorflow as tf
 from keras import layers
 
 
@@ -66,6 +65,7 @@ class BaseDecoder(layers.Layer):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
+        # The decoder usually uses a reversed architecture of the encoder
         self.layers_conf = reversed(layers_conf)
 
     def call(self, x):
