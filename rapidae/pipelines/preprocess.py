@@ -1,7 +1,6 @@
 from typing import Union
 
 from rapidae.pipelines.base import BasePipeline
-from rapidae.conf import Logger
 
 
 class PreprocessPipeline(BasePipeline):

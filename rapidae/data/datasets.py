@@ -4,7 +4,6 @@ Class to load some common datasets.
 import gzip
 import os
 import urllib
-from os.path import isfile
 from shutil import rmtree
 
 import numpy as np

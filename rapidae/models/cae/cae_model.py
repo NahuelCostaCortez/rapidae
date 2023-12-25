@@ -1,8 +1,8 @@
-from typing import Optional, Union, Tuple
+from typing import Union, Tuple
 
 import keras
 
-from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder
+from rapidae.models.base import BaseAE
 
 
 class CAE(BaseAE):

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from typing import Optional
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint

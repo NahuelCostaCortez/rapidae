@@ -1,6 +1,6 @@
 import logging
 import os
-from os import makedirs, path
+from os import path
 
 from colorlog import ColoredFormatter
 

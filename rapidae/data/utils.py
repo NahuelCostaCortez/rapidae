@@ -1,15 +1,11 @@
 """
 Class for common data utilities.
 """
-import random
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf # TODO: DELETE THIS IMPORT
 from sklearn import metrics
 from inspect import getmembers, isfunction
-from rapidae.conf import RandomSeed, Logger
+from rapidae.conf import Logger
 
 
 def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=False, show=False, path='./'):
@@ -93,22 +89,6 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
             label, sel_metric.__class__.__name__, result))
 
     return result
-
-
-def set_random_seed(random_seed=RandomSeed.RANDOM_SEED):
-    """
-    This function ensures that the randomness introduced by random number generation functions is controlled, providing
-    a reproducible environment for experiments.
-
-    Args
-    ----
-        random_seed (int): Selected random seed.
-    """
-    # Set Random seed of an experiment
-    random.seed(random_seed)
-    np.random.seed(random_seed)
-    tf.random.set_seed(random_seed) # TODO: DELETE THIS
-
 
 def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
     """

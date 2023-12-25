@@ -1,10 +1,6 @@
 from typing import Optional, Union, Tuple
 
 import keras
-if keras.backend.backend() == 'tensorflow':
-    import tensorflow as tf
-elif keras.backend.backend() == 'torch':
-    import torch
 
 from rapidae.models.base import BaseAE, BaseDecoder, BaseEncoder
 
@@ -42,6 +38,5 @@ class AE(BaseAE):
         return outputs
     
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        #print(y.shape)
         loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
         return loss
