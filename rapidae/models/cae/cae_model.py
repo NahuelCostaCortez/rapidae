@@ -33,17 +33,14 @@ class CAE(BaseAE):
             name='reconstruction_loss')
         self.contractive_loss_tracker = keras.metrics.Mean(
             name='contractive_loss')
-        #self.total_loss_tracker = keras.metrics.Mean(name='loss')
 
     def call(self, x):
-        #x = inputs['data']
         x_hid = self.encoder(x)
         recon_x = self.decoder(x_hid)
         outputs = {}
         outputs['x_hidden'] = x_hid
         outputs['recon'] = recon_x
-        #print(x.shape)
-        #print(recon_x.shape)
+
         return outputs
     
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
@@ -54,10 +51,7 @@ class CAE(BaseAE):
         self.reconstruction_loss_tracker.update_state(recon_loss)
 
         # Contractive loss
-        #n_layers = len(self.encoder.layers_dict)
-        #last_layer_name = f'dense_{n_layers - 1}'
         last_layer = self.encoder.enc_layer
-
         W = last_layer.weights[0]  # N x N_hidden
         W = keras.ops.transpose(W)  # N_hidden x N
         h = y_pred['x_hidden']
@@ -67,5 +61,6 @@ class CAE(BaseAE):
         contractive_loss = self.lambda_ * \
             keras.ops.sum(keras.ops.matmul(dh**2, keras.ops.square(W)), axis=1)
         self.contractive_loss_tracker.update_state(contractive_loss)
-        
-        return contractive_loss + recon_loss
+        loss = contractive_loss + recon_loss
+
+        return loss

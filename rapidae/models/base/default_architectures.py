@@ -55,7 +55,7 @@ class Decoder_MLP(BaseDecoder):
                              str(idx)] = layers.Dense(depth, activation="relu")
 
         self.dense_recons = layers.Dense(
-            self.input_dim[1], activation="sigmoid")
+            self.input_dim, activation="sigmoid")
 
     def call(self, z):
         for name, layer in self.layers_dict.items():
@@ -265,15 +265,13 @@ class SparseEncoder(BaseEncoder):
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
-                                                                 activation='sigmoid',
-                                                                 kernel_regularizer=keras.regularizers.l2(
-                                                                     self.lambda_/2),
+            self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='sigmoid')
+        self.encoder_outputs = layers.Dense(latent_dim, activation='sigmoid',
                                                                  activity_regularizer=SparseRegularizer())
-
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
+        x = self.encoder_outputs(x)
         return x
 
 
@@ -294,13 +292,10 @@ class SparseDecoder(BaseDecoder):
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth,
-                                                                 activation='sigmoid',
-                                                                 kernel_regularizer=keras.regularizers.l2(
-                                                                     self.lambda_/2),
-                                                                 activity_regularizer=SparseRegularizer())
+                                                                 activation='sigmoid')
 
         self.dense_recons = layers.Dense(
-            self.input_dim[1], activation="sigmoid")
+            self.input_dim, activation="sigmoid")
 
     def call(self, x):
         for name, layer in self.layers_dict.items():
@@ -319,14 +314,14 @@ class SparseRegularizer(keras.regularizers.Regularizer):
         beta (int): Regularization strength. Default is 3.
     """
 
-    def __init__(self, p=0.01, beta=3):
+    def __init__(self, p=0.01, beta=2):
         self.p = p
         self.beta = beta
 
     def __call__(self, x):
         self.p_hat = keras.ops.mean(x)
-        kl_divergence = self.p*(keras.ops.log(self.p/self.p_hat)) + \
-            (1-self.p)*(keras.ops.log(1-self.p/1-self.p_hat))
+        kl_divergence = self.p * (keras.ops.log(self.p / self.p_hat)) + \
+            (1 - self.p)*(keras.ops.log(1 - self.p / 1 - self.p_hat))
         return self.beta * keras.ops.sum(kl_divergence)
 
     def get_config(self):

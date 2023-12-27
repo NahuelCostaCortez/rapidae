@@ -87,7 +87,7 @@ class VAE(BaseAE):
             z_mean, z_log_var = inputs
             batch = keras.ops.shape(z_mean)[0]
             dim = keras.ops.shape(z_mean)[1]
-            # added seed for reproducibility
+            # Added seed for reproducibility
             epsilon = keras.random.normal(shape=(batch, dim), seed=42)
             return z_mean + keras.ops.exp(0.5 * z_log_var) * epsilon
     
@@ -114,6 +114,9 @@ class VAE(BaseAE):
             clf_loss = keras.ops.mean(keras.losses.categorical_crossentropy(y, y_pred['clf']))
             self.clf_loss_tracker.update_state(clf_loss)
     
+        if self.downstream_task is None:
+            loss = kl_loss + recon_loss
+
         if self.downstream_task == 'classification':
             if self.decoder is not None:
                 loss = self.weight_vae * \
