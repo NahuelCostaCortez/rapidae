@@ -24,10 +24,9 @@ class VQ_VAE(BaseAE):
         decoder: callable = None,
         layers_conf: list = None,
         **kwargs
-    ):
-        
+    ):  
         BaseAE.__init__(self, input_dim, latent_dim,
-                encoder=encoder, decoder=decoder, layers_conf=layers_conf)
+                encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
         
         self.num_embeddings = num_embeddings
         
@@ -35,9 +34,9 @@ class VQ_VAE(BaseAE):
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
                                         embedding_dim=self.latent_dim)
 
-        #self.total_loss_tracker = keras.metrics.Mean(name='loss')
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
         self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
+
 
     def call(self, x):
         encoder_outputs = self.encoder(x)
@@ -50,6 +49,7 @@ class VQ_VAE(BaseAE):
 
         return outputs
     
+    
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         recon_loss = keras.ops.mean(
                     keras.losses.mean_squared_error(x, y_pred['recon'])
@@ -61,6 +61,7 @@ class VQ_VAE(BaseAE):
         self.vq_loss_tracker.update_state(vq_loss)
 
         return recon_loss + vq_loss
+
 
 class VectorQuantizer(keras.layers.Layer):
     """
@@ -92,6 +93,7 @@ class VectorQuantizer(keras.layers.Layer):
             dtype='float32'
         )
 
+
     def call(self, x):
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
@@ -119,6 +121,7 @@ class VectorQuantizer(keras.layers.Layer):
         quantized = x + keras.ops.stop_gradient(quantized - x)
 
         return quantized, self.losses
+
 
     def get_code_indices(self, flattened_inputs):
         """

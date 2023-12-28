@@ -25,11 +25,13 @@ class Encoder_MLP(BaseEncoder):
             self.layers_dict['dense_' +
                              str(idx)] = layers.Dense(depth, activation="relu")
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x_z_mean = self.z_mean(x)
         x_log_var = self.z_log_var(x)
+
         return x_z_mean, x_log_var
 
 
@@ -57,10 +59,12 @@ class Decoder_MLP(BaseDecoder):
         self.dense_recons = layers.Dense(
             self.input_dim, activation="sigmoid")
 
+
     def call(self, z):
         for name, layer in self.layers_dict.items():
             z = layer(z)
         x = self.dense_recons(z)
+
         return x
 # ------------------------------------------------------------------- #
 
@@ -88,6 +92,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -95,6 +100,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
         x = self.dense(x)
         x_z_mean = self.z_mean(x)
         x_log_var = self.z_log_var(x)
+
         return x_z_mean, x_log_var
 
 
@@ -124,14 +130,17 @@ class Decoder_Conv_MNIST(BaseDecoder):
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
             1, 3, activation="sigmoid", padding="same")
 
+
     def call(self, z):
         x = self.dense(z)
         x = self.reshape(x)
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.conv2d_transpose_recons(x)
+
         return x
 # ------------------------------------------------------------------- #
+
 
 # ----------------- CONV ENCODER-DECODER FOR VQ-VAE ----------------- #
 class Encoder_Conv_VQ_MNIST(BaseEncoder):
@@ -156,10 +165,12 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
         # self.flatten = layers.Flatten()
         self.encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.encoder_outputs(x)
+
         return x
 
 
@@ -187,13 +198,16 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
         self.conv2d_transpose_recons = layers.Conv2DTranspose(
             1, 3, padding="same")
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.conv2d_transpose_recons(x)
+
         return x
 
 # ------------------------------------------------------------------- #
+
 
 # ------------------ ENCODER-DECODER FROM RVE paper ----------------- #
 class RecurrentEncoder(BaseEncoder):
@@ -213,11 +227,13 @@ class RecurrentEncoder(BaseEncoder):
         self.mask = layers.Masking(mask_value=kwargs['masking_value'])
         self.h = layers.Bidirectional(layers.LSTM(300))
 
+
     def call(self, x):
         x = self.mask(x)
         x = self.h(x)
         x_z_mean = self.z_mean(x)
         x_z_log_var = self.z_log_var(x)
+
         return x_z_mean, x_z_log_var
 
 
@@ -240,10 +256,12 @@ class RecurrentDecoder(BaseDecoder):
             layers.LSTM(300, return_sequences=True))
         self.h_decoded = layers.LSTM(input_dim[1], return_sequences=True)
 
+
     def call(self, z):
         x = self.h_decoded_1(z)
         x = self.h_decoded_2(x)
         x = self.h_decoded(x)
+
         return x
 # ------------------------------------------------------------------- #
 
@@ -259,7 +277,7 @@ class SparseEncoder(BaseEncoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = 4  # TODO: Make lambda a customizable param
+        self.lambda_ = kwargs['lambda_']  
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -272,6 +290,7 @@ class SparseEncoder(BaseEncoder):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.encoder_outputs(x)
+
         return x
 
 
@@ -285,7 +304,7 @@ class SparseDecoder(BaseDecoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = 4  # TODO: Make lambda a customizable param
+        self.lambda_ = kwargs['lambda_'] 
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -301,6 +320,7 @@ class SparseDecoder(BaseDecoder):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.dense_recons(x)
+
         return x
 
 
@@ -318,34 +338,21 @@ class SparseRegularizer(keras.regularizers.Regularizer):
         self.p = p
         self.beta = beta
 
+
     def __call__(self, x):
         self.p_hat = keras.ops.mean(x)
         kl_divergence = self.p * (keras.ops.log(self.p / self.p_hat)) + \
             (1 - self.p)*(keras.ops.log(1 - self.p / 1 - self.p_hat))
+        
         return self.beta * keras.ops.sum(kl_divergence)
+
 
     def get_config(self):
         return {'p': float(self.p),
                 'p_hat': float(self.p_hat),
                 'beta': float(self.beta)}
-
-
-"""
-def sparse_regularizer(activation_matrix):
-    
-    #Function to define a custom regularizer based on Kullback-Leibler Divergence.
-    
-    p = 0.01
-    beta = 3
-    p_hat = tf.keras.backend.mean(activation_matrix) 
-  
-    KL_divergence = p*(tf.keras.backend.log(p/p_hat)) + (1-p)*(tf.keras.backend.log(1-p/1-p_hat))
-    
-    sum = tf.keras.backend.sum(KL_divergence) 
-   
-    return beta * sum 
-"""
 # ------------------------------------------------------------------- #
+
 
 # --------------------- VANILLA ENCODER-DECODER --------------------- #
 
@@ -376,10 +383,12 @@ class VanillaEncoder(layers.Layer):
 
         self.enc_layer = layers.Dense(latent_dim, activation='relu')
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.enc_layer(x)
+
         return x
 
 
@@ -409,10 +418,12 @@ class VanillaDecoder(layers.Layer):
 
         self.dense_recons = layers.Dense(self.input_dim, activation="sigmoid")
 
+
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.dense_recons(x)
+
         return x
 # ------------------------------------------------------------------- #
 
@@ -434,9 +445,11 @@ class BaseRegressor(layers.Layer):
         self.dense = layers.Dense(200, activation='tanh')
         self.out = layers.Dense(1, name='reg_output')
 
+
     def call(self, x):
         x = self.dense(x)
         x = self.out(x)
+
         return x
 
 
@@ -456,8 +469,10 @@ class BaseClassifier(layers.Layer):
         self.outputs = layers.Dense(
             n_classes, activation='softmax', name='class_output')
 
+
     def call(self, x):
         x = self.intermediate(x)
         x = self.outputs(x)
+        
         return x
 # ------------------------------------------------------------------- #

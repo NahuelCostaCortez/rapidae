@@ -26,7 +26,8 @@ class AE(BaseAE):
     ):
 
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, layers_conf=layers_conf)
+                        encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
+
 
     # keras model call function
     def call(self, x):
@@ -35,8 +36,11 @@ class AE(BaseAE):
         outputs = {}
         outputs["z"] = z
         outputs["recon"] = recon_x
+
         return outputs
     
+
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
+        
         return loss

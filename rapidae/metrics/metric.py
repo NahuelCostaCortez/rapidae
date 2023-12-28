@@ -15,6 +15,7 @@ class Metric(ABC):
         """
         pass
 
+
     def show_start_message(self):
         """
         Prints name of the selected metric in the terminal. Logging purposes

@@ -8,47 +8,26 @@ from inspect import getmembers, isfunction
 from rapidae.conf import Logger
 
 
-def viz_latent_space(exp_name, model, data, targets=[], epoch='Final', save=False, show=False, path='./'):
+def plot_label_clusters(model, data, labels):
     """
-    Displays a plot of the latent space. The plot can be customized by providing targets for coloring data points,
-    specifying the training epoch, and choosing whether to save or display the plot.
-
+    Takes a trained variational autoencoder (VAE) model, input data, and true labels.
+    It uses the VAE model to predict the latent space representations for the input data and then
+    creates a 2D scatter plot of the latent space clusters colored by the true labels.
+    
     Args
     ----
-        exp_name (str): Name of the experiment.
-        model (keras.Model): Used model.
-        data (ArrayLike): The input data for which the latent space is visualized.
-        targets (ArrayLike): Optional targets for coloring data points in the plot.
-        epoch (str): The epoch or stage of the model to be visualized (default is 'Final').
-        save (bool): Flag for saving the generated plot.
-        show (bool): Flag for showing the generated plot.
-        path (str): Path where the plot will be stored.
-
-    Returns
-    -------
-    z (numpy.ndarray): The latent space representation of the input data.
+        model: An instance of a trained variational autoencoder model.
+        data: Input data to be used for generating latent space representations.
+        labels: True labels corresponding to the input data.    
     """
-    # Obtain the latent space representation from the model
-    z = model.call(dict(data=data))['z']
+    outputs = model.predict(data, verbose=0)
 
-    plt.figure(figsize=(8, 10))
-
-    # Check if targets are provided for coloring data points
-    if len(targets) > 0:
-        plt.scatter(z[:, 0], z[:, 1], c=targets)
-    else:
-        plt.scatter(z[:, 0], z[:, 1])
-
-    plt.xlabel('z - dim 1')
-    plt.ylabel('z - dim 2')
+    plt.figure(figsize=(12, 10))
+    plt.scatter(outputs['z_mean'][:, 0], outputs['z_mean'][:, 1], c=labels)
     plt.colorbar()
-
-    if show:
-        plt.show()
-    if save:
-        plt.savefig(path+exp_name+'_latent_space.png')
-
-    return z
+    plt.xlabel("z[0]")
+    plt.ylabel("z[1]")
+    plt.show()
 
 
 def evaluate(y_true, y_hat, sel_metric, label='test'):
@@ -69,8 +48,6 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
     -------
     result: The result of the evaluation based on the selected metric.
     """
-    logger = Logger()
-
     # Get all functions from the metrics module
     all_metrics = getmembers(metrics, isfunction)
 
@@ -80,10 +57,12 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
 
     # Check if the selected metric is available in sklearn
     if type(sel_metric).__name__ == 'function' and sel_metric.__name__ in all_metrics:
+        Logger().log_info('Using Scikit-learn metric...')
         result = sel_metric(y_true, y_hat)
         print('{} set results: [\n\t {}: {} \n]'.format(
             label, sel_metric.__name__, result))
     else:
+        Logger().log_info('Using Rapidae custom metric...')
         result = sel_metric.calculate(y_true, y_hat)
         print('{} set results: [\n\t {}: {} \n]'.format(
             label, sel_metric.__class__.__name__, result))

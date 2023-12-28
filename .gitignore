@@ -1,6 +1,6 @@
 __pycache__/
 output_dir/
-mnist_data
+datasets/
 .vscode
 rapidae.log
 dist/

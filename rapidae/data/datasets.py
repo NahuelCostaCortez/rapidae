@@ -25,9 +25,11 @@ def get_data_from_url(url):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.text
+
         return data
     else:
         print("Failed to retrieve data from", url)
+
         return None
 
 
@@ -41,8 +43,7 @@ def load_mnist_images(filename):
     """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=16)
-        # data = np.expand_dims(data, axis=-1)
-        # data = np.expand_dims(data, axis=-1)
+
     return data.reshape(-1, 28, 28, 1)
 
 
@@ -56,6 +57,7 @@ def load_mnist_labels(filename):
     """
     with gzip.open(filename, 'rb') as file:
         data = np.frombuffer(file.read(), np.uint8, offset=8)
+
     return data
 
 
@@ -78,8 +80,6 @@ def load_MNIST(persistant=False):
     test_img_path = os.path.join(data_dir, filenames[2])
     test_lbl_path = os.path.join(data_dir, filenames[3])
 
-    logger = Logger()
-
     # Create a directory to store the downloaded files
     os.makedirs(data_dir, exist_ok=True)
 
@@ -88,10 +88,10 @@ def load_MNIST(persistant=False):
         url = url_base + filename
         target_path = os.path.join(data_dir, filename)
         if not os.path.exists(target_path):
-            logger.log_info(f'Downloading {filename}...')
+            Logger().log_info(f'Downloading {filename}...')
             urllib.request.urlretrieve(url, target_path)
         else:
-            logger.log_info(f'{filename} already exists.')
+            Logger().log_info(f'{filename} already exists.')
 
     # Load the training and test data
     x_train = load_mnist_images(train_img_path)
@@ -101,10 +101,95 @@ def load_MNIST(persistant=False):
 
     # If required delete data
     if not persistant:
-        logger.log_info('Deleting MNIST data...')
+        Logger().log_info('Deleting MNIST data...')
         rmtree(data_dir)
 
     return x_train, y_train, x_test, y_test
+
+
+def convert_one_hot(x, target):
+	'''
+	Convert target values to one-hot encoding.
+
+    Args
+    ----
+        x (numpy.ndarray): Input array or matrix.
+        target (numpy.ndarray): Target values to be converted to one-hot encoding.
+
+    Returns
+    -------
+        numpy.ndarray: Array with one-hot encoded representation of target values.
+	'''
+	n_classes = 6
+	samples =  np.zeros((x.shape[0], n_classes))
+
+	for i in range(target.shape[0]):
+		samples[i][int(target[i])] = 1
+
+	return samples
+
+
+def load_arrhythmia_data(persistant=False):
+    """
+    Load arrhythmia dataset and perform preprocessing.
+
+    Args
+    ----
+        persistent (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
+
+    Returns
+    -------
+        x_train (numpy.ndarray): Training input data.
+        x_val (numpy.ndarray): Validation input data.
+        x_test (numpy.ndarray): Test input data.
+        y_train (numpy.ndarray): One-hot encoded labels for training data.
+        y_val (numpy.ndarray): One-hot encoded labels for validation data.
+        y_test (numpy.ndarray): One-hot encoded labels for test data.
+        target_train (numpy.ndarray): Target labels for training data.
+        target_val (numpy.ndarray): Target labels for validation data.
+        target_test (numpy.ndarray): Target labels for test data.
+    """
+
+    # Load the data
+    url = 'https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy'
+    filename = 'arrhythmia_data.npy'
+    data_dir = os.path.join('..', 'datasets', 'arrhythmia_data')
+    
+    # Create a directory to store the downloaded files
+    os.makedirs(data_dir, exist_ok=True)
+
+    target_path = os.path.join(data_dir, filename)
+
+    if not os.path.exists(target_path):
+        Logger().log_info(f'Downloading {filename}...')
+        urllib.request.urlretrieve(url, target_path)
+    else:
+        Logger().log_info(f'{filename} already exists.')
+
+    data = np.load(target_path, allow_pickle=True).item()
+
+    # Split into a train, validation, test
+    x_train = data['input_train']
+    x_val = data['input_vali']
+    x_test = data['input_test']
+	 
+    target_train = data['target_train']
+    target_val = data['target_vali']
+    target_test = data['target_test']
+
+    # Convert labels to one-hot encoding
+    y_train = convert_one_hot(x_train, target_train)  
+    y_val = convert_one_hot(x_val, target_val)
+    y_test = convert_one_hot(x_test, target_test)
+
+    # If required delete data
+    if not persistant:
+        Logger().log_info('Deleting arrhythmia data...')
+        rmtree(data_dir)
+
+    return x_train, x_val, x_test, y_train, y_val, y_test, target_train, target_val, target_test
 
 
 def load_CMAPSS(subset="FD001"):

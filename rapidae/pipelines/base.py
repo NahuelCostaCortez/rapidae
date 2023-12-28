@@ -21,6 +21,7 @@ class BasePipeline(ABC):
         self.output_dir = output_dir
         self.logger = Logger()
 
+
     def __call__(self):
         """
         Launchs the pipeline

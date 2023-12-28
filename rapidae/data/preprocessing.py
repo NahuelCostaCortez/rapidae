@@ -22,6 +22,7 @@ def add_remaining_useful_life(df):
 
     # drop max_cycle as it's no longer needed
     result_frame = result_frame.drop("max_cycle", axis=1)
+
     return result_frame
 
 
@@ -49,6 +50,7 @@ def condition_scaler(df_train, df_test, sensor_names):
             df_train.loc[df_train['op_cond'] == condition, sensor_names])
         df_test.loc[df_test['op_cond'] == condition, sensor_names] = scaler.transform(
             df_test.loc[df_test['op_cond'] == condition, sensor_names])
+        
     return df_train, df_test
 
 
@@ -87,6 +89,7 @@ def gen_data_wrapper(df, sequence_length, columns, unit_nrs=np.array([])):
     data_gen = (list(gen_train_data(df[df['unit_nr'] == unit_nr], sequence_length, columns))
                 for unit_nr in unit_nrs)
     data_array = np.concatenate(list(data_gen)).astype(np.float32)
+
     return data_array
 
 
@@ -105,6 +108,7 @@ def gen_label_wrapper(df, sequence_length, label, unit_nrs=np.array([])):
     label_gen = [gen_labels(df[df['unit_nr'] == unit_nr], sequence_length, label)
                  for unit_nr in unit_nrs]
     label_array = np.concatenate(label_gen).astype(np.float32)
+
     return label_array
 
 
@@ -186,4 +190,4 @@ def CMAPSS_preprocessor(train, test, y_test, sensors=['s_3', 's_4', 's_7', 's_11
     x_test = np.concatenate(list(test_gen)).astype(np.float32)
 
     return x_train, y_train, x_val, y_val, x_test, y_test['RemainingUsefulLife']
-# ---------------------------------------------------------------------------------------------------
+

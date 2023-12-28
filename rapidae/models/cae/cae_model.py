@@ -26,13 +26,14 @@ class CAE(BaseAE):
             **kwargs
     ):
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, layers_conf=layers_conf)
+                        encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
         
         self.lambda_ = lambda_
         self.reconstruction_loss_tracker = keras.metrics.Mean(
             name='reconstruction_loss')
         self.contractive_loss_tracker = keras.metrics.Mean(
             name='contractive_loss')
+
 
     def call(self, x):
         x_hid = self.encoder(x)
@@ -42,6 +43,7 @@ class CAE(BaseAE):
         outputs['recon'] = recon_x
 
         return outputs
+    
     
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         # Reconstruction loss

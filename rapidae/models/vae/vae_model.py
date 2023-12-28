@@ -28,11 +28,11 @@ class VAE(BaseAE):
         layers_conf: list = None,
         **kwargs
     ):
-
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf)
+                        encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf, **kwargs)
 
         self.downstream_task = downstream_task
+
         if self.downstream_task is not None:
             # Change string to lowercase
             self.downstream_task = downstream_task.lower()
@@ -52,16 +52,13 @@ class VAE(BaseAE):
             Logger().log_info('No specific dowstream task has been selected')
 
         if self.decoder is not False:
-            # self.decoder = decoder
             self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
-        #self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
     # keras model call function
     def call(self, x):
-        #x = inputs["data"]
         z_mean, z_log_var = self.encoder(x)
         z = self.Sampling()([z_mean, z_log_var])
         outputs = {}
@@ -77,7 +74,9 @@ class VAE(BaseAE):
         if self.decoder != None:
             recon_x = self.decoder(z)
             outputs["recon"] = recon_x
+
         return outputs
+
 
     # TODO: change to function named NormalSampler
     class Sampling(keras.layers.Layer):
@@ -89,8 +88,10 @@ class VAE(BaseAE):
             dim = keras.ops.shape(z_mean)[1]
             # Added seed for reproducibility
             epsilon = keras.random.normal(shape=(batch, dim), seed=42)
+
             return z_mean + keras.ops.exp(0.5 * z_log_var) * epsilon
     
+
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         # KL loss
         kl_loss = -0.5 * (1 + y_pred['z_log_var'] -

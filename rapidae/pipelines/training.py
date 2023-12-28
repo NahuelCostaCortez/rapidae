@@ -42,6 +42,7 @@ class TrainingPipeline(BasePipeline):
         self.batch_size = batch_size
         self.num_epochs = num_epochs
 
+
     def __call__(
             self,
             x,
@@ -87,7 +88,7 @@ class TrainingPipeline(BasePipeline):
             exit(-1)
 
         # Compile and fit the model
-        self.model.compile(optimizer=optimizer, run_eagerly=True)
+        self.model.compile(optimizer=optimizer, run_eagerly=False)
 
         if x_eval is None:
             self.model.fit(

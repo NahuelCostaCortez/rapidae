@@ -73,12 +73,8 @@ class BaseAE(keras.Model):
                 self.input_dim, self.latent_dim, self.layers_conf)
         self.decoder = decoder(
             self.input_dim, self.latent_dim, self.layers_conf, **kwargs)
+        
 
-    # make the class callable
-    # def __call__(self, *args, **kwargs):
-    #    return self
-
-    #@tf.function
     def call(self, inputs):
         """
         Main call pass outputing the VAE outputs.
@@ -86,12 +82,3 @@ class BaseAE(keras.Model):
         """
         raise NotImplementedError
 
-    #@tf.function
-    #def train_step(self, inputs):
-    #    #raise NotImplementedError
-    #    pass
-
-    #                                            
-    #def test_step(self, inputs):
-    #    #raise NotImplementedError
-    #    pass

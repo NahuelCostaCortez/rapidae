@@ -27,10 +27,6 @@ class Logger:
         return cls._instance
 
     def _initialize_logger(self, log_file='rapidae.log'):
-        # Create directory if needed
-        #if not path.exists(Directory.BASE):
-        #    makedirs(Directory.BASE)
-
         # Advanced configuration (colors and format) of the loggar
         formatter = ColoredFormatter(
             "%(asctime)s %(log_color)s[%(levelname)s]%(reset)s: %(message)s",
@@ -80,7 +76,7 @@ class Logger:
 
 if __name__ == "__main__":
 
-    # Usage example
+    # Usage example: Testing purposes
     aepy_logger1 = Logger()
     aepy_logger1.log_info('Testing log info ...')
 

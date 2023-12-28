@@ -14,6 +14,7 @@ class CMAPSS_Score(Metric):
     def __init__(self):
         super().__init__()
 
+
     def calculate(self, y_true, y_hat):
         """
         Calculates the metric for the model's results.
@@ -31,4 +32,5 @@ class CMAPSS_Score(Metric):
                 results = results + np.exp(-subs/10)[0]-1
             else:
                 results = results + np.exp(subs/13)[0]-1
+
         return np.array(results)
