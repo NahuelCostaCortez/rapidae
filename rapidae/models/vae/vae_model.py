@@ -100,7 +100,7 @@ class VAE(BaseAE):
         self.kl_loss_tracker.update_state(kl_loss)
 
         # Reconstruction loss
-        # TODO: Check masking issues
+        # TODO: Check possibe masking issues
         if self.decoder is not None:
             recon_loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
             self.reconstruction_loss_tracker.update_state(recon_loss)
