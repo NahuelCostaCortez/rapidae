@@ -32,30 +32,35 @@ class VAE(BaseAE):
                         encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf, **kwargs)
 
         self.downstream_task = downstream_task
+        self.exclude_decoder = exclude_decoder
 
         if self.downstream_task is not None:
             # Change string to lowercase
             self.downstream_task = downstream_task.lower()
+
             if self.downstream_task == 'regression':
                 Logger().log_info('Regressor available for the latent space of the autoencoder')
                 self.regressor = BaseRegressor()
                 self.reg_loss_tracker = keras.metrics.Mean(name="reg_loss")
+
             elif self.downstream_task == 'classification':
                 Logger().log_info('Classificator available for the latent space of the autoencoder')
                 self.classifier = BaseClassifier(kwargs['n_classes'])
                 self.weight_vae = kwargs['weight_vae'] if 'weight_vae' in kwargs else 1.0
                 self.weight_clf = kwargs['weight_clf'] if 'weight_clf' in kwargs else 1.0
                 self.clf_loss_tracker = keras.metrics.Mean(name='clf_loss')
+
             else:
                 Logger().log_warning('The downstream task is not a valid string. Currently there are available "regression" and "classification"')
         else:
             Logger().log_info('No specific dowstream task has been selected')
 
-        if self.decoder is not False:
+        if not self.exclude_decoder:
             self.reconstruction_loss_tracker = keras.metrics.Mean(
                 name="reconstruction_loss")
 
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
+
 
     # keras model call function
     def call(self, x):
@@ -71,7 +76,7 @@ class VAE(BaseAE):
         if self.downstream_task == 'classification':
             clf_prediction = self.classifier(z)
             outputs["clf"] = clf_prediction
-        if self.decoder != None:
+        if not self.exclude_decoder:
             recon_x = self.decoder(z)
             outputs["recon"] = recon_x
 
@@ -101,7 +106,7 @@ class VAE(BaseAE):
 
         # Reconstruction loss
         # TODO: Check possibe masking issues
-        if self.decoder is not None:
+        if not self.exclude_decoder:
             recon_loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred['recon']))
             self.reconstruction_loss_tracker.update_state(recon_loss)
     
@@ -115,11 +120,13 @@ class VAE(BaseAE):
             clf_loss = keras.ops.mean(keras.losses.categorical_crossentropy(y, y_pred['clf']))
             self.clf_loss_tracker.update_state(clf_loss)
     
-        if self.downstream_task is None:
+        if self.downstream_task is None: 
+            # If there isn't a regressor or a classifier attached the loss function of
+            # the vae is the sumof the kl divergence plus the reconstruction error
             loss = kl_loss + recon_loss
 
         if self.downstream_task == 'classification':
-            if self.decoder is not None:
+            if not self.exclude_decoder:
                 loss = self.weight_vae * \
                     (kl_loss + recon_loss) + \
                     self.weight_clf * clf_loss
@@ -129,7 +136,7 @@ class VAE(BaseAE):
                     clf_loss
         
         if self.downstream_task == 'regression':
-            if self.decoder is not None:
+            if not self.exclude_decoder:
                 loss = kl_loss + recon_loss + reg_loss
             else:
                 loss = kl_loss + clf_loss

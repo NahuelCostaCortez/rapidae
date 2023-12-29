@@ -108,8 +108,8 @@ def load_MNIST(persistant=False):
 
 
 def convert_one_hot(x, target):
-	'''
-	Convert target values to one-hot encoding.
+    '''
+    Convert target values to one-hot encoding.
 
     Args
     ----
@@ -119,14 +119,14 @@ def convert_one_hot(x, target):
     Returns
     -------
         numpy.ndarray: Array with one-hot encoded representation of target values.
-	'''
-	n_classes = 6
-	samples =  np.zeros((x.shape[0], n_classes))
+    '''
+    n_classes = 6
+    samples = np.zeros((x.shape[0], n_classes))
 
-	for i in range(target.shape[0]):
-		samples[i][int(target[i])] = 1
+    for i in range(target.shape[0]):
+        samples[i][int(target[i])] = 1
 
-	return samples
+    return samples
 
 
 def load_arrhythmia_data(persistant=False):
@@ -156,7 +156,7 @@ def load_arrhythmia_data(persistant=False):
     url = 'https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy'
     filename = 'arrhythmia_data.npy'
     data_dir = os.path.join('..', 'datasets', 'arrhythmia_data')
-    
+
     # Create a directory to store the downloaded files
     os.makedirs(data_dir, exist_ok=True)
 
@@ -174,13 +174,13 @@ def load_arrhythmia_data(persistant=False):
     x_train = data['input_train']
     x_val = data['input_vali']
     x_test = data['input_test']
-	 
+
     target_train = data['target_train']
     target_val = data['target_vali']
     target_test = data['target_test']
 
     # Convert labels to one-hot encoding
-    y_train = convert_one_hot(x_train, target_train)  
+    y_train = convert_one_hot(x_train, target_train)
     y_val = convert_one_hot(x_val, target_val)
     y_test = convert_one_hot(x_test, target_test)
 

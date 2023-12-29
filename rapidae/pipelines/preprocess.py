@@ -9,7 +9,6 @@ class PreprocessPipeline(BasePipeline):
         super().__init__(name, output_dir)
         self.preprocessor = preprocessor
 
-
     def __call__(self, **kwargs):
         super().__call__()
 

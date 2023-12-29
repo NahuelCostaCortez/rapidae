@@ -50,7 +50,7 @@ def condition_scaler(df_train, df_test, sensor_names):
             df_train.loc[df_train['op_cond'] == condition, sensor_names])
         df_test.loc[df_test['op_cond'] == condition, sensor_names] = scaler.transform(
             df_test.loc[df_test['op_cond'] == condition, sensor_names])
-        
+
     return df_train, df_test
 
 
@@ -190,4 +190,3 @@ def CMAPSS_preprocessor(train, test, y_test, sensors=['s_3', 's_4', 's_7', 's_11
     x_test = np.concatenate(list(test_gen)).astype(np.float32)
 
     return x_train, y_train, x_val, y_val, x_test, y_test['RemainingUsefulLife']
-

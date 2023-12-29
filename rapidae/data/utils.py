@@ -13,7 +13,7 @@ def plot_label_clusters(model, data, labels):
     Takes a trained variational autoencoder (VAE) model, input data, and true labels.
     It uses the VAE model to predict the latent space representations for the input data and then
     creates a 2D scatter plot of the latent space clusters colored by the true labels.
-    
+
     Args
     ----
         model: An instance of a trained variational autoencoder model.
@@ -68,6 +68,7 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
             label, sel_metric.__class__.__name__, result))
 
     return result
+
 
 def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
     """

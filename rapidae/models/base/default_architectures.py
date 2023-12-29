@@ -246,7 +246,6 @@ class RecurrentDecoder(BaseDecoder):
         input_dim (int): Dimensionality of the input data.
         latent_dim (int): Dimensionality of the latent space.
         layers_conf (list): Configuration of layers in the decoder architecture.
-        masking_value (float): Value for masking sequences.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -270,6 +269,15 @@ class RecurrentDecoder(BaseDecoder):
 class SparseEncoder(BaseEncoder):
     """
     Sparse encoder architecture.
+
+    Args
+    ----
+        input_dim (int): The dimensionality of the input data.
+        latent_dim (int): The dimensionality of the latent space.
+        layers_conf (list): A list specifying the number of units in each dense layer.
+        **kwargs: Additional keyword arguments.
+            beta (float): Hyperparameter for the activity regularization term.
+            p (float): Sparsity parameter for the SparseRegularizer.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -277,7 +285,8 @@ class SparseEncoder(BaseEncoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = kwargs['lambda_']  
+        self.beta = kwargs['beta']
+        self.p = kwargs['p']  
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
@@ -285,7 +294,8 @@ class SparseEncoder(BaseEncoder):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['dense_' + str(idx)] = layers.Dense(depth, activation='sigmoid')
         self.encoder_outputs = layers.Dense(latent_dim, activation='sigmoid',
-                                                                 activity_regularizer=SparseRegularizer())
+                                                                 activity_regularizer=SparseRegularizer(self.p,
+                                                                                                        self.beta))
     def call(self, x):
         for name, layer in self.layers_dict.items():
             x = layer(x)
@@ -304,7 +314,6 @@ class SparseDecoder(BaseDecoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.lambda_ = kwargs['lambda_'] 
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]

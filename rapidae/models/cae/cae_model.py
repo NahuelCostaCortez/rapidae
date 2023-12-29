@@ -63,6 +63,8 @@ class CAE(BaseAE):
         contractive_loss = self.lambda_ * \
             keras.ops.sum(keras.ops.matmul(dh**2, keras.ops.square(W)), axis=1)
         self.contractive_loss_tracker.update_state(contractive_loss)
+
+        # Total loss
         loss = contractive_loss + recon_loss
 
         return loss
