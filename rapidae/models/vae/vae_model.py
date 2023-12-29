@@ -86,13 +86,17 @@ class VAE(BaseAE):
     # TODO: change to function named NormalSampler
     class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
+        
+        def _init_(self, **kwargs):
+            super()._init_(**kwargs)
+            self.seed_generator = keras.random.SeedGenerator(1337)
 
         def call(self, inputs):
             z_mean, z_log_var = inputs
             batch = keras.ops.shape(z_mean)[0]
             dim = keras.ops.shape(z_mean)[1]
             # Added seed for reproducibility
-            epsilon = keras.random.normal(shape=(batch, dim), seed=42)
+            epsilon = keras.random.normal(shape=(batch, dim), seed=self.seed_generator)
 
             return z_mean + keras.ops.exp(0.5 * z_log_var) * epsilon
     
