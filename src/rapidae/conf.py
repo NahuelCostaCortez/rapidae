@@ -6,8 +6,8 @@ from colorlog import ColoredFormatter
 
 # TODO: Eliminar
 class Directory:
-    DATA = path.join('.', 'data')
-    OUTPUT_DIR = path.join('.', 'output_dir')
+    DATA = path.join('..', 'data')
+    OUTPUT_DIR = path.join('..', 'output_dir')
 
 
 class RandomSeed:
@@ -20,7 +20,7 @@ class Logger:
     """
     _instance = None
 
-    def __new__(cls, log_file=os.path.join('..', 'rapidae.log')):
+    def __new__(cls, log_file=os.path.join('..', '..', 'rapidae.log')):
         if cls._instance is None:
             cls._instance = super(Logger, cls).__new__(cls)
             cls._instance._initialize_logger(log_file=log_file)

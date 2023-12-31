@@ -285,8 +285,8 @@ class SparseEncoder(BaseEncoder):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.beta = kwargs['beta']
-        self.p = kwargs['p']  
+        self.beta = kwargs['beta'] if 'beta' in kwargs else 3
+        self.p = kwargs['p']  if 'p' in  kwargs else 0.01
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]
