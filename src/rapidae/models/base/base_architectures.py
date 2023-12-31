@@ -9,20 +9,19 @@ from keras import layers
 class BaseEncoder(layers.Layer):
     """
     Base class for defining encoder architectures. It includes common functionality and attributes
-	shared by different encoder implementations.
+        shared by different encoder implementations.        
 
-    Args
-    ----
-            input_dim (int): The dimensionality of the input data.
-            latent_dim (int): The dimensionality of the latent space.
-            layers_conf (list): The configuration of layers in the encoder architecture.
-            name(str): Name for the instanced encoder.
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): List of integers specifying the number of neurons in each layer.
+        name (str): Name of the encoder layer.
+        z_mean (keras.layers.Dense): Dense layer for the mean of the latent space.
+        z_log_var (keras.layers.Dense): Dense layer for the log variance of the latent space.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, name="encoder"):
-        """
-        Constructor for the encoder.
-        """
+        
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -31,16 +30,14 @@ class BaseEncoder(layers.Layer):
         self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
     def call(self, x):
-        """ 
-        This function must be implemented in a child class.
+        """
+        Forward pass of the base encoder.
 
-        Parameters
-        ----------
-                x (tf.Tensor): input tensor
+        Args:
+            x (Tensor): Input data.
 
-        Returns
-        -------
-                tf.Tensor: the output of the encoder
+        Raises:
+            NotImplementedError: This method must be implemented in derived classes.
         """
         raise NotImplementedError
 
@@ -48,20 +45,16 @@ class BaseEncoder(layers.Layer):
 class BaseDecoder(layers.Layer):
     """
     Base class for defining decoder architectures. It includes common functionality and attributes
-	shared by different encoder implementations.
+        shared by different decoder implementations.
 
-    Args
-    ----
-            input_dim (int): The dimensionality of the input data.
-            latent_dim (int): The dimensionality of the latent space.
-            layers_conf (list): The configuration of layers in the decoder architecture.
-            name(str): Name for the instanced decoder.
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): List of integers specifying the number of neurons in each layer.
+        name (str): Name of the decoder layer.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, name="decoder"):
-        """
-        Constructor for the decoder.
-        """
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -69,15 +62,13 @@ class BaseDecoder(layers.Layer):
         self.layers_conf = reversed(layers_conf)
 
     def call(self, x):
-        """ 
-        This function must be implemented in a child class 
+        """
+        Forward pass of the base decoder.
 
-        Parameters
-        ----------
-                x (tf.Tensor): input tensor with the latent data
+        Args:
+            x (Tensor): Input data.
 
-        Returns
-        -------
-                tf.Tensor: the output of the decoder
+        Raises:
+            NotImplementedError: This method must be implemented in derived classes.
         """
         raise NotImplementedError

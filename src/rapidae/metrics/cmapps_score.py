@@ -5,12 +5,21 @@ from rapidae.metrics.metric import Metric
 
 class CMAPSS_Score(Metric):
     """
-    Specific metric designed for CMAPPS dataset in the PHM 2008 Challenge by NASA.
-    This score is a weighted sum of RUL errors where the scoring function is an asymmetric function
-    that penalizes late predictions more than the early predictions.
-    See more info at https://data.nasa.gov/Raw-Data/PHM-2008-Challenge/nk8v-ckry
-    """
+    CMAPSS Score Metric for the PHM 2008 Challenge.
 
+    This metric is specifically designed for the C-MAPSS dataset in the Prognostics Health Management (PHM) 2008 Challenge by NASA.
+    It computes a weighted sum of Remaining Useful Life (RUL) errors, where the scoring function is an asymmetric function that penalizes
+    late predictions more than early predictions.
+
+    The scoring function is defined as follows:
+    - If the predicted RUL is less than the true RUL, penalize with exp(-subs/10) - 1.
+    - If the predicted RUL is greater than or equal to the true RUL, penalize with exp(subs/13) - 1.
+
+    The metric is designed to encourage models to make earlier and more accurate predictions of remaining useful life.
+
+    For more information on the C-MAPSS dataset and the PHM 2008 Challenge, see: https://data.nasa.gov/Raw-Data/PHM-2008-Challenge/nk8v-ckry
+    
+    """
     def __init__(self):
         super().__init__()
 

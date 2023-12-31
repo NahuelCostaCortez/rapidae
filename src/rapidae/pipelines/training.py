@@ -10,19 +10,27 @@ from rapidae.pipelines.base import BasePipeline
 
 class TrainingPipeline(BasePipeline):
     """
-    Pipeline for end-to-end training of your AE.
-    The trained model will be saved in ''output_dir''.
-    A folder ''traning_YYY-MM-DD_HH-MM-SS'' will be created inside ''output_dir'',
-    where checkpoints and final model will be saved.
+    TrainingPipeline class for training autoencoder models.
 
-    Parameters
-    ----------Entonces lo
-        model (keras.Model): The model to be trained. Default: None.
-        output_dir (str): The directory where the trained model will be saved. Default: None.
-        optimizer (str): The optimizer to use for training. Default: Adam.
-        learning_rate (float): The learning rate for the optimizer. Default: 0.001.
-        num_epochs (int): The number of epochs to train the model.
-        batch_size (int): The batch size for training.
+    This pipeline is responsible for training an autoencoder model using specified parameters.
+    It extends the BasePipeline class and includes functionality for model training, evaluation,
+    and saving the best weights.
+
+    Attributes:
+        model (BaseAE): Autoencoder model to be trained.
+        optimizer (str): Name of the optimizer. Currently supports 'adam'.
+        learning_rate (float): Learning rate for the optimizer.
+        batch_size (int): Batch size for training.
+        num_epochs (int): Number of training epochs.
+
+    Usage:
+        # Example usage of a custom training pipeline
+        class CustomTrainingPipeline(TrainingPipeline):
+            def __call__(self, x, y, x_eval, y_eval, callbacks, save_model):
+                # Custom training pipeline logic
+                pass
+        custom_pipeline = CustomTrainingPipeline(model=my_autoencoder_model, num_epochs=50)
+        custom_pipeline(x_train, y_train, x_val, y_val)
     """
 
     def __init__(
@@ -51,19 +59,23 @@ class TrainingPipeline(BasePipeline):
             y_eval=None,
             callbacks: Optional[list] = None,
             save_model: bool = True,):
+        
         """
-        Launchs the model training on the provided data
+        Launches the training pipeline.
 
-        Args
-        ----
-            training_data: The training data as a numpy.ndarray of shape (n_samples, n_features).
-            eval_data: The evaluation data as a numpy.ndarray of shape (n_samples, n_features).
-                       If None, only uses train_data for training. Default: None.
-            callbacks: A list of callbacks to use during training. List of keras.callbacks.Callback.
-                       Default: 
-                       - EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='min')
-                       - ModelCheckpoint(filepath=checkpoint_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+        Args:
+            x (ArrayLike): Training input data.
+            y (ArrayLike, optional): Training target data. Defaults to None.
+            x_eval (ArrayLike, optional): Validation input data. Defaults to None.
+            y_eval (ArrayLike, optional): Validation target data. Defaults to None.
+            callbacks (list, optional): List of Keras callbacks. Defaults to None.
+            save_model (bool, optional): Flag to save the trained model. Defaults to True.
+
+        Returns:
+            BaseAE: Trained autoencoder model.
+            
         """
+
         super().__call__()
 
         if callbacks is None:

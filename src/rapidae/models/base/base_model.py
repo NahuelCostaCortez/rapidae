@@ -12,12 +12,12 @@ from rapidae.conf import Logger
 
 class BaseAE(keras.Model):
     """
-    Base class for for implementing various autoencoder-based models. It includes functionality for
-    initializing the encoder and decoder, as well as defining the main call pass for obtaining the model outputs during
-    inference. Child classes should implement the 'call', 'train_step', and 'test_step' methods for specific use cases.
+    Base class for for implementing various autoencoder-based models. 
+    It includes functionality for initializing the encoder and decoder, 
+    as well as defining the main call pass for obtaining the model outputs 
+    during inference.
 
-    Args
-    ----
+    Args:
         input_dim (Union[Tuple[int, ...], None]): The dimensionality of the input data. Default is None.
         latent_dim (int): The dimensionality of the latent space. Default is 2.
         encoder (BaseEncoder): An instance of BaseEncoder. Default is None
@@ -77,8 +77,14 @@ class BaseAE(keras.Model):
 
     def call(self, inputs):
         """
-        Main call pass outputing the VAE outputs.
+        Forward pass of the base decoder.
         This function must be implemented in a child class.
+
+        Args:
+            inputs (Tensor): Input data.
+
+        Raises:
+            NotImplementedError: This method must be implemented in derived classes.
         """
         raise NotImplementedError
 

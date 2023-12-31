@@ -17,8 +17,7 @@ def get_data_from_url(url):
     """
     Download data from a specific url.
 
-    Args
-    ----
+    Args:
         url (str): Given url where the data will be downloaded.
 
     """
@@ -37,8 +36,7 @@ def load_mnist_images(filename):
     """
     Auxiliary function to load gzipped images for MNIST dataset.
 
-    Args
-    ----
+    Args:
         filename (str): Path to the file.
     """
     with gzip.open(filename, 'rb') as file:
@@ -51,8 +49,7 @@ def load_mnist_labels(filename):
     """
     Auxiliary function to load gzipped labels for MNIST dataset.
 
-    Args
-    ----
+    Args:
         filename (str): Path to the file.
     """
     with gzip.open(filename, 'rb') as file:
@@ -66,8 +63,7 @@ def load_MNIST(persistant=False):
     Returns the train, y_train and test data for the MNIST dataset.
     It can be obtained from original source or from Keras repository.
 
-    Args
-    ----
+    Args:
         persistant (bool): Determinates if the downloaded data will be deleted or not after running an experiment.
     """
     url_base = 'http://yann.lecun.com/exdb/mnist/'
@@ -111,13 +107,11 @@ def convert_one_hot(x, target):
     '''
     Convert target values to one-hot encoding.
 
-    Args
-    ----
+    Args:
         x (numpy.ndarray): Input array or matrix.
         target (numpy.ndarray): Target values to be converted to one-hot encoding.
 
-    Returns
-    -------
+    Returns:
         numpy.ndarray: Array with one-hot encoded representation of target values.
     '''
     n_classes = 6
@@ -133,14 +127,12 @@ def load_arrhythmia_data(persistant=False):
     """
     Load arrhythmia dataset and perform preprocessing.
 
-    Args
-    ----
+    Args:
         persistent (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.
 
-    Returns
-    -------
+    Returns:
         x_train (numpy.ndarray): Training input data.
         x_val (numpy.ndarray): Validation input data.
         x_test (numpy.ndarray): Test input data.
@@ -200,8 +192,7 @@ def load_CMAPSS(subset="FD001"):
     since they are not longer available in the original source:
     https://data.nasa.gov/dataset/C-MAPSS-Aircraft-Engine-Simulator-Data/xaut-bemq
 
-    Args
-    ----
+    Args:
         subset (str): Selected subset of CMAPSS dataset. There are 4 available: FD001, FD002, FD003, FD004
     """
 

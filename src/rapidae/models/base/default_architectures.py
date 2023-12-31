@@ -8,13 +8,17 @@ class Encoder_MLP(BaseEncoder):
     """
     Vanilla multi-layer perceptron (MLP) encoder architecture for a variational autoencoder (VAE).
 
-    Args
-    ----
-    input_dim (int): Dimensionality of the input data.
-    latent_dim (int): Dimensionality of the latent space.
-    layers_conf (list): Configuration of layers in the encoder architecture.
-    """
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): List of integers specifying the number of neurons in each layer.
+        **kwargs: Additional keyword arguments.
 
+    Attributes:
+        layers_dict (dict): Dictionary containing the layers of the MLP.
+        layers_idx (list): List of layer indices.
+    
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
@@ -27,6 +31,16 @@ class Encoder_MLP(BaseEncoder):
 
 
     def call(self, x):
+        """
+        Forward pass of the MLP encoder.
+
+        Args:
+            x (tf.Tensor): Input data.
+
+        Returns:
+            tuple: Tuple containing the mean and log variance of the latent space.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x_z_mean = self.z_mean(x)
@@ -37,15 +51,20 @@ class Encoder_MLP(BaseEncoder):
 
 class Decoder_MLP(BaseDecoder):
     """
-    Vanilla multi-layer perceptron (MLP) decoder architecture for a variational autoencoder (VAE).
+    Multi-Layer Perceptron Decoder.
 
-    Args
-    ----
+    Args:
         input_dim (int): Dimensionality of the input data.
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): Configuration of layers in the decoder architecture.
-    """
+        layers_conf (list): List of integers specifying the number of neurons in each layer.
+        **kwargs: Additional keyword arguments.
 
+    Attributes:
+        layers_dict (dict): Dictionary containing the layers of the MLP.
+        layers_idx (list): List of layer indices.
+        dense_recons (keras.layers.Dense): Dense layer for reconstruction.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
@@ -61,6 +80,16 @@ class Decoder_MLP(BaseDecoder):
 
 
     def call(self, z):
+        """
+        Forward pass of the MLP decoder.
+
+        Args:
+            z (Tensor): Latent space representation.
+
+        Returns:
+            Tensor: Reconstructed output.
+
+        """
         for name, layer in self.layers_dict.items():
             z = layer(z)
         x = self.dense_recons(z)
@@ -74,13 +103,19 @@ class Encoder_Conv_MNIST(BaseEncoder):
     """
     Convolutional encoder architecture from keras tutorial for a variational autoencoder (VAE).
 
-    Args
-    ----
-        input_dim (int): Dimensionality of the input data.
-        late RecurrentEncodernt_dim (int): Dimensionality of the latent space.
-        layers_conf (list): Configuration of layers in the encoder architecture.
-    """
+    Args:
+        input_dim (tuple): Dimensions of the input data (height, width, channels).
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): List of integers specifying the number of filters in each convolutional layer.
+        **kwargs: Additional keyword arguments.
 
+    Attributes:
+        layers_dict (dict): Dictionary containing the convolutional layers of the encoder.
+        layers_idx (list): List of layer indices.
+        flatten (keras.layers.Flatten): Flatten layer for converting convolutional output to a vector.
+        dense (keras.layers.Dense): Dense layer in the encoder.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
@@ -94,6 +129,16 @@ class Encoder_Conv_MNIST(BaseEncoder):
 
 
     def call(self, x):
+        """
+        Forward pass of the convolutional encoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            tuple: Tuple containing the mean and log variance of the latent space.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.flatten(x)
@@ -106,15 +151,22 @@ class Encoder_Conv_MNIST(BaseEncoder):
 
 class Decoder_Conv_MNIST(BaseDecoder):
     """
-    Convolutional decoder architecture from keras tutorial for a variational autoencoder (VAE).
+    Convolutional encoder architecture from keras tutorial for a variational autoencoder (VAE).
 
-    Args
-    ----
-        input_dim (int): Dimensionality of the input data.
+    Args:
+        input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): Configuration of layers in the decoder architecture.
-    """
+        layers_conf (list): List of integers specifying the number of filters in each transposed convolutional layer.
+        **kwargs: Additional keyword arguments.
 
+    Attributes:
+        dense (keras.layers.Dense): Dense layer in the decoder.
+        reshape (keras.layers.Reshape): Reshape layer to convert flattened input to 4D tensor.
+        layers_dict (dict): Dictionary containing the transposed convolutional layers of the decoder.
+        layers_idx (list): List of layer indices.
+        conv2d_transpose_recons (keras.layers.Conv2DTranspose): Transposed convolutional layer for reconstruction.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.dense = layers.Dense(7 * 7 * 64, activation="relu")
@@ -132,6 +184,16 @@ class Decoder_Conv_MNIST(BaseDecoder):
 
 
     def call(self, z):
+        """
+        Forward pass of the convolutional decoder.
+
+        Args:
+            z (Tensor): Latent space representation.
+
+        Returns:
+            Tensor: Reconstructed output.
+
+        """
         x = self.dense(z)
         x = self.reshape(x)
         for name, layer in self.layers_dict.items():
@@ -145,15 +207,21 @@ class Decoder_Conv_MNIST(BaseDecoder):
 # ----------------- CONV ENCODER-DECODER FOR VQ-VAE ----------------- #
 class Encoder_Conv_VQ_MNIST(BaseEncoder):
     """
-    Encoder architecture from keras tutorial for a vector quantization variational autoencoder (VQ-VAE).
+    Encoder architecture for a vector quantization variational autoencoder (VQ-VAE).
+    Adapted from Keras tutorial: https://keras.io/examples/generative/vq_vae/
 
-    Args
-    ----
-        input_dim (int): Dimensionality of the input data.
+    Args:
+        input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): Configuration of layers in the encoder architecture.
-    """
+        layers_conf (list): List of integers specifying the number of filters in each convolutional layer.
+        **kwargs: Additional keyword arguments.
 
+    Attributes:
+        layers_dict (dict): Dictionary containing the convolutional layers of the encoder.
+        layers_idx (list): List of layer indices.
+        encoder_outputs (tf.keras.layers.Conv2D): Convolutional layer for encoder outputs.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
@@ -162,11 +230,20 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
         for depth, idx in zip(self.layers_conf, self.layers_idx):
             self.layers_dict['conv2d_' + str(idx)] = layers.Conv2D(depth, 3, activation="relu",
                                                                    strides=2, padding="same")
-        # self.flatten = layers.Flatten()
         self.encoder_outputs = layers.Conv2D(latent_dim, 1, padding="same")
 
 
     def call(self, x):
+        """
+        Forward pass of the convolutional VQ encoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            Tensor: Encoder outputs.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.encoder_outputs(x)
@@ -176,13 +253,19 @@ class Encoder_Conv_VQ_MNIST(BaseEncoder):
 
 class Decoder_Conv_VQ_MNIST(BaseDecoder):
     """
-    Decoder architecture from keras tutorial for a vector quantization variational autoencoder (VQ-VAE).
+    Decoder architecture for a vector quantization variational autoencoder (VQ-VAE).
+    Adapted from Keras tutorial: https://keras.io/examples/generative/vq_vae/
 
-    Args
-    ----
-        input_dim (int): Dimensionality of the input data.
+    Args:
+        input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): Configuration of layers in the decoder architecture.
+        layers_conf (list): List of integers specifying the number of filters in each transposed convolutional layer.
+        **kwargs: Additional keyword arguments.
+
+    Attributes:
+        layers_dict (dict): Dictionary containing the transposed convolutional layers of the decoder.
+        layers_idx (list): List of layer indices.
+        conv2d_transpose_recons (tf.keras.layers.Conv2DTranspose): Transposed convolutional layer for reconstruction.
     """
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
@@ -200,6 +283,16 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
 
 
     def call(self, x):
+        """
+        Forward pass of the convolutional VQ decoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            Tensor: Encoder outputs.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.conv2d_transpose_recons(x)
@@ -214,14 +307,18 @@ class RecurrentEncoder(BaseEncoder):
     """
     Encoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
 
-    Args
-    ----
+    Args:
         input_dim (int): Dimensionality of the input data.
         latent_dim (int): Dimensionality of the latent space.
         layers_conf (list): Configuration of layers in the encoder architecture.
         masking_value (float): Value for masking sequences.
-    """
 
+    Attributes:
+        masking_value (float): Value for masking sequences.
+        mask (keras.layers.Masking): Masking layer.
+        h (keras.layers.Bidirectional): Bidirectional LSTM layer.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.masking_value = kwargs['masking_value'] if 'masking_value' in kwargs else -99.0
@@ -230,6 +327,16 @@ class RecurrentEncoder(BaseEncoder):
 
 
     def call(self, x):
+        """
+        Forward pass of the Recurrent Encoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            tuple: Tuple containing the mean and log variance of the latent space.
+
+        """
         x = self.mask(x)
         x = self.h(x)
         x_z_mean = self.z_mean(x)
@@ -242,13 +349,17 @@ class RecurrentDecoder(BaseDecoder):
     """
     Decoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
 
-    Args
-    ----
-        input_dim (int): Dimensionality of the input data.
+    Args:
+        input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
         layers_conf (list): Configuration of layers in the decoder architecture.
-    """
 
+    Attributes:
+        h_decoded_1 (keras.layers.RepeatVector): RepeatVector layer in the decoder.
+        h_decoded_2 (keras.layers.Bidirectional): Bidirectional LSTM layer in the decoder.
+        h_decoded (keras.layers.LSTM): LSTM layer in the decoder.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.h_decoded_1 = layers.RepeatVector(input_dim[0])
@@ -258,6 +369,16 @@ class RecurrentDecoder(BaseDecoder):
 
 
     def call(self, z):
+        """
+        Forward pass of the Recurrent Decoder.
+
+        Args:
+            z (Tensor): Latent space representation.
+
+        Returns:
+            Tensor: Decoded output.
+
+        """
         x = self.h_decoded_1(z)
         x = self.h_decoded_2(x)
         x = self.h_decoded(x)
@@ -269,18 +390,23 @@ class RecurrentDecoder(BaseDecoder):
 # ---------------------- SPARSE ENCODER-DECODER --------------------- #
 class SparseEncoder(BaseEncoder):
     """
-    Sparse encoder architecture.
+    Sparse Encoder class.
 
-    Args
-    ----
-        input_dim (int): The dimensionality of the input data.
-        latent_dim (int): The dimensionality of the latent space.
-        layers_conf (list): A list specifying the number of units in each dense layer.
-        **kwargs: Additional keyword arguments.
-            beta (float): Hyperparameter for the activity regularization term.
-            p (float): Sparsity parameter for the SparseRegularizer.
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
+        beta (float): Regularization parameter for the sparsity constraint. Default is 3.
+        p (float): Target sparsity level for the encoder outputs. Default is 0.01.
+
+    Attributes:
+        beta (float): Regularization parameter for the sparsity constraint.
+        p (float): Target sparsity level for the encoder outputs.
+        layers_dict (dict): Dictionary containing the dense layers of the encoder.
+        layers_idx (list): List of layer indices.
+        encoder_outputs (tf.keras.layers.Dense): Dense layer in the encoder with sparsity regularization.
+
     """
-
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.input_dim = input_dim
@@ -298,6 +424,16 @@ class SparseEncoder(BaseEncoder):
                                                                  activity_regularizer=SparseRegularizer(self.p,
                                                                                                         self.beta))
     def call(self, x):
+        """
+        Forward pass of the Sparse Encoder.
+
+        Args:
+            x (tf.Tensor): Input data.
+
+        Returns:
+            tf.Tensor: Encoder outputs.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.encoder_outputs(x)
@@ -307,9 +443,19 @@ class SparseEncoder(BaseEncoder):
 
 class SparseDecoder(BaseDecoder):
     """
-    Sparse decoder architecture.
-    """
+    Sparse Decoder class.
 
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
+
+    Attributes:
+        layers_dict (dict): Dictionary containing the dense layers of the decoder.
+        layers_idx (list): List of layer indices.
+        dense_recons (keras.layers.Dense): Dense layer in the decoder for reconstruction.
+
+    """
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.input_dim = input_dim
@@ -327,6 +473,16 @@ class SparseDecoder(BaseDecoder):
             self.input_dim, activation="sigmoid")
 
     def call(self, x):
+        """
+        Forward pass of the Sparse Decoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            Tensor: Reconstructed output.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.dense_recons(x)
@@ -336,20 +492,34 @@ class SparseDecoder(BaseDecoder):
 
 class SparseRegularizer(keras.regularizers.Regularizer):
     """
-    Inherits from keras.regularizers.Regularizer and represents a regularization term for sparsity.
+    Sparse Regularizer for enforcing sparsity in a layer.
 
-    Args
-    ----
-        p (float): Target sparsity probability. Default is 0.01
-        beta (int): Regularization strength. Default is 3.
+    Args:
+        p (float): Target sparsity level.
+        beta (float): Regularization strength.
+
+    Attributes:
+        p (float): Target sparsity level.
+        beta (float): Regularization strength.
+        p_hat (Tensor): Estimated sparsity level.
+
     """
-
     def __init__(self, p=0.01, beta=2):
         self.p = p
         self.beta = beta
 
 
     def __call__(self, x):
+        """
+        Computes the regularization term.
+
+        Args:
+            x (Tensor): Input tensor.
+
+        Returns:
+            Tensor: Regularization term.
+
+        """
         self.p_hat = keras.ops.mean(x)
         kl_divergence = self.p * (keras.ops.log(self.p / self.p_hat)) + \
             (1 - self.p)*(keras.ops.log(1 - self.p / 1 - self.p_hat))
@@ -358,6 +528,13 @@ class SparseRegularizer(keras.regularizers.Regularizer):
 
 
     def get_config(self):
+        """
+        Returns the configuration of the regularizer.
+
+        Returns:
+            dict: Configuration dictionary.
+
+        """
         return {'p': float(self.p),
                 'p_hat': float(self.p_hat),
                 'beta': float(self.beta)}
@@ -369,15 +546,23 @@ class SparseRegularizer(keras.regularizers.Regularizer):
 
 class VanillaEncoder(layers.Layer):
     """
-    Vanilla encoder for normal autoencoder (AE).
+    Vanilla Encoder class.
 
-    Args
-    ----
-        input_dim: Dimensionality of the input data.
-        latent_dim: Dimensionality of the latent space.
-        layers_conf: Configuration of layers in the encoder architecture.
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
+        name (str): Name of the encoder layer.
+
+    Attributes:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
+        layers_dict (dict): Dictionary containing the dense layers of the encoder.
+        layers_idx (list): List of layer indices.
+        enc_layer (keras.layers.Dense): Dense layer in the encoder.
+
     """
-
     def __init__(self, input_dim, latent_dim, layers_conf, name="encoder", **kwargs):
         super().__init__(name=name)
         self.input_dim = input_dim
@@ -395,6 +580,16 @@ class VanillaEncoder(layers.Layer):
 
 
     def call(self, x):
+        """
+        Forward pass of the Vanilla Encoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            Tensor: Encoder outputs.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.enc_layer(x)
@@ -404,15 +599,23 @@ class VanillaEncoder(layers.Layer):
 
 class VanillaDecoder(layers.Layer):
     """
-    Vanilla decoder for normal autoencoder (AE).
+    Vanilla Decoder class.
 
-    Args
-    ----
-        input_dim: Dimensionality of the input data.
-        latent_dim: Dimensionality of the latent space.
-        layers_conf: Configuration of layers in the decoder architecture.
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
+        name (str): Name of the decoder layer.
+
+    Attributes:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the decoder architecture.
+        layers_dict (dict): Dictionary containing the dense layers of the decoder.
+        layers_idx (list): List of layer indices.
+        dense_recons (keras.layers.Dense): Dense layer in the decoder for reconstruction.
+
     """
-
     def __init__(self, input_dim, latent_dim, layers_conf, name='decoder', **kwargs):
         super().__init__(name=name)
         self.input_dim = input_dim
@@ -430,6 +633,16 @@ class VanillaDecoder(layers.Layer):
 
 
     def call(self, x):
+        """
+        Forward pass of the Vanilla Decoder.
+
+        Args:
+            x (tf.Tensor): Input data.
+
+        Returns:
+            tf.Tensor: Reconstructed output.
+
+        """
         for name, layer in self.layers_dict.items():
             x = layer(x)
         x = self.dense_recons(x)
@@ -441,12 +654,15 @@ class VanillaDecoder(layers.Layer):
 # ------------------------ ADDITIONAL MODULES ----------------------- #
 class BaseRegressor(layers.Layer):
     """
-    Architecture for simple regressor compound by 2 Dense layers with 200 and 1 cells.
-    Currently not customizable.
+    Base Regressor class. 
+    Currently not customizable via layers_conf.
 
-    Args
-    ----
+    Args:
         name (str): Name of the regressor layer.
+
+    Attributes:
+        dense (keras.layers.Dense): Dense layer in the regressor.
+        out (keras.layers.Dense): Output layer in the regressor.
 
     """
 
@@ -457,20 +673,33 @@ class BaseRegressor(layers.Layer):
 
 
     def call(self, x):
+        """
+        Forward pass of the Base Regressor.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            Tensor: Regression output.
+
+        """
         x = self.dense(x)
         x = self.out(x)
 
         return x
 
-
 class BaseClassifier(layers.Layer):
     """
-    Simple classifier to be applied to the latent space of an AE
+    Simple classifier to be applied to the latent space of an Autoencoder.
 
-    Args
-    ----
-        n_classes (int): Number of classes for classification.
+    Args:
+        n_classes (int): Number of classes in the classification task.
         name (str): Name of the classifier layer.
+
+    Attributes:
+        intermediate (tf.keras.layers.Dense): Intermediate dense layer in the classifier.
+        outputs (tf.keras.layers.Dense): Output layer in the classifier.
+
     """
 
     def __init__(self, n_classes, name='classifier'):
@@ -481,6 +710,16 @@ class BaseClassifier(layers.Layer):
 
 
     def call(self, x):
+        """
+        Forward pass of the Base Classifier.
+
+        Args:
+            x (tf.Tensor): Input data.
+
+        Returns:
+            tf.Tensor: Classification output probabilities.
+
+        """
         x = self.intermediate(x)
         x = self.outputs(x)
         

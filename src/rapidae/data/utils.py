@@ -14,11 +14,11 @@ def plot_label_clusters(model, data, labels):
     It uses the VAE model to predict the latent space representations for the input data and then
     creates a 2D scatter plot of the latent space clusters colored by the true labels.
 
-    Args
-    ----
+    Args:
         model: An instance of a trained variational autoencoder model.
         data: Input data to be used for generating latent space representations.
         labels: True labels corresponding to the input data.    
+
     """
     outputs = model.predict(data, verbose=0)
 
@@ -37,16 +37,15 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
     scikit-learn library.
     The selected metric must be compatible with the format of y_true and y_hat.
 
-    Args
-    ----
+    Args:
         y_true (ArrayLike): Ground truth (correct) target values.
         y_hat (ArrayLike): Estimated target values.
         sel_metric (callable): The selected metric, either a custom metric from AEPY or a metric from scikit-learn.
         label (str): Tag of the evaluated set (e.g., 'test', 'validation').
 
-    Returns
-    -------
-    result: The result of the evaluation based on the selected metric.
+    Returns:
+        result: The result of the evaluation based on the selected metric.
+
     """
     # Get all functions from the metrics module
     all_metrics = getmembers(metrics, isfunction)
@@ -76,15 +75,13 @@ def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
     The noise is generated from a normal distribution with a specified noise factor. 
     The resulting noisy array is then clipped to ensure that values fall within the specified range [a_min, a_max].
 
-    Args
-    ----
+    Args:
         array (numpy.ndarray): The input array to which noise will be added.
         noise_factor (float): The magnitude of the random noise to be added (default is 0.4).
         a_min (float): The minimum value after adding noise (default is 0).
         a_max (float): The maximum value after adding noise (default is 1).
 
-    Returns
-    -------
+    Returns:
         numpy.ndarray: The array with added noise, clipped to the specified range.
     """
     noisy_array = array + noise_factor * np.random.normal(
@@ -100,8 +97,7 @@ def display_diff(array1, array2):
     Useful for checking differences in processed images.
     Source: https://keras.io/examples/vision/autoencoder/
 
-    Args
-    ----
+    Args:
         array1 (numpy.ndarray): The first array containing images for comparison.
         array2 (numpy.ndarray): The second array containing images for comparison.
     """
