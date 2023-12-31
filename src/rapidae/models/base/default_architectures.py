@@ -224,7 +224,8 @@ class RecurrentEncoder(BaseEncoder):
 
     def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.mask = layers.Masking(mask_value=kwargs['masking_value'])
+        self.masking_value = kwargs['masking_value'] if 'masking_value' in kwargs else -99.0
+        self.mask = layers.Masking(mask_value=self.masking_value)
         self.h = layers.Bidirectional(layers.LSTM(300))
 
 

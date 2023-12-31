@@ -20,7 +20,6 @@ class VAE(BaseAE):
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
         latent_dim: int = 2,
-        masking_value: float = -99.0,
         exclude_decoder: bool = False,
         downstream_task: str = None,
         encoder: callable = None,
@@ -29,7 +28,7 @@ class VAE(BaseAE):
         **kwargs
     ):
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, masking_value=masking_value, layers_conf=layers_conf, **kwargs)
+                        encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
 
         self.downstream_task = downstream_task
         self.exclude_decoder = exclude_decoder
