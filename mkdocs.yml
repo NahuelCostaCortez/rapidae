@@ -6,12 +6,16 @@ validation:
   unrecognized_links: warn
 
 nav:
-  - Home: index.md
-  - Quicksart: quickstart.md
+  - Home:
+    - Overview: index.md
+    - Changelog: changelog.md
+    - License: license.md
+  - Usage: 
+    - Examples: examples.md
+    - Recipes: recipes.md
   - API Reference: reference/
   - FAQ: faq.md
   
-
 theme:
    name: material
    features:
@@ -62,4 +66,7 @@ plugins:
     handlers:
       python:
         paths: [src]
+
+markdown_extensions:
+  - pymdownx.snippets
 
