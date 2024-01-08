@@ -32,6 +32,9 @@ class VAE(BaseAE):
 
         self.downstream_task = downstream_task
         self.exclude_decoder = exclude_decoder
+        
+        # Initialize sampling layer
+        self.sampling = self.Sampling()
 
         if self.downstream_task is not None:
             # Change string to lowercase
@@ -64,7 +67,7 @@ class VAE(BaseAE):
     # keras model call function
     def call(self, x):
         z_mean, z_log_var = self.encoder(x)
-        z = self.Sampling()([z_mean, z_log_var])
+        z = self.sampling([z_mean, z_log_var])
         outputs = {}
         outputs["z"] = z
         outputs["z_mean"] = z_mean
@@ -86,8 +89,8 @@ class VAE(BaseAE):
     class Sampling(keras.layers.Layer):
         """Uses (z_mean, z_log_var) to sample z, the vector encoding a sample."""
         
-        def _init_(self, **kwargs):
-            super()._init_(**kwargs)
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
             self.seed_generator = keras.random.SeedGenerator(1337)
 
         def call(self, inputs):
