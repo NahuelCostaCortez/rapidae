@@ -22,15 +22,6 @@ class TrainingPipeline(BasePipeline):
         learning_rate (float): Learning rate for the optimizer.
         batch_size (int): Batch size for training.
         num_epochs (int): Number of training epochs.
-
-    Usage:
-        # Example usage of a custom training pipeline
-        class CustomTrainingPipeline(TrainingPipeline):
-            def __call__(self, x, y, x_eval, y_eval, callbacks, save_model):
-                # Custom training pipeline logic
-                pass
-        custom_pipeline = CustomTrainingPipeline(model=my_autoencoder_model, num_epochs=50)
-        custom_pipeline(x_train, y_train, x_val, y_val)
     """
 
     def __init__(

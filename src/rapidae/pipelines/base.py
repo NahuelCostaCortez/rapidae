@@ -17,15 +17,6 @@ class BasePipeline(ABC):
     Args:
         name (str): Name of the pipeline. Defaults to the class name if not provided.
         output_dir (str): Directory where the pipeline output will be saved. Defaults to "output_dir".
-
-    Usage:
-        # Example usage of a custom pipeline class
-        class CustomPipeline(BasePipeline):
-            def __call__(self):
-                # Custom pipeline logic
-                pass
-        custom_pipeline = CustomPipeline(name='CustomPipeline', output_dir='output_data')
-        custom_pipeline()
     """
 
     def __init__(self, name=None, output_dir="output_dir"):
