@@ -11,7 +11,6 @@ class VAE(BaseAE):
     Variational Autoencoder (VAE) model.
 
     Args:
-        model_config (BaseAEConfig): Configuration object for the model.
         encoder (BaseEncoder): An instance of BaseEncoder. 
         decoder (BaseDecoder): An instance of BaseDecoder. 
         input_dim (Union[Tuple[int, ...], None]): Shape of the input data. 

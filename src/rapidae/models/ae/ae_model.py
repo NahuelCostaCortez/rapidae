@@ -10,7 +10,6 @@ class AE(BaseAE):
     Vanilla Autoencoder model.
 
     Args:
-        model_config (BaseAEConfig): configuration object for the model
         input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
         latent_dim (int): Dimension of the latent space. 
         encoder (BaseEncoder): An instance of BaseEncoder. 
