@@ -11,8 +11,12 @@ class AE(BaseAE):
 
     Args:
         model_config (BaseAEConfig): configuration object for the model
-        encoder (BaseEncoder): An instance of BaseEncoder. Default: None
-        decoder (BaseDecoder): An instance of BaseDecoder. Default: None
+        input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
+        latent_dim (int): Dimension of the latent space. 
+        encoder (BaseEncoder): An instance of BaseEncoder. 
+        decoder (BaseDecoder): An instance of BaseDecoder.
+        layers_conf (list): List specifying the configuration of layers for custom models. 
+        **kwargs: Additional keyword arguments.
     """
 
     def __init__(

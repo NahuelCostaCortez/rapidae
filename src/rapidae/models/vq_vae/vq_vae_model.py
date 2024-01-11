@@ -10,14 +10,20 @@ class VQ_VAE(BaseAE):
     Vector Quantized Variational Autoencoder (VQ-VAE) model.
 
     Args:
-        model_config (BaseAEConfig): configuration object for the model
-        encoder (BaseEncoder): An instance of BaseEncoder. Default: None
-        decoder (BaseDecoder): An instance of BaseDecoder. Default: None
+        beta (float): Hyperparameter for controlling the commitment loss term.
+        encoder (BaseEncoder): An instance of BaseEncoder. 
+        decoder (BaseDecoder): An instance of BaseDecoder. 
+        input_dim (Union[Tuple[int, ...], None]): Shape of the input data. 
+        latent_dim (int): Dimension of the latent space. 
+        num_embeddings (int): Number of embeddings for the Vector Quantizer. 
+        layers_conf (list): List specifying the configuration of layers for custom models. 
+        **kwargs: Additional keyword arguments.
     """
 
     def __init__(
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
+        beta: float = 0.25,
         latent_dim: int = 2,
         num_embeddings: int = 128,
         encoder: callable = None,
@@ -29,10 +35,12 @@ class VQ_VAE(BaseAE):
                 encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
         
         self.num_embeddings = num_embeddings
+        self.beta = beta
         
         # Create VQ layer
         self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
-                                        embedding_dim=self.latent_dim)
+                                        embedding_dim=self.latent_dim,
+                                        beta=self.beta)
 
         self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
         self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
@@ -95,6 +103,15 @@ class VectorQuantizer(keras.layers.Layer):
 
 
     def call(self, x):
+        """
+        Forward pass of the VectorQuantizer layer.
+
+        Args:
+            x: Input data.
+
+        Returns:
+            tuple: Quantized output and a list of losses.
+        """
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
         input_shape = keras.ops.shape(x)

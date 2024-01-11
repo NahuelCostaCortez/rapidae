@@ -11,9 +11,15 @@ class VAE(BaseAE):
     Variational Autoencoder (VAE) model.
 
     Args:
-        model_config (BaseAEConfig): configuration object for the model
-        encoder (BaseEncoder): An instance of BaseEncoder. Default: None
-        decoder (BaseDecoder): An instance of BaseDecoder. Default: None
+        model_config (BaseAEConfig): Configuration object for the model.
+        encoder (BaseEncoder): An instance of BaseEncoder. 
+        decoder (BaseDecoder): An instance of BaseDecoder. 
+        input_dim (Union[Tuple[int, ...], None]): Shape of the input data. 
+        latent_dim (int): Dimension of the latent space. 
+        exclude_decoder (bool): Flag to exclude the decoder. 
+        downstream_task (str): Downstream task, can be 'regression' or 'classification'. 
+        layers_conf (list): List specifying the configuration of layers for custom models. 
+        **kwargs: Additional keyword arguments.
     """
 
     def __init__(

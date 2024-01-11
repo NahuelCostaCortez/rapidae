@@ -10,9 +10,14 @@ class CAE(BaseAE):
     Contractive Autoencoder model.
 
     Args:
-        model_config (BaseAEConfig): configuration object for the model
-        encoder (BaseEncoder): An instance of BaseEncoder. Default: None
-        decoder (BaseDecoder): An instance of BaseDecoder. Default: None
+        model_config (BaseAEConfig): Configuration object for the model.
+        encoder (BaseEncoder): An instance of BaseEncoder. 
+        decoder (BaseDecoder): An instance of BaseDecoder.
+        input_dim (Union[Tuple[int, ...], None]): Shape of the input data. 
+        latent_dim (int): Dimension of the latent space.
+        layers_conf (list): List specifying the configuration of layers for custom models. 
+        lambda_ (float): Weight of the contractive loss term. 
+        **kwargs: Additional keyword arguments.
     """
 
     def __init__(
