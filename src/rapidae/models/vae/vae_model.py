@@ -128,7 +128,7 @@ class VAE(BaseAE):
     
         if self.downstream_task is None: 
             # If there isn't a regressor or a classifier attached the loss function of
-            # the vae is the sumof the kl divergence plus the reconstruction error
+            # the vae is the sum of the kl divergence plus the reconstruction error
             loss = kl_loss + recon_loss
 
         if self.downstream_task == 'classification':
