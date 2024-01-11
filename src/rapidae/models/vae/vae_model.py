@@ -28,10 +28,11 @@ class VAE(BaseAE):
         **kwargs
     ):
         BaseAE.__init__(self, input_dim, latent_dim,
-                        encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
+                        encoder=encoder, decoder=decoder, 
+                        exclude_decoder=exclude_decoder,
+                        layers_conf=layers_conf, **kwargs)
 
         self.downstream_task = downstream_task
-        self.exclude_decoder = exclude_decoder
         
         # Initialize sampling layer
         self.sampling = self.Sampling()
