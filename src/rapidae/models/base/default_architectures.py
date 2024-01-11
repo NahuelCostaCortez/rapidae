@@ -29,6 +29,8 @@ class Encoder_MLP(BaseEncoder):
             self.layers_dict['dense_' +
                              str(idx)] = layers.Dense(depth, activation="relu")
 
+        self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
+        self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
     def call(self, x):
         """
@@ -126,6 +128,8 @@ class Encoder_Conv_MNIST(BaseEncoder):
                                                                    strides=2, padding="same")
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
+        self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
+        self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
 
     def call(self, x):
@@ -324,6 +328,8 @@ class RecurrentEncoder(BaseEncoder):
         self.masking_value = kwargs['masking_value'] if 'masking_value' in kwargs else -99.0
         self.mask = layers.Masking(mask_value=self.masking_value)
         self.h = layers.Bidirectional(layers.LSTM(300))
+        self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
+        self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
 
     def call(self, x):

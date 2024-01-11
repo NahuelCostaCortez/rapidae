@@ -26,8 +26,6 @@ class BaseEncoder(layers.Layer):
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
-        self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
-        self.z_log_var = layers.Dense(self.latent_dim, name="z_log_var")
 
     def call(self, x):
         """
