@@ -8,7 +8,7 @@ Rapidae is a Python library specialized in simplifying the creation and experime
 
 - **Ease of Use:** Rapidae has been designed to make the process of creating and experimenting with autoencoders as simple as possible, users can create and train autoencoder models with just a few lines of code.
 
-- **Backend versatility:** RapidAE was develovep using the new version Keras 3.0. This adds the ability to run experiments on three different backends (Tensorflow, Pytorch and Jax) allows users to take advantage of the specific strengths of each without having to learn new syntaxes. Rapidae handles the abstraction, allowing researchers to focus on the design and evaluation of their models.
+- **Backend versatility:** Rapidae was develovep using the new version Keras 3.0. This adds the ability to run experiments on three different backends (Tensorflow, Pytorch and Jax) allows users to take advantage of the specific strengths of each without having to learn new syntaxes. Rapidae handles the abstraction, allowing researchers to focus on the design and evaluation of their models.
 
 - **Customization:** Easily customize model architecture, loss functions, and training parameters to suit your specific use case.
 
@@ -28,7 +28,7 @@ Rapidae is structured as follows:
 
 ## Installation
 
-### Package manager Pip
+### With Package manager Pip
 The easiest way is to use the pip command so that it's installed together with all its dependencies.
 
 ```bash
@@ -52,11 +52,17 @@ pip install -r requirements.txt
 
 ## Documentation
 
-Check out the full documentation for detailed information on installation, usage, and customization: Documentation Link
+Check out the full documentation for detailed information on installation, usage, examples and recipes: Documentation Link
 'Currently working on it...'
 
 All documentation source and configuration files are located inside the docs directory.
 
+
+## Dealing with issues
+
+If you are experiencing any issues while running the code or request new features/models to be implemented please [open an issue on github](https://github.com/NahuelCostaCortez/rapidae/issues).
+
+
 ## License
 
-This project is licensed under the Apache 2.0 license. See the LICENSE file for details.
+This project is licensed under the Apache 2.0 license. See LICENSE file for further details.
