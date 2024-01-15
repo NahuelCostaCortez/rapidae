@@ -56,8 +56,7 @@ pip install -r requirements.txt
 
 ## Documentation 📚
 
-Check out the full documentation for detailed information on installation, usage, examples and recipes: Documentation Link
-'Currently working on it...'
+Check out the full documentation for detailed information on installation, usage, examples and recipes: 🔗 [Documentation Link](https://rapidae.readthedocs.io/en/latest/)
 
 All documentation source and configuration files are located inside the docs directory.
 
