@@ -1,6 +1,10 @@
 # Rapidae: Python Library for Rapid Creation and Experimentation of Autoencoders
 
-## Description
+[![Documentation Status](https://readthedocs.org/projects/rapidae/badge/?version=latest)](https://rapidae.readthedocs.io/en/latest/?badge=latest)
+
+[Documentation](https://rapidae.readthedocs.io/en/latest/) | [PyPI Package](https://pypi.org/project/rapidae/)
+
+## Description 
 
 Rapidae is a Python library specialized in simplifying the creation and experimentation of autoencoder models. With a focus on ease of use, Rapidae allows users to explore and develop autoencoder models in an efficient and straightforward manner.
 
