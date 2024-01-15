@@ -2,13 +2,13 @@
 
 [![Documentation Status](https://readthedocs.org/projects/rapidae/badge/?version=latest)](https://rapidae.readthedocs.io/en/latest/?badge=latest)
 
-[Documentation](https://rapidae.readthedocs.io/en/latest/) | [PyPI Package](https://pypi.org/project/rapidae/)
+🔗 [Documentation](https://rapidae.readthedocs.io/en/latest/) | 🔗 [PyPI Package](https://pypi.org/project/rapidae/)
 
-## Description 
+## Description 💻
 
 Rapidae is a Python library specialized in simplifying the creation and experimentation of autoencoder models. With a focus on ease of use, Rapidae allows users to explore and develop autoencoder models in an efficient and straightforward manner.
 
-## Main features
+## Main features 💪
 
 - **Ease of Use:** Rapidae has been designed to make the process of creating and experimenting with autoencoders as simple as possible, users can create and train autoencoder models with just a few lines of code.
 
@@ -18,7 +18,7 @@ Rapidae is a Python library specialized in simplifying the creation and experime
 
 - **Experimentation:** Conduct experiments with different hyperparameters and configurations to optimize the performance of your autoencoder models.
 
-## Overview
+## Overview 📦	
 
 Rapidae is structured as follows:
 
@@ -30,7 +30,7 @@ Rapidae is structured as follows:
 
 - **pipelines:** Pipelines are designed to perform a specific task such as data preprocessing or model training. 
 
-## Installation
+## Installation ⚙️
 
 ### With Package manager Pip
 The easiest way is to use the pip command so that it's installed together with all its dependencies.
@@ -54,7 +54,7 @@ Then you only have to install the requirements in a new Python virtual environme
 pip install -r requirements.txt
 ```
 
-## Documentation
+## Documentation 📚
 
 Check out the full documentation for detailed information on installation, usage, examples and recipes: Documentation Link
 'Currently working on it...'
@@ -62,11 +62,11 @@ Check out the full documentation for detailed information on installation, usage
 All documentation source and configuration files are located inside the docs directory.
 
 
-## Dealing with issues
+## Dealing with issues 🛠️	
 
 If you are experiencing any issues while running the code or request new features/models to be implemented please [open an issue on github](https://github.com/NahuelCostaCortez/rapidae/issues).
 
 
-## License
+## License ✒️
 
 This project is licensed under the Apache 2.0 license. See LICENSE file for further details.
