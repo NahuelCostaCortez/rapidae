@@ -1,6 +1,8 @@
 # Rapidae: Python Library for Rapid Creation and Experimentation of Autoencoders
 
 [![Documentation Status](https://readthedocs.org/projects/rapidae/badge/?version=latest)](https://rapidae.readthedocs.io/en/latest/?badge=latest)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 🔗 [Documentation](https://rapidae.readthedocs.io/en/latest/) | 🔗 [PyPI Package](https://pypi.org/project/rapidae/)
 
