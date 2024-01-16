@@ -19,7 +19,6 @@ def get_data_from_url(url):
 
     Args:
         url (str): Given url where the data will be downloaded.
-
     """
     response = requests.get(url)
     if response.status_code == 200:

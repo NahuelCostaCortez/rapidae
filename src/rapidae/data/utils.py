@@ -15,10 +15,12 @@ def plot_label_clusters(model, data, labels):
     creates a 2D scatter plot of the latent space clusters colored by the true labels.
 
     Args:
-        model: An instance of a trained variational autoencoder model.
-        data: Input data to be used for generating latent space representations.
-        labels: True labels corresponding to the input data.    
-
+        model (keras.Model): An instance of a trained Variational Autoencoder (VAE) model.
+            The model should have a 'predict' method that can generate predictions for the given input data.
+        data (numpy.ndarray): Input data to be used for generating latent space representations.
+            It should be compatible with the input shape expected by the VAE model.
+        labels (numpy.ndarray): True labels corresponding to the input data.
+            It should have the same length as the number of samples in the input data.  
     """
     outputs = model.predict(data, verbose=0)
 
@@ -45,7 +47,6 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
 
     Returns:
         result: The result of the evaluation based on the selected metric.
-
     """
     # Get all functions from the metrics module
     all_metrics = getmembers(metrics, isfunction)
