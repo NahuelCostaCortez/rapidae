@@ -1,6 +1,7 @@
 """
 Class to load some common datasets.
 """
+
 import gzip
 import os
 import urllib
@@ -111,7 +112,7 @@ def convert_one_hot(x, target):
         target (numpy.ndarray): Target values to be converted to one-hot encoding.
 
     Returns:
-        numpy.ndarray: Array with one-hot encoded representation of target values.
+        samples (numpy.ndarray): Array with one-hot encoded representation of target values.
     '''
     n_classes = 6
     samples = np.zeros((x.shape[0], n_classes))
@@ -127,7 +128,7 @@ def load_arrhythmia_data(persistant=False):
     Load arrhythmia dataset and perform preprocessing.
 
     Args:
-        persistent (bool): If True, keeps the downloaded dataset files.
+        persistant (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.
 

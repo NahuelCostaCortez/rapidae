@@ -26,9 +26,6 @@ class Metric(ABC):
         Args:
             y_true (ArrayLike): Ground truth (correct) labels.
             y_hat (ArrayLike): Predicted values.
-
-        Returns:
-            None
         """
         pass
 
@@ -36,9 +33,6 @@ class Metric(ABC):
     def show_start_message(self):
         """
         Prints the name of the selected metric in the terminal for logging purposes.
-
-        Returns:
-            None
         """
         self.logger = Logger()
         self.logger.log_info(

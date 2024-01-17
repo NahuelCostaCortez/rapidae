@@ -11,13 +11,13 @@ class VQ_VAE(BaseAE):
 
     Args:
         beta (float): Hyperparameter for controlling the commitment loss term.
-        encoder (BaseEncoder): An instance of BaseEncoder. 
-        decoder (BaseDecoder): An instance of BaseDecoder. 
-        input_dim (Union[Tuple[int, ...], None]): Shape of the input data. 
-        latent_dim (int): Dimension of the latent space. 
-        num_embeddings (int): Number of embeddings for the Vector Quantizer. 
-        layers_conf (list): List specifying the configuration of layers for custom models. 
-        **kwargs: Additional keyword arguments.
+        encoder (BaseEncoder): An instance of BaseEncoder.
+        decoder (BaseDecoder): An instance of BaseDecoder.
+        input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
+        latent_dim (int): Dimension of the latent space.
+        num_embeddings (int): Number of embeddings for the Vector Quantizer.
+        layers_conf (list): List specifying the configuration of layers for custom models.
+        **kwargs (dict): Additional keyword arguments.
     """
 
     def __init__(
@@ -29,43 +29,50 @@ class VQ_VAE(BaseAE):
         encoder: callable = None,
         decoder: callable = None,
         layers_conf: list = None,
-        **kwargs
-    ):  
-        BaseAE.__init__(self, input_dim, latent_dim,
-                encoder=encoder, decoder=decoder, layers_conf=layers_conf, **kwargs)
-        
+        **kwargs,
+    ):
+        BaseAE.__init__(
+            self,
+            input_dim,
+            latent_dim,
+            encoder=encoder,
+            decoder=decoder,
+            layers_conf=layers_conf,
+            **kwargs,
+        )
+
         self.num_embeddings = num_embeddings
         self.beta = beta
-        
+
         # Create VQ layer
-        self.vq_layer = VectorQuantizer(num_embeddings=self.num_embeddings, 
-                                        embedding_dim=self.latent_dim,
-                                        beta=self.beta)
+        self.vq_layer = VectorQuantizer(
+            num_embeddings=self.num_embeddings,
+            embedding_dim=self.latent_dim,
+            beta=self.beta,
+        )
 
-        self.reconstruction_loss_tracker = keras.metrics.Mean(name='reconstruction_loss')
-        self.vq_loss_tracker = keras.metrics.Mean(name='vq_loss')
-
+        self.reconstruction_loss_tracker = keras.metrics.Mean(
+            name="reconstruction_loss"
+        )
+        self.vq_loss_tracker = keras.metrics.Mean(name="vq_loss")
 
     def call(self, x):
         encoder_outputs = self.encoder(x)
         quantized_latents, vq_loss = self.vq_layer(encoder_outputs)
-        outputs={}
-        outputs['vq_loss'] = keras.ops.array(vq_loss)
-        outputs['quantized_latents'] = quantized_latents
+        outputs = {}
+        outputs["vq_loss"] = keras.ops.array(vq_loss)
+        outputs["quantized_latents"] = quantized_latents
         recon_x = self.decoder(encoder_outputs)
-        outputs['recon'] = recon_x
+        outputs["recon"] = recon_x
 
         return outputs
-    
-    
+
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        recon_loss = keras.ops.mean(
-                    keras.losses.mean_squared_error(x, y_pred['recon'])
-                )
+        recon_loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred["recon"]))
         self.reconstruction_loss_tracker.update_state(recon_loss)
-        
+
         # VQ loss was already computed inside the Vector Quantized layer
-        vq_loss = y_pred['vq_loss']
+        vq_loss = y_pred["vq_loss"]
         self.vq_loss_tracker.update_state(vq_loss)
 
         return recon_loss + vq_loss
@@ -82,7 +89,7 @@ class VectorQuantizer(keras.layers.Layer):
         embedding_dim (int): Dimensionality of each embedding.
         beta (float): Hyperparameter for controlling the commitment loss term.
     """
-    
+
     def __init__(self, num_embeddings, embedding_dim, beta=0.25, **kwargs):
         super().__init__(**kwargs)
         self.embedding_dim = embedding_dim
@@ -94,23 +101,22 @@ class VectorQuantizer(keras.layers.Layer):
         # Initialize the embeddings which we will quantize
         w_init = keras.initializers.random_uniform()
         self.embeddings = self.add_weight(
-            shape = [self.embedding_dim, self.num_embeddings],
-            initializer = w_init,
-            name = 'embeddings_vqvae',
-            trainable = True, 
-            dtype='float32'
+            shape=[self.embedding_dim, self.num_embeddings],
+            initializer=w_init,
+            name="embeddings_vqvae",
+            trainable=True,
+            dtype="float32",
         )
-
 
     def call(self, x):
         """
         Forward pass of the VectorQuantizer layer.
 
         Args:
-            x: Input data.
+            x (Tensor): Input data.
 
         Returns:
-            tuple: Quantized output and a list of losses.
+            quantized (Tensor), self.losses (Tuple): Tuple containing quantized output and a list of losses.
         """
         # Calculate the input shape of the inputs and
         # then flatten the inputs keeping `embedding_dim` intact
@@ -139,7 +145,6 @@ class VectorQuantizer(keras.layers.Layer):
 
         return quantized, self.losses
 
-
     def get_code_indices(self, flattened_inputs):
         """
         Calculate the indices for minimum distances between inputs and codes.
@@ -153,12 +158,12 @@ class VectorQuantizer(keras.layers.Layer):
         # Calculate L2-normalized distance between the inputs and the codes
         similarity = keras.ops.matmul(flattened_inputs, self.embeddings)
         distances = (
-            keras.ops.sum(flattened_inputs ** 2, axis=1, keepdims=True)
-            + keras.ops.sum(self.embeddings ** 2, axis=0)
+            keras.ops.sum(flattened_inputs**2, axis=1, keepdims=True)
+            + keras.ops.sum(self.embeddings**2, axis=0)
             - 2 * similarity
         )
 
         # Derive the indices for minimum distances
         encoding_indices = keras.ops.argmin(distances, axis=1)
-        
+
         return encoding_indices

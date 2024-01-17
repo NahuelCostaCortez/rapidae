@@ -1,6 +1,7 @@
 """
 Class for common data utilities.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics
@@ -46,7 +47,7 @@ def evaluate(y_true, y_hat, sel_metric, label='test'):
         label (str): Tag of the evaluated set (e.g., 'test', 'validation').
 
     Returns:
-        result: The result of the evaluation based on the selected metric.
+        result (ArrayLike): The result of the evaluation based on the selected metric.
     """
     # Get all functions from the metrics module
     all_metrics = getmembers(metrics, isfunction)
@@ -83,7 +84,7 @@ def add_noise(array, noise_factor=0.4, a_min=0, a_max=1):
         a_max (float): The maximum value after adding noise (default is 1).
 
     Returns:
-        numpy.ndarray: The array with added noise, clipped to the specified range.
+        array (numpy.ndarray): The array with added noise, clipped to the specified range.
     """
     noisy_array = array + noise_factor * np.random.normal(
         loc=0.0, scale=1.0, size=array.shape

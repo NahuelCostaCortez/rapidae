@@ -41,16 +41,15 @@ class TrainingPipeline(BasePipeline):
         self.batch_size = batch_size
         self.num_epochs = num_epochs
 
-
     def __call__(
-            self,
-            x,
-            y=None,
-            x_eval=None,
-            y_eval=None,
-            callbacks: Optional[list] = None,
-            save_model: bool = True,):
-        
+        self,
+        x,
+        y=None,
+        x_eval=None,
+        y_eval=None,
+        callbacks: Optional[list] = None,
+        save_model: bool = True,
+    ):
         """
         Launches the training pipeline.
 
@@ -63,8 +62,7 @@ class TrainingPipeline(BasePipeline):
             save_model (bool, optional): Flag to save the trained model. Defaults to True.
 
         Returns:
-            BaseAE: Trained autoencoder model.
-            
+            BaseAE (keras.Model): Trained autoencoder model.
         """
 
         super().__call__()
@@ -73,21 +71,41 @@ class TrainingPipeline(BasePipeline):
             # Set callbacks
             callbacks = []
             if x_eval is None:
-                callbacks.append(EarlyStopping(
-                    monitor='loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='loss',
-                                 verbose=1, save_best_only=True, mode='min', save_weights_only=True))
+                callbacks.append(
+                    EarlyStopping(monitor="loss", patience=10, verbose=1, mode="min")
+                )
+                callbacks.append(
+                    ModelCheckpoint(
+                        filepath=os.path.join(self.output_dir, "model.weights.h5"),
+                        monitor="loss",
+                        verbose=1,
+                        save_best_only=True,
+                        mode="min",
+                        save_weights_only=True,
+                    )
+                )
             else:
-                callbacks.append(EarlyStopping(
-                    monitor='val_loss', patience=10, verbose=1, mode='min'))
-                callbacks.append(ModelCheckpoint(filepath=os.path.join(self.output_dir, 'model.weights.h5'), monitor='val_loss',
-                                 verbose=1, save_best_only=True, mode='min', save_weights_only=True))
+                callbacks.append(
+                    EarlyStopping(
+                        monitor="val_loss", patience=10, verbose=1, mode="min"
+                    )
+                )
+                callbacks.append(
+                    ModelCheckpoint(
+                        filepath=os.path.join(self.output_dir, "model.weights.h5"),
+                        monitor="val_loss",
+                        verbose=1,
+                        save_best_only=True,
+                        mode="min",
+                        save_weights_only=True,
+                    )
+                )
 
         # Set optimizer
-        if self.optimizer == 'adam':
+        if self.optimizer == "adam":
             optimizer = Adam(learning_rate=self.learning_rate)
         else:
-            self.logger.log_error('Unimplemented optimizer')
+            self.logger.log_error("Unimplemented optimizer")
             exit(-1)
 
         # Compile and fit the model
@@ -95,27 +113,28 @@ class TrainingPipeline(BasePipeline):
 
         if x_eval is None:
             self.model.fit(
-                        x=x,
-                        y=y,
-                        shuffle=True,
-                        epochs=self.num_epochs,
-                        batch_size=self.batch_size,
-                        callbacks=callbacks,
-                        verbose=2)
+                x=x,
+                y=y,
+                shuffle=True,
+                epochs=self.num_epochs,
+                batch_size=self.batch_size,
+                callbacks=callbacks,
+                verbose=2,
+            )
         else:
             self.model.fit(
-                        x=x,
-                        y=y,
-                        validation_data=(x_eval, y_eval),
-                        shuffle=True,
-                        epochs=self.num_epochs,
-                        batch_size=self.batch_size,
-                        callbacks=callbacks,
-                        verbose=2)
+                x=x,
+                y=y,
+                validation_data=(x_eval, y_eval),
+                shuffle=True,
+                epochs=self.num_epochs,
+                batch_size=self.batch_size,
+                callbacks=callbacks,
+                verbose=2,
+            )
 
         # Restore the best model
-        self.model.load_weights(os.path.join(
-            self.output_dir, 'model.weights.h5'))
+        self.model.load_weights(os.path.join(self.output_dir, "model.weights.h5"))
 
         if save_model is False:
             os.remove(self.output_dir)
