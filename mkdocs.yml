@@ -1,4 +1,11 @@
-site_name: Rapidae
+site_name: "rapidae"
+site_description: "Rapidae is a Python library specialized in simplifying the creation and experimentation of autoencoder models. With a focus on ease of use, Rapidae allows users to explore and develop autoencoder models in an efficient and straightforward manner."
+site_url: "https://rapidae.readthedocs.io/en/latest/"
+repo_url: "https://github.com/NahuelCostaCortez/rapidae"
+repo_name: "NahuelCostaCortez/rapidae"
+site_dir: "site"
+watch: [mkdocs.yml, README.md, src/rapidae]
+edit_uri: edit/main/docs/
 
 validation:
   omitted_files: warn
@@ -8,16 +15,29 @@ validation:
 nav:
   - Home:
     - Overview: index.md
+    - Examples: examples.md
+    #- Examples: 
+    #- Recipes: recipes.md
+    - API Reference: reference/
+      #- conf: reference/rapidae/conf/
+      #- data: 
+      #  - reference/data.md
+      #  - datasets: reference/rapidae/data/datasets/
+      #  - preprocessing: reference/rapidae/data/preprocessing/
+      #  - utils: reference/rapidae/data/utils/
     - Changelog: changelog.md
     - License: license.md
-  - Usage: 
-    - Examples: examples.md
-    - Recipes: recipes.md
-  - API Reference: reference/
-  - FAQ: faq.md
-  
+  #- FAQ: faq.md
+
+repo_url: https://github.com/NahuelCostaCortez/rapidae/tree/main
+repo_name: Open in Github
+
 theme:
    name: material
+   logo: logo.png
+   favicon: logo.png
+   icon:
+    repo: fontawesome/brands/github
    features:
    - announce.dismiss
    - content.action.edit
@@ -28,8 +48,9 @@ theme:
    - navigation.footer
    - navigation.indexes
    - navigation.sections
-   - navigation.tabs
+   #- navigation.tabs
    - navigation.tabs.sticky
+   - navigation.path
    - navigation.top
    - search.highlight
    - search.suggest
@@ -44,7 +65,7 @@ theme:
      primary: teal
      accent: purple
      toggle:
-      icon: material/weather-sunny
+      icon: material/toggle-switch
       name: Switch to dark mode
    - media: "(prefers-color-scheme: dark)"
      scheme: slate
@@ -62,10 +83,27 @@ plugins:
 - literate-nav:
     nav_file: SUMMARY.md
 - mkdocstrings:
-    default_handler: python
     handlers:
       python:
+        import:
+        - https://docs.python.org/3/objects.inv
+        - https://installer.readthedocs.io/en/stable/objects.inv  # demonstration purpose in the docs
+        - https://mkdocstrings.github.io/autorefs/objects.inv
         paths: [src]
+        options:
+          docstring_options:
+            ignore_init_summary: true
+          docstring_section_style: table
+          filters: ["!^_"]
+          heading_level: 1
+          inherited_members: true
+          merge_init_into_class: true
+          separate_signature: true
+          show_root_heading: true
+          show_root_full_path: false
+          show_signature_annotations: true
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
 
 markdown_extensions:
   - pymdownx.snippets

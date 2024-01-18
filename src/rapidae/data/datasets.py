@@ -1,6 +1,7 @@
 """
 Class to load some common datasets.
 """
+
 import gzip
 import os
 import urllib
@@ -38,7 +39,7 @@ def load_mnist_images(filename):
     Args:
         filename (str): Path to the file.
     """
-    with gzip.open(filename, 'rb') as file:
+    with gzip.open(filename, "rb") as file:
         data = np.frombuffer(file.read(), np.uint8, offset=16)
 
     return data.reshape(-1, 28, 28, 1)
@@ -51,7 +52,7 @@ def load_mnist_labels(filename):
     Args:
         filename (str): Path to the file.
     """
-    with gzip.open(filename, 'rb') as file:
+    with gzip.open(filename, "rb") as file:
         data = np.frombuffer(file.read(), np.uint8, offset=8)
 
     return data
@@ -63,12 +64,18 @@ def load_MNIST(persistant=False):
     It can be obtained from original source or from Keras repository.
 
     Args:
-        persistant (bool): Determinates if the downloaded data will be deleted or not after running an experiment.
+        persistant (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
     """
-    url_base = 'http://yann.lecun.com/exdb/mnist/'
-    filenames = ['train-images-idx3-ubyte.gz', 'train-labels-idx1-ubyte.gz',
-                 't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz']
-    data_dir = os.path.join('..', 'datasets', 'mnist_data')
+    url_base = "http://yann.lecun.com/exdb/mnist/"
+    filenames = [
+        "train-images-idx3-ubyte.gz",
+        "train-labels-idx1-ubyte.gz",
+        "t10k-images-idx3-ubyte.gz",
+        "t10k-labels-idx1-ubyte.gz",
+    ]
+    data_dir = os.path.join("..", "datasets", "MNIST")
 
     train_img_path = os.path.join(data_dir, filenames[0])
     train_lbl_path = os.path.join(data_dir, filenames[1])
@@ -83,10 +90,10 @@ def load_MNIST(persistant=False):
         url = url_base + filename
         target_path = os.path.join(data_dir, filename)
         if not os.path.exists(target_path):
-            Logger().log_info(f'Downloading {filename}...')
+            Logger().log_info(f"Downloading {filename}...")
             urllib.request.urlretrieve(url, target_path)
         else:
-            Logger().log_info(f'{filename} already exists.')
+            Logger().log_info(f"{filename} already exists.")
 
     # Load the training and test data
     x_train = load_mnist_images(train_img_path)
@@ -96,14 +103,14 @@ def load_MNIST(persistant=False):
 
     # If required delete data
     if not persistant:
-        Logger().log_info('Deleting MNIST data...')
+        Logger().log_info("Deleting MNIST data...")
         rmtree(data_dir)
 
     return x_train, y_train, x_test, y_test
 
 
 def convert_one_hot(x, target):
-    '''
+    """
     Convert target values to one-hot encoding.
 
     Args:
@@ -111,8 +118,8 @@ def convert_one_hot(x, target):
         target (numpy.ndarray): Target values to be converted to one-hot encoding.
 
     Returns:
-        numpy.ndarray: Array with one-hot encoded representation of target values.
-    '''
+        samples (numpy.ndarray): Array with one-hot encoded representation of target values.
+    """
     n_classes = 6
     samples = np.zeros((x.shape[0], n_classes))
 
@@ -127,7 +134,7 @@ def load_arrhythmia_data(persistant=False):
     Load arrhythmia dataset and perform preprocessing.
 
     Args:
-        persistent (bool): If True, keeps the downloaded dataset files.
+        persistant (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.
 
@@ -144,9 +151,9 @@ def load_arrhythmia_data(persistant=False):
     """
 
     # Load the data
-    url = 'https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy'
-    filename = 'arrhythmia_data.npy'
-    data_dir = os.path.join('..', 'datasets', 'arrhythmia_data')
+    url = "https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy"
+    filename = "arrhythmia_data.npy"
+    data_dir = os.path.join("..", "datasets", "AtrialFibrilation")
 
     # Create a directory to store the downloaded files
     os.makedirs(data_dir, exist_ok=True)
@@ -154,21 +161,21 @@ def load_arrhythmia_data(persistant=False):
     target_path = os.path.join(data_dir, filename)
 
     if not os.path.exists(target_path):
-        Logger().log_info(f'Downloading {filename}...')
+        Logger().log_info(f"Downloading {filename}...")
         urllib.request.urlretrieve(url, target_path)
     else:
-        Logger().log_info(f'{filename} already exists.')
+        Logger().log_info(f"Skipping... Data already exists.")
 
     data = np.load(target_path, allow_pickle=True).item()
 
     # Split into a train, validation, test
-    x_train = data['input_train']
-    x_val = data['input_vali']
-    x_test = data['input_test']
+    x_train = data["input_train"]
+    x_val = data["input_vali"]
+    x_test = data["input_test"]
 
-    target_train = data['target_train']
-    target_val = data['target_vali']
-    target_test = data['target_test']
+    target_train = data["target_train"]
+    target_val = data["target_vali"]
+    target_test = data["target_test"]
 
     # Convert labels to one-hot encoding
     y_train = convert_one_hot(x_train, target_train)
@@ -177,44 +184,86 @@ def load_arrhythmia_data(persistant=False):
 
     # If required delete data
     if not persistant:
-        Logger().log_info('Deleting arrhythmia data...')
+        Logger().log_info("Deleting arrhythmia data...")
         rmtree(data_dir)
 
-    return x_train, x_val, x_test, y_train, y_val, y_test, target_train, target_val, target_test
+    return (
+        x_train,
+        x_val,
+        x_test,
+        y_train,
+        y_val,
+        y_test,
+        target_train,
+        target_val,
+        target_test,
+    )
 
 
-def load_CMAPSS(subset="FD001"):
+def load_CMAPSS(subset="FD001", persistant=False):
     """
     Returns train, test, y_test for the requested subset of the CMAPSS dataset.
 
-    These are download from the NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational repository 
+    These are download from the NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational repository
     since they are not longer available in the original source:
     https://data.nasa.gov/dataset/C-MAPSS-Aircraft-Engine-Simulator-Data/xaut-bemq
 
     Args:
         subset (str): Selected subset of CMAPSS dataset. There are 4 available: FD001, FD002, FD003, FD004
+        persistant (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
     """
 
     if subset not in ["FD001", "FD002", "FD003", "FD004"]:
         raise ValueError(
-            "Invalid subset. Supported subsets are: FD001, FD002, FD003, FD004")
+            "Invalid subset. Supported subsets are: FD001, FD002, FD003, FD004"
+        )
 
     # Load the data
-    url_train = "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/train_" + subset + ".txt"
-    url_RUL = "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/RUL_" + subset + ".txt"
-    url_test = "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/test_" + subset + ".txt"
+    url_train = (
+        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/train_"
+        + subset
+        + ".txt"
+    )
+    url_RUL = (
+        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/RUL_"
+        + subset
+        + ".txt"
+    )
+    url_test = (
+        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/test_"
+        + subset
+        + ".txt"
+    )
+
+    filenames = [
+        "train_" + subset + ".txt",
+        "RUL_" + subset + ".txt",
+        "test_" + subset + ".txt",
+    ]
+    data_dir = os.path.join("..", "datasets", "CMAPSS")
 
     # columns
-    index_names = ['unit_nr', 'time_cycles']
-    setting_names = ['setting_1', 'setting_2', 'setting_3']
-    sensor_names = ['s_{}'.format(i+1) for i in range(0, 21)]
+    index_names = ["unit_nr", "time_cycles"]
+    setting_names = ["setting_1", "setting_2", "setting_3"]
+    sensor_names = ["s_{}".format(i + 1) for i in range(0, 21)]
     col_names = index_names + setting_names + sensor_names
 
-    train = pd.read_csv(url_train, sep=r'\s+', header=None,
-                        names=col_names)
-    test = pd.read_csv(url_test, sep=r'\s+', header=None,
-                                     names=col_names)
-    y_test = pd.read_csv(url_RUL, sep=r'\s+', header=None,
-                         names=['RemainingUsefulLife'])
+    train = pd.read_csv(url_train, sep=r"\s+", header=None, names=col_names)
+    test = pd.read_csv(url_test, sep=r"\s+", header=None, names=col_names)
+    y_test = pd.read_csv(
+        url_RUL, sep=r"\s+", header=None, names=["RemainingUsefulLife"]
+    )
+
+    if persistant:
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+            Logger().log_info(f"Downloading data...")
+            train.to_csv(os.path.join(data_dir, filenames[0]), index=False)
+            test.to_csv(os.path.join(data_dir, filenames[2]), index=False)
+            y_test.to_csv(os.path.join(data_dir, filenames[1]), index=False)
+        else:
+            Logger().log_info(f"Skipping... Data already exists.")
 
     return train, test, y_test
