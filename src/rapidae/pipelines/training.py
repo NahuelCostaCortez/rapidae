@@ -135,6 +135,7 @@ class TrainingPipeline(BasePipeline):
 
         # Restore the best model
         self.model.load_weights(os.path.join(self.output_dir, "model.weights.h5"))
+        self.logger.log_info("Best model restored")
 
         if save_model is False:
             os.remove(self.output_dir)

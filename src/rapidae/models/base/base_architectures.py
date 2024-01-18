@@ -18,7 +18,7 @@ class BaseEncoder(layers.Layer):
         name (str): Name of the encoder layer.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, name="encoder"):
+    def __init__(self, input_dim, latent_dim, layers_conf=None, name="encoder"):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
@@ -49,12 +49,13 @@ class BaseDecoder(layers.Layer):
         name (str): Name of the decoder layer.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, name="decoder"):
+    def __init__(self, input_dim, latent_dim, layers_conf=None, name="decoder"):
         super().__init__(name=name)
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         # The decoder usually uses a reversed architecture of the encoder
-        self.layers_conf = reversed(layers_conf)
+        if layers_conf is not None:
+            self.layers_conf = reversed(layers_conf)
 
     def call(self, x):
         """

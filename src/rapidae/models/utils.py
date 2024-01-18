@@ -8,6 +8,19 @@ import numpy as np
 from keras.callbacks import LambdaCallback
 
 
+def list_models():
+    """
+    List all available models.
+    Note that these are the base models, for a complete guide of the implemented models, please refer to the documentation.
+    """
+    return [
+        "AE",
+        "CAE",
+        "VAE",
+        "VQVAE",
+    ]
+
+
 class LRFinder:
     """
     Cyclical learning rate finder. The idea is to reduce the amount of guesswork on picking a good starting learning rate.

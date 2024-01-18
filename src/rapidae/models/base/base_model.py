@@ -46,43 +46,50 @@ class BaseAE(keras.Model):
         self.latent_dim = latent_dim
         self.exclude_decoder = exclude_decoder
 
-        if layers_conf is None:
-            Logger().log_warning(
-                "No specific layer configuration has been provided. Creating default configuration..."
+        # If no input dimension is provided, raise an error
+        if self.input_dim is None:
+            raise AttributeError(
+                "No input dimension found."
+                "\n'input_dim' argument must be provided."
+                "\nTypically (width, height, channels) for images or (time_steps, features) for time series)."
             )
-            self.layers_conf = [512]
-        else:
-            self.layers_conf = layers_conf
+
+        # If no encoder or decoder is provided, use default MLP architectures
+        if encoder is None and decoder is None:
+            if layers_conf is None:
+                Logger().log_warning(
+                    "No specific layer configuration has been provided. Creating default configuration: [512]..."
+                )
+                layers_conf = [512]
 
         if encoder is None:
             Logger().log_warning("No encoder provided, using default MLP encoder")
-            if self.input_dim is None:
-                raise AttributeError(
-                    "No input dimension provided!"
-                    "'input_dim' must be provided in the model config"
-                )
-            self.encoder = Encoder_MLP(
-                self.input_dim, self.latent_dim, self.layers_conf
-            )
-        self.encoder = encoder(
-            self.input_dim, self.latent_dim, self.layers_conf, **kwargs
-        )
+            encoder = Encoder_MLP
 
-        if not self.exclude_decoder:
-            if decoder is None:
-                Logger().log_warning("No decoder provider, using default MLP decoder"),
-                if self.input_dim is None:
-                    raise AttributeError(
-                        "No input dimension provided!"
-                        "'input_dim' must be provided in the model config"
-                    )
-                self.decoder = Decoder_MLP(
-                    self.input_dim, self.latent_dim, self.layers_conf
+        if decoder is None and not self.exclude_decoder:
+            Logger().log_warning("No decoder provided, using default MLP decoder")
+            decoder = Decoder_MLP
+
+        # check if the encoder requires a layers_conf argument
+        if "layers_conf" in encoder.__init__.__code__.co_varnames:
+            if layers_conf is None:
+                Logger().log_warning(
+                    "No specific layer configuration has been provided. Creating default configuration: [512]..."
                 )
-            else:
-                self.decoder = decoder(
-                    self.input_dim, self.latent_dim, self.layers_conf, **kwargs
-                )
+                layers_conf = [512]
+            self.encoder = encoder(
+                self.input_dim, self.latent_dim, layers_conf, **kwargs
+            )
+        else:
+            self.encoder = encoder(self.input_dim, self.latent_dim, **kwargs)
+
+        # check if the decoder requires a layers_conf argument
+        if "layers_conf" in decoder.__init__.__code__.co_varnames:
+            self.decoder = decoder(
+                self.input_dim, self.latent_dim, layers_conf, **kwargs
+            )
+        else:
+            self.decoder = decoder(self.input_dim, self.latent_dim, **kwargs)
 
     def call(self, inputs):
         """

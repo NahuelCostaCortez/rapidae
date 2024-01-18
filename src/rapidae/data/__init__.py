@@ -4,15 +4,15 @@ This module contains everything related to the acquisition and preprocessing of 
 
 from .datasets import load_CMAPSS, load_MNIST, load_arrhythmia_data
 from .preprocessing import CMAPSS_preprocessor
-from .utils import plot_label_clusters, evaluate, add_noise, display_diff
+from .utils import plot_latent_space, evaluate, add_noise, plot_reconstructions
 
 __all__ = [
     "load_CMAPSS",
     "load_MNIST",
     "load_arrhythmia_data",
     "CMAPSS_preprocessor",
-    "plot_label_clusters",
+    "plot_latent_space",
     "evaluate",
     "add_noise",
-    "display_diff",
+    "plot_reconstructions",
 ]
