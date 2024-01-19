@@ -81,22 +81,22 @@ pip install -r requirements.txt
 ```
 
 ## Usage 🫳🏻
-[Here](https://github/NahuelCostaCortez/rapidae/blob/main/examples/START_HERE.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/nahuel/examples), you will find a series of notebooks for each model and with particular use cases.
+[Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/START_HERE.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
 
 ## Choose backend 💻
-Since Rapidae uses Keras 3, you can easily switch among Tensorflow, Pytorch and Jax (Tensorflow is selected by default).
+Since Rapidae uses Keras 3, you can easily switch among Tensorflow, Pytorch and Jax (Tensorflow is the selected option by default).
 
 You can export the environment variable KERAS_BACKEND or you can edit your local config file at ~/.keras/keras.json to configure your backend. Available backend options are: "jax", "tensorflow", "torch". Example:
 
 ```bash
-export KERAS_BACKEND="jax"
+export KERAS_BACKEND="torch"
 ```
 
 In a notebook, you can do:
 
 ```c
 import os
-os.environ["KERAS_BACKEND"] = "tensorflow" 
+os.environ["KERAS_BACKEND"] = "torch" 
 import keras
 ```
 
@@ -106,7 +106,7 @@ Below is the list of the models currently implemented in the library.
 
 |               Models               |                                                                                    Training example                                                                                    |                     Paper                    |                           Official Implementation                          |
 |:----------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------:|:--------------------------------------------------------------------------:|
-| Autoencoder (AE)                   | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](NahuelCostaCortez/rapidae/blob/main/examples/TO-DO.ipynb) | [link](https://www.science.org/doi/abs/10.1126/science.1127647)                                             |  
+| Autoencoder (AE)                   | TO-DO | [link](https://www.science.org/doi/abs/10.1126/science.1127647)                                             |  
 | Denoising Autoencoder                  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/denoising_autoencoder.ipynb) |                                              | [link](https://keras.io/examples/vision/autoencoder/)
 | Sparse Autoencoder                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/sparse_autoencoder.ipynb) | [link](https://arxiv.org/abs/1312.5663)                                             |   
 | Contractive Autoencoder                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/contractive_autoencoder.ipynb) | [link](http://www.icml-2011.org/papers/455_icmlpaper.pdf)                                             |  
