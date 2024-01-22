@@ -5,7 +5,7 @@ from rapidae.models.base import BaseDecoder, BaseEncoder
 
 
 # ------------------- VANILLA MLP VAE ------------------- #
-class Encoder_MLP(BaseEncoder):
+class VAE_Encoder_MLP(BaseEncoder):
     """
     Vanilla multi-layer perceptron (MLP) encoder architecture for a variational autoencoder (VAE).
 
@@ -52,7 +52,7 @@ class Encoder_MLP(BaseEncoder):
         return x_z_mean, x_log_var
 
 
-class Decoder_MLP(BaseDecoder):
+class VAE_Decoder_MLP(BaseDecoder):
     """
     Multi-Layer Perceptron Decoder.
 
@@ -102,7 +102,7 @@ class Decoder_MLP(BaseDecoder):
 
 
 # --------------- ENCODER-DECODER FROM KERAS TUTORIAL --------------- #
-class Encoder_Conv_MNIST(BaseEncoder):
+class VAE_Encoder_Conv_MNIST(BaseEncoder):
     """
     Convolutional encoder architecture from keras tutorial for a variational autoencoder (VAE).
 
@@ -153,7 +153,7 @@ class Encoder_Conv_MNIST(BaseEncoder):
         return x_z_mean, x_log_var
 
 
-class Decoder_Conv_MNIST(BaseDecoder):
+class VAE_Decoder_Conv_MNIST(BaseDecoder):
     """
     Convolutional encoder architecture from keras tutorial for a variational autoencoder (VAE).
 

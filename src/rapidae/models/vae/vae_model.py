@@ -32,6 +32,12 @@ class VAE(BaseAE):
         layers_conf: list = None,
         **kwargs,
     ):
+        if encoder is None:
+            from rapidae.models.base.default_architectures import VanillaEncoder
+
+            Logger().log_info("Using default encoder")
+            encoder = VanillaEncoder(input_dim, latent_dim, layers_conf=layers_conf)
+
         BaseAE.__init__(
             self,
             input_dim,

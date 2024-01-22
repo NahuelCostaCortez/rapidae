@@ -21,6 +21,35 @@ def list_models():
     ]
 
 
+def load_model(model_name, input_dim, latent_dim, **kwargs):
+    """
+    Load a model.
+
+    Args:
+        model_name (str): Name of the model to load.
+    """
+    # import the correct model depending on the model_name
+    if model_name == "Autoencoder (AE)":
+        from . import AE as model
+
+    elif model_name == "Contractive Autoencoder":
+        from . import CAE as model
+
+    elif model_name == "Variational Autoencoder (VAE)":
+        from . import VAE as model
+
+    elif model_name == "Vector Quantised-Variational AutoEncoder (VQ-VAE)":
+        from . import VQVAE as model
+
+    elif model_name == "Recurrent Variational Encoding (RVE)":
+        from . import RVE as model
+
+    else:
+        raise ValueError("Model not found.")
+
+    return model(input_dim, latent_dim, **kwargs)
+
+
 class LRFinder:
     """
     Cyclical learning rate finder. The idea is to reduce the amount of guesswork on picking a good starting learning rate.

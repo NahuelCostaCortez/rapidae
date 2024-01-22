@@ -32,7 +32,7 @@ def get_data_from_url(url):
         return None
 
 
-def load_mnist_images(filename):
+def mnist_load_images(filename):
     """
     Auxiliary function to load gzipped images for MNIST dataset.
 
@@ -45,7 +45,7 @@ def load_mnist_images(filename):
     return data.reshape(-1, 28, 28, 1)
 
 
-def load_mnist_labels(filename):
+def mnist_load_labels(filename):
     """
     Auxiliary function to load gzipped labels for MNIST dataset.
 
@@ -60,13 +60,16 @@ def load_mnist_labels(filename):
 
 def load_MNIST(persistant=False):
     """
-    Returns the train, y_train and test data for the MNIST dataset.
+    Returns data for the MNIST dataset.
     It can be obtained from original source or from Keras repository.
 
     Args:
         persistant (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.
+
+    Returns:
+        data (dict): Dictionary containing the data for the MNIST dataset.
     """
     url_base = "http://yann.lecun.com/exdb/mnist/"
     filenames = [
@@ -96,17 +99,23 @@ def load_MNIST(persistant=False):
             Logger().log_info(f"{filename} already exists.")
 
     # Load the training and test data
-    x_train = load_mnist_images(train_img_path)
-    y_train = load_mnist_labels(train_lbl_path)
-    x_test = load_mnist_images(test_img_path)
-    y_test = load_mnist_labels(test_lbl_path)
+    x_train = mnist_load_images(train_img_path)
+    y_train = mnist_load_labels(train_lbl_path)
+    x_test = mnist_load_images(test_img_path)
+    y_test = mnist_load_labels(test_lbl_path)
 
     # If required delete data
     if not persistant:
         Logger().log_info("Deleting MNIST data...")
         rmtree(data_dir)
 
-    return x_train, y_train, x_test, y_test
+    data = {}
+    data["x_train"] = x_train
+    data["y_train"] = y_train
+    data["x_test"] = x_test
+    data["y_test"] = y_test
+
+    return data
 
 
 def convert_one_hot(x, target):
@@ -129,7 +138,7 @@ def convert_one_hot(x, target):
     return samples
 
 
-def load_arrhythmia_data(persistant=False):
+def load_AtrialFibrillation(persistant=False):
     """
     Load arrhythmia dataset and perform preprocessing.
 
@@ -139,15 +148,7 @@ def load_arrhythmia_data(persistant=False):
                            Default is False.
 
     Returns:
-        x_train (numpy.ndarray): Training input data.
-        x_val (numpy.ndarray): Validation input data.
-        x_test (numpy.ndarray): Test input data.
-        y_train (numpy.ndarray): One-hot encoded labels for training data.
-        y_val (numpy.ndarray): One-hot encoded labels for validation data.
-        y_test (numpy.ndarray): One-hot encoded labels for test data.
-        target_train (numpy.ndarray): Target labels for training data.
-        target_val (numpy.ndarray): Target labels for validation data.
-        target_test (numpy.ndarray): Target labels for test data.
+        data (dict): Dictionary containing the data for the MNIST dataset.
     """
 
     # Load the data
@@ -173,36 +174,29 @@ def load_arrhythmia_data(persistant=False):
     x_val = data["input_vali"]
     x_test = data["input_test"]
 
-    target_train = data["target_train"]
-    target_val = data["target_vali"]
-    target_test = data["target_test"]
-
-    # Convert labels to one-hot encoding
-    y_train = convert_one_hot(x_train, target_train)
-    y_val = convert_one_hot(x_val, target_val)
-    y_test = convert_one_hot(x_test, target_test)
+    y_train = data["target_train"]
+    y_val = data["target_vali"]
+    y_test = data["target_test"]
 
     # If required delete data
     if not persistant:
         Logger().log_info("Deleting arrhythmia data...")
         rmtree(data_dir)
 
-    return (
-        x_train,
-        x_val,
-        x_test,
-        y_train,
-        y_val,
-        y_test,
-        target_train,
-        target_val,
-        target_test,
-    )
+    data = {}
+    data["x_train"] = x_train
+    data["x_val"] = x_val
+    data["x_test"] = x_test
+    data["y_train"] = y_train
+    data["y_val"] = y_val
+    data["y_test"] = y_test
+
+    return data
 
 
 def load_CMAPSS(subset="FD001", persistant=False):
     """
-    Returns train, test, y_test for the requested subset of the CMAPSS dataset.
+    Returns data for the requested subset of the CMAPSS dataset.
 
     These are download from the NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational repository
     since they are not longer available in the original source:
@@ -213,6 +207,9 @@ def load_CMAPSS(subset="FD001", persistant=False):
         persistant (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.
+
+    Returns:
+        data (dict): Dictionary containing the data for the selected subset of CMAPSS dataset.
     """
 
     if subset not in ["FD001", "FD002", "FD003", "FD004"]:
@@ -266,4 +263,52 @@ def load_CMAPSS(subset="FD001", persistant=False):
         else:
             Logger().log_info(f"Skipping... Data already exists.")
 
-    return train, test, y_test
+    data = {}
+    data["x_train"] = train
+    data["x_test"] = test
+    data["y_test"] = y_test
+
+    return data
+
+
+def load_dataset(dataset, persistant=False):
+    """
+    Load the dataset.
+
+    Args:
+        dataset (str): Name of the dataset to be loaded.
+                    If False, returns the raw data.
+        persistant (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
+    """
+    if dataset == "MNIST":
+        return load_MNIST(persistant)
+    elif dataset == "AtrialFibrillation":
+        return load_AtrialFibrillation(persistant)
+    elif dataset == "CMAPSS":
+        return load_CMAPSS(persistant)
+    else:
+        raise ValueError("Invalid dataset name.")
+
+
+def list_datasets():
+    import inspect
+    import sys
+
+    # Import the module
+    current_module = sys.modules[__name__]
+
+    # Get all functions in the module
+    functions = inspect.getmembers(current_module, inspect.isfunction)
+
+    # Filter functions that start with 'load_'
+    load_functions = [func for func in functions if func[0].startswith("load_")]
+
+    # Return the names of the functions in a list
+    dataset_names = [func[0].split("_")[1] for func in load_functions]
+    # exclude the load_dataset function
+    dataset_names.remove("dataset")
+    # remove duplicates
+    dataset_names = list(set(dataset_names))
+    return dataset_names

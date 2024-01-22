@@ -7,10 +7,10 @@ from typing import Optional, Tuple, Union
 import keras
 
 from rapidae.models.base.default_architectures import (
-    BaseDecoder,
     BaseEncoder,
-    Decoder_MLP,
-    Encoder_MLP,
+    BaseDecoder,
+    VanillaEncoder,
+    VanillaDecoder,
 )
 from rapidae.conf import Logger
 
@@ -63,12 +63,12 @@ class BaseAE(keras.Model):
                 layers_conf = [512]
 
         if encoder is None:
-            Logger().log_warning("No encoder provided, using default MLP encoder")
-            encoder = Encoder_MLP
+            Logger().log_warning("No encoder provided, using default encoder")
+            encoder = VanillaEncoder
 
         if decoder is None and not self.exclude_decoder:
-            Logger().log_warning("No decoder provided, using default MLP decoder")
-            decoder = Decoder_MLP
+            Logger().log_warning("No decoder provided, using default decoder")
+            decoder = VanillaDecoder
 
         # check if the encoder requires a layers_conf argument
         if "layers_conf" in encoder.__init__.__code__.co_varnames:
