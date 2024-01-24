@@ -20,7 +20,7 @@ __all__ = [
     "BaseClassifier",
     "CAE",
     "VAE",
-    "VQVAE",
+    "VQ_VAE",
     "VectorQuantizer",
     "LRFinder",
     "list_models",
