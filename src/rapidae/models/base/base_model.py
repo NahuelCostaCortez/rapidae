@@ -37,7 +37,7 @@ class BaseAE(keras.Model):
         latent_dim: int = 2,
         encoder: Optional[BaseEncoder] = None,
         decoder: Optional[BaseDecoder] = None,
-        exclude_decoder: bool = False,
+        exclude_decoder: bool = None,
         layers_conf: list = None,
         **kwargs,
     ):
@@ -66,7 +66,7 @@ class BaseAE(keras.Model):
             Logger().log_warning("No encoder provided, using default encoder")
             encoder = VanillaEncoder
 
-        if decoder is None and not self.exclude_decoder:
+        if decoder is None and self.exclude_decoder == False:
             Logger().log_warning("No decoder provided, using default decoder")
             decoder = VanillaDecoder
 
@@ -83,13 +83,14 @@ class BaseAE(keras.Model):
         else:
             self.encoder = encoder(self.input_dim, self.latent_dim, **kwargs)
 
-        # check if the decoder requires a layers_conf argument
-        if "layers_conf" in decoder.__init__.__code__.co_varnames:
-            self.decoder = decoder(
-                self.input_dim, self.latent_dim, layers_conf, **kwargs
-            )
-        else:
-            self.decoder = decoder(self.input_dim, self.latent_dim, **kwargs)
+        if decoder != None:
+            # check if the decoder requires a layers_conf argument
+            if "layers_conf" in decoder.__init__.__code__.co_varnames:
+                self.decoder = decoder(
+                    self.input_dim, self.latent_dim, layers_conf, **kwargs
+                )
+            else:
+                self.decoder = decoder(self.input_dim, self.latent_dim, **kwargs)
 
     def call(self, inputs):
         """

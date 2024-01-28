@@ -178,6 +178,6 @@ class VAE(BaseAE):
             if not self.exclude_decoder:
                 loss = kl_loss + recon_loss + reg_loss
             else:
-                loss = kl_loss + clf_loss
+                loss = kl_loss + reg_loss
 
         return loss

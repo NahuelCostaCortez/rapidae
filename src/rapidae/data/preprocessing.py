@@ -177,8 +177,8 @@ def CMAPSS_preprocessor(
         x_test (numpy.ndarray): Test data.
         y_test (numpy.ndarray): Test labels.
     """
-    # create RUL values according to the piece-wise target function
 
+    # create RUL values according to the piece-wise target function
     train = add_remaining_useful_life(train)
     train["RUL"].clip(upper=threshold, inplace=True)
 
@@ -227,4 +227,13 @@ def CMAPSS_preprocessor(
     )
     x_test = np.concatenate(list(test_gen)).astype(np.float32)
 
-    return x_train, y_train, x_val, y_val, x_test, y_test["RemainingUsefulLife"]
+    data = {
+        "x_train": x_train,
+        "y_train": y_train,
+        "x_val": x_val,
+        "y_val": y_val,
+        "x_test": x_test,
+        "y_test": y_test["RemainingUsefulLife"],
+    }
+
+    return data

@@ -1,5 +1,3 @@
 from .vae_model import VAE
 
-__all__ = [
-    'VAE'
-]
+__all__ = ["VAE"]

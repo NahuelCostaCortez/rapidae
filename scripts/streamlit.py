@@ -13,7 +13,7 @@ sys.path.append(
 )  # add src folder to path to import modules
 
 from rapidae.data import load_dataset
-from rapidae.models import load_model
+from rapidae.models import list_models, load_model
 from rapidae.pipelines import TrainingPipeline
 from keras.callbacks import Callback
 import plotly.graph_objects as go
@@ -103,9 +103,10 @@ class StreamlitCallback(Callback):
 
 def main():
     st.set_page_config(layout="wide")
+    # set font size
 
     # Header
-    st.title("Rapidae Web Interface")
+    st.title("RapidAE Web Interface 🚀")
 
     # Above part - Data selection and model selection
     left_column, middle_column, right_column = st.columns(3)
@@ -120,19 +121,30 @@ def main():
     # Middle section - Model selection
     with middle_column:
         st.subheader("Model")
+        models_list = list_models()
         # Add your code for model selection here
         model_name = st.selectbox(
             "Select a model",
-            [
-                "Autoencoder (AE)",
-                "Denoising Autoencoder",
-                "Sparse Autoencoder",
-                "Contractive Autoencoder",
-                "Variational Autoencoder (VAE)",
-                "Vector Quantised-Variational AutoEncoder (VQ-VAE)",
-                "Recurrent Variational Encoding (RVE)",
-            ],
+            models_list,
         )
+
+        encoder_architecture = st.selectbox(
+            "Encoder Architecture", ["MLP", "CNN", "LSTM"]
+        )
+
+        decoder = st.checkbox("Decoder")
+
+        if decoder:
+            decoder_architecture = st.selectbox(
+                "Decoder Architecture", ["MLP", "CNN", "LSTM"]
+            )
+
+        downstream_task = st.checkbox("Downstream Task")
+
+        if downstream_task:
+            task = st.selectbox(
+                "Select a downstream Task", ["None", "Classification", "Regression"]
+            )
 
     # Right section - Hyperparameter selection
     with right_column:
@@ -140,80 +152,125 @@ def main():
         # Add your code for hyperparameter selection here
         # create a selectbox to choose a dataset
         latent_space = st.slider("Latent Space Dimension", 2, 100, value=2)
-        epochs = st.slider("Epochs", 1, 100, 5)
+        epochs = st.slider("Epochs (doesn´t mind if early stopping is set)", 1, 100, 50)
+        early_stopping = st.checkbox("Early Stopping")
+        if early_stopping:
+            patience = st.slider("Patience", 1, 50, 5)
         # batch size, these should be only powers of 2
         batch_size = st.selectbox(
-            "Batch size", options=np.power(2, np.arange(0, 11)).tolist()
+            "Batch size", options=np.power(2, np.arange(0, 11)).tolist(), index=5
         )
         learning_rate = st.selectbox(
             options=[0.001, 0.01, 0.1, 1.0], label="Learning Rate"
         )
 
-    # Add a button to start training
-    train = st.button("Train")
+    # Create two columns for the data and evaluation
+    left_column, right_column = st.columns(2)
 
-    # Below part - Model training execution and results
-    st.header("Model Training")
-    # Add your code for model training execution and results here
-    if train:
-        from streamlit_tensorboard import st_tensorboard
-        from tensorboard import program
-        from keras.callbacks import TensorBoard, ModelCheckpoint
+    with left_column:
+        # Below part - Model training execution and results
+        st.header("Model Training")
+        train = st.button("Train")
+        global trained_model
+        if train:
+            from streamlit_tensorboard import st_tensorboard
+            from tensorboard import program
+            from keras.callbacks import TensorBoard, ModelCheckpoint
 
-        data = load_dataset(dataset)
-        data = process_data(dataset, data)
-        model = load_model(model_name, data["x_train"].shape[1], latent_space)
+            data = load_dataset(dataset)
+            data = process_data(dataset, data)
+            model = load_model(model_name, data["x_train"].shape[1], latent_space)
 
-        log_dir = "logs"
+            log_dir = "logs"
 
-        pipeline = TrainingPipeline(
-            name="training_pipeline_" + model_name,
-            model=model,
-            num_epochs=epochs,
-            batch_size=batch_size,
-            output_dir=log_dir,
-        )
+            pipeline = TrainingPipeline(
+                name="training_pipeline_" + model_name,
+                model=model,
+                num_epochs=epochs,
+                batch_size=batch_size,
+                output_dir=log_dir,
+            )
 
-        pipeline.callbacks = [StreamlitCallback()]
+            pipeline.callbacks = [StreamlitCallback()]
 
-        if "x_val" in data.keys():
-            pipeline.callbacks.append(
-                ModelCheckpoint(
-                    filepath=log_dir + "/model.weights.h5",
-                    monitor="val_loss",
-                    verbose=1,
-                    save_best_only=True,
-                    mode="min",
-                    save_weights_only=True,
+            if "x_val" in data.keys():
+                pipeline.callbacks.append(
+                    ModelCheckpoint(
+                        filepath=log_dir + "/model.weights.h5",
+                        monitor="val_loss",
+                        verbose=1,
+                        save_best_only=True,
+                        mode="min",
+                        save_weights_only=True,
+                    )
                 )
-            )
-            trained_model = pipeline(
-                x=data["x_train"],
-                y=data["y_train"],
-                x_eval=data["x_val"],
-                y_eval=data["y_val"],
-            )
-        else:
-            pipeline.callbacks.append(
-                ModelCheckpoint(
-                    filepath=log_dir + "/model.weights.h5",
-                    monitor="loss",
-                    verbose=1,
-                    save_best_only=True,
-                    mode="min",
-                    save_weights_only=True,
+                trained_model = pipeline(
+                    x=data["x_train"],
+                    y=data["y_train"],
+                    x_eval=data["x_val"],
+                    y_eval=data["y_val"],
                 )
-            )
-            trained_model = pipeline(
-                x=data["x_train"],
-                y=data["y_train"],
-            )
+            else:
+                pipeline.callbacks.append(
+                    ModelCheckpoint(
+                        filepath=log_dir + "/model.weights.h5",
+                        monitor="loss",
+                        verbose=1,
+                        save_best_only=True,
+                        mode="min",
+                        save_weights_only=True,
+                    )
+                )
+                trained_model = pipeline(
+                    x=data["x_train"],
+                    y=data["y_train"],
+                )
+            st.session_state["trained_model"] = trained_model
 
-        # Start TensorBoard
-        # tb = program.TensorBoard()
-        # tb.configure(argv=[None, "--logdir", log_dir])
-        # url = tb.launch()
-        # st_tensorboard(url)
+            # Start TensorBoard
+            # tb = program.TensorBoard()
+            # tb.configure(argv=[None, "--logdir", log_dir])
+            # url = tb.launch()
+            # st_tensorboard(url)
+
+    with right_column:
+        st.header("Model Evaluation")
+        data_to_use = st.selectbox("Select data to use", ["Train", "Test"])
+        plot_reconstructions = st.checkbox("Plot Reconstructions")
+        plot_latent = st.checkbox("Plot Latent Space")
+        metrics = st.checkbox("Show Metrics")
+        show = st.button("Show")
+
+        if show:
+            if "trained_model" not in st.session_state:
+                trained_model = None
+                st.warning("Please train the model first.")
+                return
+            else:
+                trained_model = st.session_state["trained_model"]
+
+            if plot_reconstructions is None and plot_latent is None:
+                st.warning("Please select at least one option.")
+                return
+            if data_to_use == "Train":
+                data = data["x_train"]
+                labels = data["y_train"]
+            else:
+                data = data["x_test"]
+                labels = data["y_test"]
+            if plot_reconstructions:
+                from rapidae.evaluate import plot_reconstructions
+
+                outputs = trained_model.predict(data)
+
+                fig = plot_reconstructions(data, outputs["recon"])
+                st.pyplot(fig)
+
+            if plot_latent:
+                from rapidae.evaluate import plot_latent_space
+
+                fig = plot_latent_space(outputs["z"], labels.argmax(axis=1))
+                st.pyplot(fig)
 
 
 if __name__ == "__main__":

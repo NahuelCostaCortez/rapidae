@@ -5,8 +5,6 @@ With a focus on ease of use, Rapidae allows users to explore and develop autoenc
 
 import rapidae.conf
 import rapidae.data
-import rapidae.metrics
-import rapidae.models.ae
-import rapidae.models.base
-import rapidae.models.vae
+import rapidae.evaluate
+import rapidae.models
 import rapidae.pipelines

@@ -13,12 +13,22 @@ def list_models():
     List all available models.
     Note that these are the base models, for a complete guide of the implemented models, please refer to the documentation.
     """
-    return [
-        "AE",
-        "CAE",
-        "VAE",
-        "VQVAE",
+
+    import os
+    import pkg_resources
+
+    # Get the path to the 'models' directory
+    directory = pkg_resources.resource_filename("rapidae", "models")
+
+    # Get the names of the folders in the directory
+    folders = [
+        name
+        for name in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, name)) and name != "__pycache__"
     ]
+
+    # return the list of models in uppercase
+    return [model.upper() for model in folders]
 
 
 def load_model(model_name, input_dim, latent_dim, **kwargs):
@@ -28,26 +38,30 @@ def load_model(model_name, input_dim, latent_dim, **kwargs):
     Args:
         model_name (str): Name of the model to load.
     """
-    # import the correct model depending on the model_name
-    if model_name == "Autoencoder (AE)":
-        from . import AE as model
+    import importlib
 
-    elif model_name == "Contractive Autoencoder":
-        from . import CAE as model
+    try:
+        # convert model name to lowercase
+        model_name = model_name.lower()
 
-    elif model_name == "Variational Autoencoder (VAE)":
-        from . import VAE as model
+        # Dynamically import the model module
+        model_module = importlib.import_module(
+            "." + model_name, package="rapidae.models"
+        )
 
-    elif model_name == "Vector Quantised-Variational AutoEncoder (VQ-VAE)":
-        from . import VQVAE as model
+        # convert model name to uppercase
+        model_name = model_name.upper()
 
-    elif model_name == "Recurrent Variational Encoding (RVE)":
-        from . import RVE as model
+        # Get the model class from the module
+        model_class = getattr(model_module, model_name)
 
-    else:
-        raise ValueError("Model not found.")
+        # Create an instance of the model class
+        model = model_class(input_dim, latent_dim, **kwargs)
 
-    return model(input_dim, latent_dim, **kwargs)
+        return model
+
+    except ImportError:
+        raise ValueError(f"Model '{model_name}' not found.")
 
 
 class LRFinder:

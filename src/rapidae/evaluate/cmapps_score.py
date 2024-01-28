@@ -1,6 +1,6 @@
 import numpy as np
 
-from rapidae.metrics.metric import Metric
+from rapidae.evaluate.metric import Metric
 
 
 class CMAPSS_Score(Metric):
@@ -18,11 +18,11 @@ class CMAPSS_Score(Metric):
     The metric is designed to encourage models to make earlier and more accurate predictions of remaining useful life.
 
     For more information on the C-MAPSS dataset and the PHM 2008 Challenge, see: https://data.nasa.gov/Raw-Data/PHM-2008-Challenge/nk8v-ckry
-    
+
     """
+
     def __init__(self):
         super().__init__()
-
 
     def calculate(self, y_true, y_hat):
         """
@@ -38,8 +38,8 @@ class CMAPSS_Score(Metric):
         for true, hat in zip(y_true, y_hat):
             subs = hat - true
             if subs < 0:
-                results = results + np.exp(-subs/10)[0]-1
+                results = results + np.exp(-subs / 10)[0] - 1
             else:
-                results = results + np.exp(subs/13)[0]-1
+                results = results + np.exp(subs / 13)[0] - 1
 
         return np.array(results)

@@ -14,7 +14,7 @@ class AE(BaseAE):
         latent_dim (int): Dimension of the latent space.
         encoder (BaseEncoder): An instance of BaseEncoder.
         decoder (BaseDecoder): An instance of BaseDecoder.
-        layers_conf (list): List specifying the configuration of layers for custom models.
+        layers_conf (list): List specifying the configuration of layers for custom models. Only applies for MLP models.
     """
 
     def __init__(
@@ -32,6 +32,7 @@ class AE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
+            exclude_decoder=False,
             layers_conf=layers_conf,
             **kwargs,
         )

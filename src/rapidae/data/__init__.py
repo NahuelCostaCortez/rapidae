@@ -10,7 +10,7 @@ from .datasets import (
     load_AtrialFibrillation,
 )
 from .preprocessing import CMAPSS_preprocessor
-from .utils import plot_latent_space, evaluate, add_noise, plot_reconstructions
+from .utils import add_noise
 
 __all__ = [
     "list_datasets",
@@ -19,8 +19,5 @@ __all__ = [
     "load_MNIST",
     "load_AtrialFibrillation",
     "CMAPSS_preprocessor",
-    "plot_latent_space",
-    "evaluate",
     "add_noise",
-    "plot_reconstructions",
 ]

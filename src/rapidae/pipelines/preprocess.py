@@ -28,7 +28,7 @@ class PreprocessPipeline(BasePipeline):
 
         # The preprocessor contains a list of methods, these will be applied in order to the data
         if type(self.preprocessor) == list:
-            self.logger.log_info("Selected preprocessor is a bunch of functions.")
+            self.logger.log_info("Selected preprocessor is a series of functions.")
             for i in self.preprocessor:
                 # TODO
                 pass
@@ -36,6 +36,6 @@ class PreprocessPipeline(BasePipeline):
         # The preprocessor is a custom function to be applied to a specific dataset
         if callable(self.preprocessor):
             self.logger.log_info("Selected preprocessor is a function.")
-            x_train, y_train, x_val, y_val, x_test, y_test = self.preprocessor(**kwargs)
+            data = self.preprocessor(**kwargs)
 
-        return x_train, y_train, x_val, y_val, x_test, y_test
+        return data

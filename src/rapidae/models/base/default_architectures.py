@@ -323,8 +323,8 @@ class RecurrentEncoder(BaseEncoder):
         h (keras.layers.Bidirectional): Bidirectional LSTM layer.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
+    def __init__(self, input_dim, latent_dim, **kwargs):
+        BaseEncoder.__init__(self, input_dim, latent_dim)
         self.masking_value = (
             kwargs["masking_value"] if "masking_value" in kwargs else -99.0
         )
@@ -366,8 +366,8 @@ class RecurrentDecoder(BaseDecoder):
         h_decoded (keras.layers.LSTM): LSTM layer in the decoder.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
-        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
+    def __init__(self, input_dim, latent_dim, **kwargs):
+        BaseDecoder.__init__(self, input_dim, latent_dim)
         self.h_decoded_1 = layers.RepeatVector(input_dim[0])
         self.h_decoded_2 = layers.Bidirectional(layers.LSTM(300, return_sequences=True))
         self.h_decoded = layers.LSTM(input_dim[1], return_sequences=True)
