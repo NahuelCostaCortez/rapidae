@@ -4,7 +4,7 @@ This module contains everything related to the acquisition and preprocessing of 
 
 from .datasets import load_CMAPSS, load_MNIST, load_arrhythmia_data
 from .preprocessing import CMAPSS_preprocessor
-from .utils import plot_2d_manifold, plot_latent_space, evaluate, add_noise, plot_reconstructions
+from .utils import plot_samplings_from_latent, plot_latent_space, evaluate, add_noise, plot_reconstructions
 
 __all__ = [
     "load_CMAPSS",
@@ -15,5 +15,5 @@ __all__ = [
     "evaluate",
     "add_noise",
     "plot_reconstructions",
-    "plot_2d_manifold"
+    "plot_samplings_from_latent"
 ]

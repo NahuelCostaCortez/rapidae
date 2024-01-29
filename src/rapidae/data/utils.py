@@ -9,7 +9,7 @@ from inspect import getmembers, isfunction
 from rapidae.conf import Logger
 
 
-def plot_2d_manifold(vae, n=30, figsize=15):
+def plot_samplings_from_latent(vae, n=30, figsize=15):
     """
     Generate and display a 2D manifold of decoded samples in the latent space of a Variational Autoencoder (VAE).
 
@@ -24,7 +24,7 @@ def plot_2d_manifold(vae, n=30, figsize=15):
     Returns:
         None
     """
-    # display a n*n 2D manifold d
+    # display a n*n 2D manifold 
     digit_size = 28
     scale = 1.0
     figure = np.zeros((digit_size * n, digit_size * n))
