@@ -8,6 +8,7 @@ from .ae import AE
 from .base import BaseAE, BaseEncoder, BaseDecoder, BaseRegressor, BaseClassifier
 from .cae import CAE
 from .vae import VAE
+from .beta_vae import Beta_VAE
 from .vq_vae import VQ_VAE, VectorQuantizer
 from .utils import LRFinder, list_models
 
@@ -20,6 +21,7 @@ __all__ = [
     "BaseClassifier",
     "CAE",
     "VAE",
+    "Beta_VAE",
     "VQ_VAE",
     "VectorQuantizer",
     "LRFinder",

@@ -138,7 +138,9 @@ class VAE(BaseAE):
         # TODO: Check possibe masking issues
         if not self.exclude_decoder:
             recon_loss = keras.ops.mean(
-                keras.losses.mean_squared_error(x, y_pred["recon"])
+                keras.ops.sum(
+                keras.losses.mean_squared_error(x, y_pred["recon"]))
+
             )
             self.reconstruction_loss_tracker.update_state(recon_loss)
 

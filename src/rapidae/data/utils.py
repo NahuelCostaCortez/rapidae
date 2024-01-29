@@ -9,6 +9,54 @@ from inspect import getmembers, isfunction
 from rapidae.conf import Logger
 
 
+def plot_2d_manifold(vae, n=30, figsize=15):
+    """
+    Generate and display a 2D manifold of decoded samples in the latent space of a Variational Autoencoder (VAE).
+
+    This function generates a 2D grid in the latent space and decodes each point to visualize the distribution
+    of digit classes in the latent space. The resulting grid is displayed as a grayscale image.
+
+    Args:
+        vae (keras.Model): A trained Variational Autoencoder model with a 'decoder' method.
+        n (int, optional): The number of points along each axis in the 2D manifold grid. 
+        figsize (int, optional): The size of the generated matplotlib figure. 
+
+    Returns:
+        None
+    """
+    # display a n*n 2D manifold d
+    digit_size = 28
+    scale = 1.0
+    figure = np.zeros((digit_size * n, digit_size * n))
+    # linearly spaced coordinates corresponding to the 2D plot
+    # of digit classes in the latent space
+    grid_x = np.linspace(-scale, scale, n)
+    grid_y = np.linspace(-scale, scale, n)[::-1]
+
+    for i, yi in enumerate(grid_y):
+        for j, xi in enumerate(grid_x):
+            z_sample = np.array([[xi, yi]])
+            x_decoded = vae.decoder(z_sample)
+            digit = (np.array(x_decoded)).reshape(digit_size, digit_size)
+            figure[
+                i * digit_size : (i + 1) * digit_size,
+                j * digit_size : (j + 1) * digit_size,
+            ] = digit
+
+    plt.figure(figsize=(figsize, figsize))
+    start_range = digit_size // 2
+    end_range = n * digit_size + start_range
+    pixel_range = np.arange(start_range, end_range, digit_size)
+    sample_range_x = np.round(grid_x, 1)
+    sample_range_y = np.round(grid_y, 1)
+    plt.xticks(pixel_range, sample_range_x)
+    plt.yticks(pixel_range, sample_range_y)
+    plt.xlabel("z[0]")
+    plt.ylabel("z[1]")
+    plt.imshow(figure, cmap="Greys_r")
+    plt.show()
+
+
 def plot_latent_space(z, labels=None):
     """
     Plot latent space a 2D scatter plot.
@@ -18,7 +66,7 @@ def plot_latent_space(z, labels=None):
         labels (numpy.ndarray, optional): The labels for each data point. If provided, the data points are colored based on their labels.
 
     Returns:
-    None
+        None
     """
     if len(z.shape) > 2:
         from sklearn.manifold import TSNE

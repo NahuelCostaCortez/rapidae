@@ -55,7 +55,7 @@ class BaseDecoder(layers.Layer):
         self.latent_dim = latent_dim
         # The decoder usually uses a reversed architecture of the encoder
         if layers_conf is not None:
-            self.layers_conf = reversed(layers_conf)
+            self.layers_conf = layers_conf[::-1]
 
     def call(self, x):
         """
