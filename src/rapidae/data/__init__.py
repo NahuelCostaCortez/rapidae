@@ -1,5 +1,5 @@
 """
-This module contains everything related to the acquisition and preprocessing of data sets. It also includes a tool utils for various tasks: latent space visualization, evaluation, etc.
+This module serves as the foundation for handling data. It includes several benchmark datasets and encompasses functionalities for data acquisition and preprocessing. The organization of this module ensures that users can easily manage and preprocess predefined or custom data, streamlining the model preparation process.
 """
 
 from .datasets import (

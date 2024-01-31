@@ -8,6 +8,7 @@ from .ae import AE
 from .cae import CAE
 from .vae import VAE
 from .rve import RVE
+from .beta_vae import Beta_VAE
 from .vq_vae import VQ_VAE, VectorQuantizer
 from .utils import *
 
@@ -16,6 +17,7 @@ __all__ = [
     "AE",
     "CAE",
     "VAE",
+    "Beta_VAE",
     "VQ_VAE",
     "VectorQuantizer",
     "RVE",
