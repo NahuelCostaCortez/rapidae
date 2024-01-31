@@ -6,12 +6,7 @@ from typing import Optional, Tuple, Union
 
 import keras
 
-from rapidae.models.base.default_architectures import (
-    BaseEncoder,
-    BaseDecoder,
-    VanillaEncoder,
-    VanillaDecoder,
-)
+from rapidae.models.base import BaseEncoder, BaseDecoder
 from rapidae.conf import Logger
 
 
@@ -63,10 +58,14 @@ class BaseAE(keras.Model):
                 layers_conf = [512]
 
         if encoder is None:
+            from rapidae.models.base import VanillaEncoder
+
             Logger().log_warning("No encoder provided, using default encoder")
             encoder = VanillaEncoder
 
         if decoder is None and self.exclude_decoder == False:
+            from rapidae.models.base import VanillaDecoder
+
             Logger().log_warning("No decoder provided, using default decoder")
             decoder = VanillaDecoder
 

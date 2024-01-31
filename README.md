@@ -85,7 +85,7 @@ Note that you will also need to install a backend framework. Here are the offici
 >If you install TensorFlow, you should reinstall Keras 3 afterwards via ```pip install --upgrade keras```. This is a temporary step while TensorFlow is pinned to Keras 2, and will no longer be necessary after TensorFlow 2.16. The cause is that tensorflow==2.15 will overwrite your Keras installation with keras==2.15.
 
 ### From source code
-You can also clone this repo to have fully access to all the code.
+You can also clone the repo to have fully access to all the code. Some features may not yet be available in the published stable version so this is the best way to stay up-to-date with the latest updates.
 
 ```bash
 git clone https://github.com/NahuelCostaCortez/rapidae

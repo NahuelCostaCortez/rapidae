@@ -27,10 +27,10 @@ class RVE(BaseAE):
         **kwargs,
     ):
         if encoder is None:
-            from rapidae.models.base.default_architectures import RecurrentEncoder
+            from rapidae.models.base import RVEEncoder
 
             Logger().log_info("Using default encoder")
-            encoder = RecurrentEncoder
+            encoder = RVEEncoder
 
         BaseAE.__init__(
             self,

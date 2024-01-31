@@ -10,7 +10,7 @@ from .datasets import (
     load_AtrialFibrillation,
 )
 from .preprocessing import CMAPSS_preprocessor
-from .utils import add_noise
+from .utils import *
 
 __all__ = [
     "list_datasets",
@@ -19,5 +19,4 @@ __all__ = [
     "load_MNIST",
     "load_AtrialFibrillation",
     "CMAPSS_preprocessor",
-    "add_noise",
 ]

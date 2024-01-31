@@ -9,13 +9,14 @@ from inspect import getmembers, isfunction
 from rapidae.conf import Logger
 
 
-def plot_latent_space(z, labels=None):
+def plot_latent_space(z, labels=None, colormap="plasma"):
     """
     Plot latent space a 2D scatter plot.
 
     Args:
         z (numpy.ndarray): The latent space. If the shape is greater than 2, dimensionality reduction is performed using t-SNE.
         labels (numpy.ndarray, optional): The labels for each data point. If provided, the data points are colored based on their labels.
+        colormap (str, optional): The colormap to use for the scatter plot.
 
     Returns:
     None
@@ -28,9 +29,9 @@ def plot_latent_space(z, labels=None):
 
     plt.figure(figsize=(12, 10))
     if labels is None:
-        plt.scatter(z[:, 0], z[:, 1], cmap="plasma")
+        plt.scatter(z[:, 0], z[:, 1], cmap=colormap)
     else:
-        plt.scatter(z[:, 0], z[:, 1], c=labels, cmap="plasma")
+        plt.scatter(z[:, 0], z[:, 1], c=labels, cmap=colormap)
     plt.colorbar()
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")

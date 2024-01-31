@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import Optional
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -47,6 +48,22 @@ class TrainingPipeline(BasePipeline):
         self.callbacks = callbacks
         self.save_model = save_model
 
+    def plot_training_history(self):
+        """
+        Plots the training history of the model.
+        """
+        import matplotlib.pyplot as plt
+
+        # check first what metrics are available
+        for key in self.model.history.history.keys():            
+            plt.plot(self.model.history.history[key], label=key)
+        plt.title("Model loss")
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.legend()
+        plt.show()
+
+
     def __call__(
         self,
         x,
@@ -67,8 +84,17 @@ class TrainingPipeline(BasePipeline):
             BaseAE (keras.Model): Trained autoencoder model.
         """
 
-        super().__call__()
+        # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_path = os.path.join(".", self.output_dir, f"{self.name}_{timestamp}")
 
+        self.logger.log_info("+++ {} +++".format(self.name))
+        self.logger.log_info("Creating folder in {}".format(folder_path))
+
+        os.makedirs(folder_path)
+        self.output_dir = str(folder_path)
+
+        # Callbacks
         if self.callbacks is None:
             # Set callbacks
             self.callbacks = []

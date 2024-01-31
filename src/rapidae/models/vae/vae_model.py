@@ -33,7 +33,7 @@ class VAE(BaseAE):
         **kwargs,
     ):
         if encoder is None:
-            from rapidae.models.base.default_architectures import VanillaEncoder
+            from rapidae.models.base import VanillaEncoder
 
             Logger().log_info("Using default encoder")
             encoder = VanillaEncoder(input_dim, latent_dim, layers_conf=layers_conf)
@@ -67,7 +67,7 @@ class VAE(BaseAE):
 
             elif self.downstream_task == "classification":
                 Logger().log_info(
-                    "Classificator available for the latent space of the autoencoder"
+                    "Classifier available for the latent space of the autoencoder"
                 )
                 self.classifier = BaseClassifier(kwargs["n_classes"])
                 self.weight_vae = (

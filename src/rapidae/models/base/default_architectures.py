@@ -306,8 +306,8 @@ class Decoder_Conv_VQ_MNIST(BaseDecoder):
 # ------------------------------------------------------------------- #
 
 
-# ------------------ ENCODER-DECODER FROM RVE paper ----------------- #
-class RecurrentEncoder(BaseEncoder):
+# ---------------------- ENCODER FROM RVE paper --------------------- #
+class RVEEncoder(BaseEncoder):
     """
     Encoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
 
@@ -351,9 +351,54 @@ class RecurrentEncoder(BaseEncoder):
         return x_z_mean, x_z_log_var
 
 
+# ------------------------------------------------------------------- #
+
+# --------------------- Recurrent ENCODER-DECODER ------------------- #
+
+
+class RecurrentEncoder(BaseEncoder):
+    """
+
+    Args:
+        input_dim (int): Dimensionality of the input data.
+        latent_dim (int): Dimensionality of the latent space.
+        layers_conf (list): Configuration of layers in the encoder architecture.
+        **kwargs (dict): Additional keyword arguments.
+
+    Attributes:
+        masking_value (float): Value for masking sequences.
+        mask (keras.layers.Masking): Masking layer.
+        h (keras.layers.Bidirectional): Bidirectional LSTM layer.
+    """
+
+    def __init__(self, input_dim, latent_dim, **kwargs):
+        BaseEncoder.__init__(self, input_dim, latent_dim)
+        self.masking_value = (
+            kwargs["masking_value"] if "masking_value" in kwargs else -99.0
+        )
+        self.mask = layers.Masking(mask_value=self.masking_value)
+        self.h = layers.Bidirectional(layers.LSTM(300))
+        self.z = layers.Dense(self.latent_dim, name="z")
+
+    def call(self, x):
+        """
+        Forward pass of the Recurrent Encoder.
+
+        Args:
+            x (Tensor): Input data.
+
+        Returns:
+            x_z_mean (Tensor), x_z_log_var (Tensor): Tuple containing the mean and log variance of the latent space.
+        """
+        x = self.mask(x)
+        x = self.h(x)
+        x_z = self.z(x)
+
+        return x_z
+
+
 class RecurrentDecoder(BaseDecoder):
     """
-    Decoder from RVE paper - DOI: 10.1016/j.ress.2022.108353
 
     Args:
         input_dim (tuple): Dimensions of the input data (height, width, channels).
@@ -387,9 +432,6 @@ class RecurrentDecoder(BaseDecoder):
         x = self.h_decoded(x)
 
         return x
-
-
-# ------------------------------------------------------------------- #
 
 
 # ---------------------- SPARSE ENCODER-DECODER --------------------- #

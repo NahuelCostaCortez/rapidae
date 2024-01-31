@@ -22,8 +22,6 @@ class PreprocessPipeline(BasePipeline):
         self.preprocessor = preprocessor
 
     def __call__(self, **kwargs):
-        super().__call__()
-
         # TODO: check dataset format
 
         # The preprocessor contains a list of methods, these will be applied in order to the data
