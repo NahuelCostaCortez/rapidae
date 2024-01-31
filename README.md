@@ -19,8 +19,7 @@ As an educator, despite recognizing numerous fantastic online resources, I felt 
 In summary, this library is designed to be simple enough for educational purposes, yet robust for researchers to concentrate on developing their models and conducting benchmark experiments in a unified environment.
 
 >[!NOTE]
->Shout out to [Pythae](https://github.com/clementchadebec/benchmark_VAE/tree/main), which provides an excellent library for experimenting with VAEs . If you're looking for a quick way to implement an autoencoder for image applications, Pythae is probably your best option. Rapidae distinguishes itself from Pythae in the following ways:
-
+>Shout out to [Pythae](https://github.com/clementchadebec/benchmark_VAE/tree/main), which provides an excellent library for experimenting with VAEs . If you're looking for a quick way to implement an autoencoder for image applications, Pythae is probably your best option. Rapidae differs from Pythae in the following ways:
 >- It is built on Keras 3, allowing you to experiment with and provide your implementations in either PyTorch, TensorFlow, or JAX.
 >- The image models implemented in Rapidae are primarily designed for educational purposes.
 >- Rapidae is intended to serve as a benchmarking library for models implemented in the sequential/time-series domain, as these are widely dispersed across various fields."
@@ -39,7 +38,7 @@ If you want to add your model to the package or collaborate in the package devel
 - [Switching backends](#switching-backends)
 - [Experiment tracking with wandb](#experiment-tracking-with-wandb)
 - [Documentation](https://rapidae.readthedocs.io/en/latest/)
-- [Citing this repository](#citation)
+- [Citing this repository](#citing-this-repository)
 
 
 ## Main features ⚙️
@@ -118,11 +117,11 @@ Below is the list of the models currently implemented in the library.
 | Sparse Autoencoder                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/sparse_autoencoder.ipynb) | [link](https://arxiv.org/abs/1312.5663)                                             |   
 | Contractive Autoencoder                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/contractive_autoencoder.ipynb) | [link](http://www.icml-2011.org/papers/455_icmlpaper.pdf)                                             |  
 | Variational Autoencoder (VAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb) | [link](https://arxiv.org/abs/1312.6114)                                             | [link](https://keras.io/examples/generative/vae/)
-| Beta Variational Autoencoder (BetaVAE)                 | TO-DO | [link](https://openreview.net/pdf?id=Sy2fzU9gl)                                             | 
+| Beta Variational Autoencoder (BetaVAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/beta_vae.ipynb)| [link](https://openreview.net/pdf?id=Sy2fzU9gl)                                             | 
 | Vector Quantised-Variational AutoEncoder (VQ-VAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb) | [link](https://proceedings.neurips.cc/paper_files/paper/2017/file/7a98af17e63a0ac09ce2e96d03992fbc-Paper.pdf)                                             | [link](https://keras.io/examples/generative/vq_vae/)
 | Recurrent Variational Encoder (RVE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/RVE_RUL.ipynb) | [link](https://www.sciencedirect.com/science/article/pii/S0951832022000321)                                             | [link](https://github.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational)
-| ICFormer                 | TO-DO | [link](https://www.sciencedirect.com/science/article/pii/S0378775323012867)                                             | [link](https://github.com/NahuelCostaCortez/ICFormer)
-| Hierarchical Variational Autoencoder (HVAE)                 | TO-DO | [link](https://arxiv.org/abs/1905.06845)                                             | [link](https://github.com/fhkingma/bitswap)
+| ICFormer                 | SOON | [link](https://www.sciencedirect.com/science/article/pii/S0378775323012867)                                             | [link](https://github.com/NahuelCostaCortez/ICFormer)
+| Hierarchical Variational Autoencoder (HVAE)                 | SOON | [link](https://arxiv.org/abs/1905.06845)                                             | [link](https://github.com/fhkingma/bitswap)
 | interval-valued Variational Autoencoder (iVAE)                 | IN PROGRESS |                                             | 
 
 
@@ -131,7 +130,7 @@ Below is the list of the models currently implemented in the library.
 
 You can also use a web interface made with Streamlit where you can load datasets, configure models and hypeparameters, train, and evaluate the results. Check the [web interface](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/web_interface.ipynb) notebook.
 
-## Custom models and loss functions
+## Custom models and loss functions 🖌️
 You can provide your own autoencoder architecture. Here´s an example for defining a custom encoder and a custom decoder:
 
 ```
@@ -222,7 +221,7 @@ os.environ["KERAS_BACKEND"] = "torch"
 import keras
 ```
 
-## Experiment tracking with wandb
+## Experiment tracking with wandb 📈
 
 If you want to add experiment tracking to rapidae models you can just create a Wandb callback and pass it to the TrainingPipeline as follows (this also applies to other experiment tracking frameworks):
 
