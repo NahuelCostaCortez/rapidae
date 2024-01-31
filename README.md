@@ -12,11 +12,18 @@ Rapidae is a Python library specialized in simplifying the creation and experime
 
 I decided to develop this library to optimize my research workflow and provide a comprehensive resource for educators and learners exploring autoencoder models.
 
-As a researcher, I often found myself spending time on repetitive tasks, such as creating project structures or replicating baseline models. (I've lost count of how many times I've gone through the excellent Keras VAE tutorial just to copy the model as a baseline for other experiments.)
+As a researcher, I often found myself spending time on repetitive tasks, such as creating project structures or replicating baseline models. (I've lost count of how many times I've gone through the Keras VAE tutorial just to copy the model as a baseline for other experiments.)
 
 As an educator, despite recognizing numerous fantastic online resources, I felt the need for a place where the features I consider important for teaching these models are consolidated: explanation, implementation, and versatility across different backends. The latter is particularly crucial, considering that PyTorch practitioners may find tedious to switch to TensorFlow, and vice versa. With the recently released Keras 3, Rapidae ensures that the user is met with a seamless and engaging experience, enabling to focus on model creation rather than backend specifics.
 
 In summary, this library is designed to be simple enough for educational purposes, yet robust for researchers to concentrate on developing their models and conducting benchmark experiments in a unified environment.
+
+>[!NOTE]
+>Shout out to [Pythae](https://github.com/clementchadebec/benchmark_VAE/tree/main), which provides an excellent library for experimenting with VAEs . If you're looking for a quick way to implement an autoencoder for image applications, Pythae is probably your best option. Rapidae distinguishes itself from Pythae in the following ways:
+
+>- It is built on Keras 3, allowing you to experiment with and provide your implementations in either PyTorch, TensorFlow, or JAX.
+>- The image models implemented in Rapidae are primarily designed for educational purposes.
+>- Rapidae is intended to serve as a benchmarking library for models implemented in the sequential/time-series domain, as these are widely dispersed across various fields."
 
 🚨**Call for contributions**🚨
 
@@ -26,9 +33,11 @@ If you want to add your model to the package or collaborate in the package devel
 - [Main Features](#main-features)
 - [Overview](#overview)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Switching backends](#switching-backends)
 - [Available models](#available-models) 
+- [Usage](#usage)
+- [Custom models and architectures](#custom-models-and-architectures)
+- [Switching backends](#switching-backends)
+- [Experiment tracking with wandb](#experiment-tracking-with-wandb)
 - [Documentation](https://rapidae.readthedocs.io/en/latest/)
 - [Citing this repository](#citation)
 
@@ -98,28 +107,6 @@ Then you only have to install the requirements:
 pip install -r requirements.txt
 ```
 
-## Usage 🫳🏻
-[Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/00Quickstart_tutorial.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
-
-You can also use a web interface made with Streamlit where you can load datasets, configure models and hypeparameters, train, and evaluate the results. Check the [web interface](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/web_interface.ipynb) notebook.
-
-## Switching backends 💻
-Since Rapidae uses Keras 3, you can easily switch among Tensorflow, Pytorch and Jax (Tensorflow is the selected option by default).
-
-You can export the environment variable KERAS_BACKEND or you can edit your local config file at ~/.keras/keras.json to configure your backend. Available backend options are: "jax", "tensorflow", "torch". Example:
-
-```bash
-export KERAS_BACKEND="torch"
-```
-
-In a notebook, you can do:
-
-```c
-import os
-os.environ["KERAS_BACKEND"] = "torch" 
-import keras
-```
-
 ## Available Models 🚀
 
 Below is the list of the models currently implemented in the library.
@@ -138,6 +125,121 @@ Below is the list of the models currently implemented in the library.
 | Hierarchical Variational Autoencoder (HVAE)                 | TO-DO | [link](https://arxiv.org/abs/1905.06845)                                             | [link](https://github.com/fhkingma/bitswap)
 | interval-valued Variational Autoencoder (iVAE)                 | IN PROGRESS |                                             | 
 
+
+## Usage 🫳🏻
+[Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/00Quickstart_tutorial.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
+
+You can also use a web interface made with Streamlit where you can load datasets, configure models and hypeparameters, train, and evaluate the results. Check the [web interface](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/web_interface.ipynb) notebook.
+
+## Custom models and loss functions
+You can provide your own autoencoder architecture. Here´s an example for defining a custom encoder and a custom decoder:
+
+```
+from rapidae.models.base import BaseEncoder, BaseDecoder
+from keras.layers import Dense
+
+class Custom_Encoder(BaseEncoder):
+    def __init__(self, input_dim, latent_dim, **kwargs): # you can add more arguments, but al least these are required
+        BaseEncoder.__init__(self, input_dim=input_dim, latent_dim=latent_dim)
+
+        self.layer_1 = Dense(300)
+        self.layer_2 = Dense(150)
+        self.layer_3 = Dense(self.latent_dim)
+
+    def call(self, x):
+        x = self.layer_1(x)
+        x = self.layer_2(x)
+        x = self.layer_3(x)
+        return x
+```
+
+```
+class Custom_Decoder(BaseDecoder):
+    def __init__(self, input_dim, latent_dim, **kwargs): # you can add more arguments, but al least these are required
+        BaseDecoder.__init__(self, input_dim=input_dim, latent_dim=latent_dim)
+
+        self.layer_1 = Dense(self.latent_dim)
+        self.layer_2 = Dense(self.input_dim)
+
+    def call(self, x):
+        x = self.layer_1(x)
+        x = self.layer_2(x)
+        return x
+```
+
+You can also provide a custom model. This is specially useful if you want to implement your own loss function.
+
+```
+from rapidae.models.base import BaseAE
+from keras.ops import mean
+from keras.losses import mean_squared_error
+
+class CustomModel(BaseAE):
+    def __init__(self, input_dim, latent_dim, encoder, decoder):
+        BaseAE.__init__(
+            self,
+            input_dim=input_dim,
+            latent_dim=latent_dim,
+            encoder=encoder,
+            decoder=decoder
+        )
+        
+    def call(self, x):
+        # IMPLEMENT FORWARD PASS
+        x = self.encoder(x)
+        x = self.decoder(x)
+
+        return x
+      
+    def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        '''
+        Computes the loss of the model.
+        x: input data
+        y: target data
+        y_pred: predicted data (output of call)
+        sample_weight: Optional array of the same length as x, containing weights to apply to the model's loss for each sample
+        '''
+        # IMPLEMENT LOSS FUNCTION
+        loss = mean(mean_squared_error(x, y_pred))
+
+        return loss
+```
+
+## Switching backends 💻
+Since Rapidae uses Keras 3, you can easily switch among Tensorflow, Pytorch and Jax (Tensorflow is the selected option by default).
+
+You can export the environment variable KERAS_BACKEND or you can edit your local config file at ~/.keras/keras.json to configure your backend. Available backend options are: "jax", "tensorflow", "torch". Example:
+
+```bash
+export KERAS_BACKEND="torch"
+```
+
+In a notebook, you can do:
+
+```c
+import os
+os.environ["KERAS_BACKEND"] = "torch" 
+import keras
+```
+
+## Experiment tracking with wandb
+
+If you want to add experiment tracking to rapidae models you can just create a Wandb callback and pass it to the TrainingPipeline as follows (this also applies to other experiment tracking frameworks):
+
+```
+wandb_cb = WandbCallback()
+
+wandb_cb.setup(
+    training_config=your_training_config,
+    model_config=your_model_config,
+    project_name="your_wandb_project",
+    entity_name="your_wandb_entity",
+)
+
+pipeline = TrainingPipeline(name="you_pipeline_name", 
+                            model=model,
+                            callbacks=[wandb_cb])
+```
 
 ## Documentation 📚
 
