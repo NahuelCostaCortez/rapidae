@@ -53,7 +53,41 @@ A Variational Autoencoder (VAE) is a type of generative model that combines the 
 
 VAEs have applications in generative tasks, such as image and text generation, and are valued for their ability to generate diverse and realistic samples while providing a structured latent space that allows for interpolation and manipulation of data representations.
 
+**Example 1**
+
+Task: data generation
+
 Architecture: MLP
+
+Dataset: MNIST
+
+<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+**Example 2**
+
+Task: Classification
+
+Architecture: Convolutional layers
+
+Dataset: MNIST
+
+<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae_classifier_conv.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+**Example 3**
+
+Task: Classification
+
+Architecture: Recurrent layers
+
+Dataset: Atrial Fibrillation
+
+<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae_classifier_rnn.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+## betaVAE
+
+Beta-VAE is an extension of vanilla Variational Autoencoder (VAE) with a regularization parameter, beta, controlling the balance between reconstruction fidelity and latent space structure. It promotes disentangled feature learning for interpretable representations. Applications include image synthesis with controlled features, domain adaptation, and representation learning for downstream tasks. Beta-VAE's versatility allows users to customize models for specific trade-offs between reconstruction accuracy and capturing meaningful latent factors, making it useful in various generative and unsupervised learning scenarios.
+
+Architecture: Convolutional layers
 
 Dataset: MNIST
 
@@ -81,31 +115,10 @@ Dataset: MNIST
 
 <a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vq_vae.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-## Convolutional VAE for Image classification
 
-A VAE for Image classification
+## RVE for RUL estimation
 
-Architecture: Convolutional layers, same as the one used in the  <a href="https://keras.io/examples/generative/vae/" target="_parent">keras tutorial</a>
-
-Dataset: MNIST
-
-<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae_classifier_conv.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-
-## Recurrent VAE for Atrial Fibrillation classification
-
-A VAE for time series classification
-
-Architecture: Bidirectional LSTMs
-
-Dataset: Arrythmia - synthetic data from pacemakers logs
-
-Original paper: <a href="https://ieeexplore.ieee.org/document/9373315" target="_parent">Semi-Supervised Recurrent Variational Autoencoder Approach for Visual Diagnosis of Atrial Fibrillation</a>
-
-<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae_classifier_rnn.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-
-## Recurrent VAE for RUL estimation
-
-A VAE based method for RUL estimation. The model consists only of an encoder and a decoder and it is optimized to minimize the KL loss and the regression loss at the same time, thus achieving a visual explanatory map in the latent space.
+A VAE based method for RUL estimation. The model consists of an encoder and a regressor and is optimized to minimize the KL loss and the regression loss at the same time, thus achieving a visual explanatory map in the latent space.
 
 Architecture: Bidirectional LSTMs
 
