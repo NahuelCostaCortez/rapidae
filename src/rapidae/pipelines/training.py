@@ -57,7 +57,7 @@ class TrainingPipeline(BasePipeline):
         # check first what metrics are available
         for key in self.model.history.history.keys():            
             plt.plot(self.model.history.history[key], label=key)
-        plt.title("Model loss")
+        plt.title("Traning history")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.legend()

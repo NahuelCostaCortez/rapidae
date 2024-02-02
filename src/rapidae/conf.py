@@ -20,6 +20,7 @@ class Logger:
         if cls._instance is None:
             cls._instance = super(Logger, cls).__new__(cls)
             cls._instance._initialize_logger(log_file=log_file)
+            cls._instance.logger.setLevel(logging.INFO) # Needed for Colab, otherwise it will display only warnings
         return cls._instance
 
     def _initialize_logger(self, log_file="rapidae.log"):
@@ -52,6 +53,8 @@ class Logger:
         # Add formatter
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
+
+        self.logger.propagate=False # Avoid duplicate logs
 
     def log_info(self, message):
         """Register info message"""
