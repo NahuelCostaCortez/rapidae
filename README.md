@@ -126,7 +126,7 @@ Below is the list of the models currently implemented in the library.
 
 
 ## Usage 🫳🏻
-[Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/00Quickstart_tutorial.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
+[Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/QUICKSTART_tutorial.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
 
 You can also use a web interface made with Streamlit where you can load datasets, configure models and hypeparameters, train, and evaluate the results. Check the [web interface](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/web_interface.ipynb) notebook.
 

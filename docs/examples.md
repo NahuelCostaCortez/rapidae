@@ -91,7 +91,7 @@ Architecture: Convolutional layers
 
 Dataset: MNIST
 
-<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/beta_vae.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 ## Vector Quantised-VAE
 
@@ -126,7 +126,7 @@ Dataset: CMAPSS
 
 Original paper: <a href="https://www.sciencedirect.com/science/article/pii/S0951832022000321" target="_parent">Variational encoding approach for interpretable assessment of remaining useful life estimation</a>
 
-<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae_regressor_rnn.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+<a href="https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/RVE_RUL.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 
 
