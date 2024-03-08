@@ -2,58 +2,90 @@
 Class to load some common datasets.
 """
 
-import gzip
 import os
-import urllib
-from shutil import rmtree
 
-import numpy as np
+import urllib
 import pandas as pd
-import requests
+from shutil import rmtree
+from rapidae.data import utils
 
 from rapidae.conf import Logger
 
 
-def get_data_from_url(url):
+def load_SineWave(persistant=False):
     """
-    Download data from a specific url.
+    Load SineWave dataset.
 
     Args:
-        url (str): Given url where the data will be downloaded.
+        persistant (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
+
+    Returns:
+        data (dict): Dictionary containing the data.
     """
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.text
+    # Load the data
+    data_dir = os.path.join("..", "datasets", "SineWave")
+    data = utils.get_data_from_url(
+        url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/sine_wave.npy",
+        filename="sine_wave.npy",
+        data_dir=data_dir,
+    )
 
-        return data
-    else:
-        print("Failed to retrieve data from", url)
+    # Get the data
+    x_train = data["input_train"]
+    x_test = data["input_test"]
 
-        return None
+    y_train = data["target_train"]
+    y_test = data["target_test"]
+
+    # Create a dictionary to store the data in rapidae format
+    data = {}
+    data["x_train"] = x_train
+    data["x_test"] = x_test
+    data["y_train"] = y_train
+    data["y_test"] = y_test
+
+    return data
 
 
-def mnist_load_images(filename):
+def load_AtrialFibrillation(persistant=False):
     """
-    Auxiliary function to load gzipped images for MNIST dataset.
+    Load AtrialFibrillation dataset.
 
     Args:
-        filename (str): Path to the file.
+        persistant (bool): If True, keeps the downloaded dataset files.
+                           If False, deletes the dataset files after loading.
+                           Default is False.
+
+    Returns:
+        data (dict): Dictionary containing the data.
     """
-    with gzip.open(filename, "rb") as file:
-        data = np.frombuffer(file.read(), np.uint8, offset=16)
+    # Load the data
+    data_dir = os.path.join("..", "datasets", "AtrialFibrilation")
+    data = utils.get_data_from_url(
+        url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy",
+        filename="arrhythmia_data.npy",
+        data_dir=data_dir,
+    )
 
-    return data.reshape(-1, 28, 28, 1)
+    # Get the data
+    x_train = data["input_train"]
+    x_val = data["input_vali"]
+    x_test = data["input_test"]
 
+    y_train = data["target_train"]
+    y_val = data["target_vali"]
+    y_test = data["target_test"]
 
-def mnist_load_labels(filename):
-    """
-    Auxiliary function to load gzipped labels for MNIST dataset.
-
-    Args:
-        filename (str): Path to the file.
-    """
-    with gzip.open(filename, "rb") as file:
-        data = np.frombuffer(file.read(), np.uint8, offset=8)
+    # Create a dictionary to store the data in rapidae format
+    data = {}
+    data["x_train"] = x_train
+    data["x_val"] = x_val
+    data["x_test"] = x_test
+    data["y_train"] = y_train
+    data["y_val"] = y_val
+    data["y_test"] = y_test
 
     return data
 
@@ -69,7 +101,7 @@ def load_MNIST(persistant=False):
                            Default is False.
 
     Returns:
-        data (dict): Dictionary containing the data for the MNIST dataset.
+        data (dict): Dictionary containing the data.
     """
     url_base = "http://yann.lecun.com/exdb/mnist/"
     filenames = [
@@ -99,10 +131,10 @@ def load_MNIST(persistant=False):
             Logger().log_info(f"{filename} already exists.")
 
     # Load the training and test data
-    x_train = mnist_load_images(train_img_path)
-    y_train = mnist_load_labels(train_lbl_path)
-    x_test = mnist_load_images(test_img_path)
-    y_test = mnist_load_labels(test_lbl_path)
+    x_train = utils.mnist_load_images(train_img_path)
+    y_train = utils.mnist_load_labels(train_lbl_path)
+    x_test = utils.mnist_load_images(test_img_path)
+    y_test = utils.mnist_load_labels(test_lbl_path)
 
     # If required delete data
     if not persistant:
@@ -113,82 +145,6 @@ def load_MNIST(persistant=False):
     data["x_train"] = x_train
     data["y_train"] = y_train
     data["x_test"] = x_test
-    data["y_test"] = y_test
-
-    return data
-
-
-def convert_one_hot(x, target):
-    """
-    Convert target values to one-hot encoding.
-
-    Args:
-        x (numpy.ndarray): Input array or matrix.
-        target (numpy.ndarray): Target values to be converted to one-hot encoding.
-
-    Returns:
-        samples (numpy.ndarray): Array with one-hot encoded representation of target values.
-    """
-    n_classes = 6
-    samples = np.zeros((x.shape[0], n_classes))
-
-    for i in range(target.shape[0]):
-        samples[i][int(target[i])] = 1
-
-    return samples
-
-
-def load_AtrialFibrillation(persistant=False):
-    """
-    Load arrhythmia dataset and perform preprocessing.
-
-    Args:
-        persistant (bool): If True, keeps the downloaded dataset files.
-                           If False, deletes the dataset files after loading.
-                           Default is False.
-
-    Returns:
-        data (dict): Dictionary containing the data for the MNIST dataset.
-    """
-
-    # Load the data
-    url = "https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy"
-    filename = "arrhythmia_data.npy"
-    data_dir = os.path.join("..", "datasets", "AtrialFibrilation")
-
-    # Create a directory to store the downloaded files
-    os.makedirs(data_dir, exist_ok=True)
-
-    target_path = os.path.join(data_dir, filename)
-
-    if not os.path.exists(target_path):
-        Logger().log_info(f"Downloading {filename}...")
-        urllib.request.urlretrieve(url, target_path)
-    else:
-        Logger().log_info(f"Skipping... Data already exists.")
-
-    data = np.load(target_path, allow_pickle=True).item()
-
-    # Split into a train, validation, test
-    x_train = data["input_train"]
-    x_val = data["input_vali"]
-    x_test = data["input_test"]
-
-    y_train = data["target_train"]
-    y_val = data["target_vali"]
-    y_test = data["target_test"]
-
-    # If required delete data
-    if not persistant:
-        Logger().log_info("Deleting arrhythmia data...")
-        rmtree(data_dir)
-
-    data = {}
-    data["x_train"] = x_train
-    data["x_val"] = x_val
-    data["x_test"] = x_test
-    data["y_train"] = y_train
-    data["y_val"] = y_val
     data["y_test"] = y_test
 
     return data
@@ -288,6 +244,8 @@ def load_dataset(dataset, persistant=False):
         return load_AtrialFibrillation(persistant)
     elif dataset == "CMAPSS":
         return load_CMAPSS(persistant)
+    elif dataset == "SineWave":
+        return load_SineWave(persistant)
     else:
         raise ValueError("Invalid dataset name.")
 
