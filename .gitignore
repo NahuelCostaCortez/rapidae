@@ -4,5 +4,5 @@ datasets/
 .vscode
 rapidae.log
 dist/
-examples/playground.ipynb
+runs/
 src/rapidae/models/h_vae/*

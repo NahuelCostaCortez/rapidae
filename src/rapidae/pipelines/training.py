@@ -23,7 +23,7 @@ class TrainingPipeline(BasePipeline):
         learning_rate (float): Learning rate for the optimizer.
         batch_size (int): Batch size for training.
         num_epochs (int): Number of training epochs.
-        callbacks (list, optional): List of Keras callbacks. Defaults to None.
+        callbacks (list, optional): List of Keras callbacks. If None, EarlyStopping and ModelCheckpoint are created. Defaults to None.
         save_model (bool, optional): Flag to save the trained model. Defaults to True.
     """
 
@@ -38,6 +38,7 @@ class TrainingPipeline(BasePipeline):
         num_epochs=100,
         callbacks: Optional[list] = None,
         save_model: bool = True,
+        run_eagerly=False,
     ):
         super().__init__(name, output_dir)
         self.model = model
@@ -47,6 +48,7 @@ class TrainingPipeline(BasePipeline):
         self.num_epochs = num_epochs
         self.callbacks = callbacks
         self.save_model = save_model
+        self.run_eagerly = run_eagerly
 
     def plot_training_history(self):
         """
@@ -55,14 +57,13 @@ class TrainingPipeline(BasePipeline):
         import matplotlib.pyplot as plt
 
         # check first what metrics are available
-        for key in self.model.history.history.keys():            
+        for key in self.model.history.history.keys():
             plt.plot(self.model.history.history[key], label=key)
         plt.title("Traning history")
         plt.ylabel("Loss")
         plt.xlabel("Epoch")
         plt.legend()
         plt.show()
-
 
     def __call__(
         self,
@@ -137,7 +138,7 @@ class TrainingPipeline(BasePipeline):
             exit(-1)
 
         # Compile and fit the model
-        self.model.compile(optimizer=optimizer, run_eagerly=False)
+        self.model.compile(optimizer=optimizer, run_eagerly=self.run_eagerly)
 
         if x_eval is None:
             self.model.fit(
