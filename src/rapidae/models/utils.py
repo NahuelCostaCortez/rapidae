@@ -5,7 +5,8 @@ Class for common model utilities.
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from keras.callbacks import LambdaCallback
+from keras.callbacks import Callback, LambdaCallback
+from rapidae.evaluate import utils
 
 
 def list_models():
@@ -285,3 +286,36 @@ class LRFinder:
         derivatives = self.get_derivatives(sma)
         best_der_idx = np.argmin(derivatives[n_skip_beginning:-n_skip_end])
         return self.lrs[n_skip_beginning:-n_skip_end][best_der_idx]
+
+
+class save_latent_space_viz(Callback):
+    def __init__(self, model, data, target, path="./images/"):
+        self.trained_model = model
+        self.data = data
+        self.target = target
+        self.path = path
+
+        # create path if it does not exist
+        import os
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+    def on_train_begin(self, logs={}):
+        self.best_val_loss = 100000
+
+    def on_epoch_end(self, epoch, logs=None):
+        val_loss = logs.get("val_loss")
+        if val_loss != None:
+            val_to_compare = val_loss
+        else:
+            val_to_compare = logs.get("loss")
+        if val_to_compare < self.best_val_loss:
+            self.best_val_loss = val_to_compare
+            outputs = self.trained_model.predict(self.data)
+            utils.plot_latent_space(
+                outputs["z"],
+                self.target,
+                save=True,
+                path=self.path + "latent_space_epoch" + str(epoch) + ".png",
+            )

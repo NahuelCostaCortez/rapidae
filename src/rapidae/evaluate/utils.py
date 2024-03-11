@@ -9,7 +9,9 @@ from inspect import getmembers, isfunction
 from rapidae.conf import Logger
 
 
-def plot_latent_space(z, labels=None, colormap="plasma"):
+def plot_latent_space(
+    z, labels=None, colormap="plasma", save=False, path="./latent_space.png"
+):
     """
     Plot latent space a 2D scatter plot.
 
@@ -35,10 +37,9 @@ def plot_latent_space(z, labels=None, colormap="plasma"):
     plt.colorbar()
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
+    if save:
+        plt.savefig(path)
     plt.show()
-
-    # return figure
-    return plt.gcf()
 
 
 def evaluate(y_true, y_hat, sel_metric, label="test"):

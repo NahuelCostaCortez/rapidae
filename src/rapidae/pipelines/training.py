@@ -99,36 +99,26 @@ class TrainingPipeline(BasePipeline):
         if self.callbacks is None:
             # Set callbacks
             self.callbacks = []
-            if x_eval is None:
-                self.callbacks.append(
-                    EarlyStopping(monitor="loss", patience=10, verbose=1, mode="min")
-                )
-                self.callbacks.append(
-                    ModelCheckpoint(
-                        filepath=os.path.join(self.output_dir, "model.weights.h5"),
-                        monitor="loss",
-                        verbose=1,
-                        save_best_only=True,
-                        mode="min",
-                        save_weights_only=True,
-                    )
-                )
+            if x_eval != None:
+                monitor = "val_loss"
+            # No validation data provided
             else:
-                self.callbacks.append(
-                    EarlyStopping(
-                        monitor="val_loss", patience=10, verbose=1, mode="min"
-                    )
+                monitor = "loss"
+            self.callbacks.append(
+                EarlyStopping(monitor=monitor, patience=10, verbose=1, mode="min")
+            )
+            self.callbacks.append(
+                ModelCheckpoint(
+                    filepath=os.path.join(self.output_dir, "model.weights.h5"),
+                    # filepath=os.path.join(self.output_dir, "model.keras"),
+                    monitor=monitor,
+                    verbose=1,
+                    save_best_only=True,
+                    mode="min",
+                    # save_weights_only=False,
+                    save_weights_only=True,
                 )
-                self.callbacks.append(
-                    ModelCheckpoint(
-                        filepath=os.path.join(self.output_dir, "model.weights.h5"),
-                        monitor="val_loss",
-                        verbose=1,
-                        save_best_only=True,
-                        mode="min",
-                        save_weights_only=True,
-                    )
-                )
+            )
 
         # Set optimizer
         if self.optimizer == "adam":
