@@ -1,54 +1,36 @@
 from typing import Tuple, Union
+
 from keras import metrics, ops, losses
-from rapidae.conf import Logger
 from rapidae.models.base import BaseAE
 from rapidae.models.distributions import Normal
 
 
-class Beta_VAE(BaseAE):
+class RVAE(BaseAE):
     """
-    Variational Autoencoder (VAE) model.
+    Recurrent Variational AutoEncoder (RVAE) model.
 
     Args:
-        encoder (BaseEncoder): An instance of BaseEncoder.
-        decoder (BaseDecoder): An instance of BaseDecoder.
         input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
         latent_dim (int): Dimension of the latent space.
-        layers_conf (list): List specifying the configuration of layers for custom models.
-        **kwargs (dict): Additional keyword arguments.
+        encoder (BaseEncoder): An instance of BaseEncoder.
+        decoder (BaseDecoder): An instance of BaseDecoder.
     """
 
     def __init__(
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
         latent_dim: int = 2,
-        beta: float = 1.0,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
-        **kwargs,
     ):
-        BaseAE.__init__(
-            self,
-            input_dim,
-            latent_dim,
-            encoder=encoder,
-            decoder=decoder,
-            layers_conf=layers_conf,
-            **kwargs,
-        )
+        # Initialize base class
+        BaseAE.__init__(self, input_dim, latent_dim, encoder, decoder)
 
-        if beta < 0.0:
-            self.logger.log_warning(
-                "The beta parameter should not be a value less than or equal to zero."
-            )
-        else:
-            self.beta = beta
-
-        # Training metrics trackers
-        self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
+        # Initialize metrics
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
+        self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
 
+    # keras model call function
     def call(self, x):
         z_mean, z_log_var = self.encoder(x)
         q = Normal(z_mean, ops.exp(0.5 * z_log_var))
@@ -69,11 +51,10 @@ class Beta_VAE(BaseAE):
         self.kl_loss_tracker.update_state(kl_loss)
 
         # Reconstruction loss
-        recon_loss = ops.mean(
-            ops.sum(losses.binary_crossentropy(x, y_pred["x_recon"], axis=(1, 2)))
-        )
+        recon_loss = losses.mean_squared_error(x, y_pred["x_recon"])
+        recon_loss = ops.mean(recon_loss)
         self.reconstruction_loss_tracker.update_state(recon_loss)
 
-        loss = (self.beta * kl_loss) + recon_loss
+        loss = kl_loss + recon_loss
 
         return loss

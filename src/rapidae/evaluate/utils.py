@@ -10,7 +10,12 @@ from rapidae.conf import Logger
 
 
 def plot_latent_space(
-    z, labels=None, colormap="plasma", save=False, path="./latent_space.png"
+    z,
+    labels=None,
+    colormap="plasma",
+    plot=True,
+    save=False,
+    path="./latent_space.png",
 ):
     """
     Plot latent space a 2D scatter plot.
@@ -19,13 +24,19 @@ def plot_latent_space(
         z (numpy.ndarray): The latent space. If the shape is greater than 2, dimensionality reduction is performed using t-SNE.
         labels (numpy.ndarray, optional): The labels for each data point. If provided, the data points are colored based on their labels.
         colormap (str, optional): The colormap to use for the scatter plot.
+        plot (bool, optional): Flag to display the plot. Defaults to True.
+        save (bool, optional): Flag to save the plot. Defaults to False.
+        path (str, optional): The path to save the plot. Defaults to './latent_space.png'.
 
     Returns:
-    None
+        None
     """
-    if len(z.shape) > 2:
+    if z.shape[1] > 2:
         from sklearn.manifold import TSNE
 
+        Logger().log_info(
+            "Latent space > 2. Performing dimensionality reduction using t-SNE..."
+        )
         model = TSNE(n_components=2, random_state=0)
         z = model.fit_transform(z)
 
@@ -39,7 +50,74 @@ def plot_latent_space(
     plt.ylabel("z[1]")
     if save:
         plt.savefig(path)
-    plt.show()
+    if plot:
+        plt.show()
+    # Close the plot to avoid memory leaks
+    plt.close()
+
+
+def plot_reconstructions(
+    original,
+    reconstructed,
+    type="image",
+    plot=True,
+    save=False,
+    path="./reconstructions.png",
+):
+    """
+    Displays ten random samples from each one of the supplied arrays.
+    Useful for checking the quality of the reconstructions.
+
+    Args:
+        original (numpy.ndarray): The first array containing images for comparison.
+        reconstructed (numpy.ndarray): The second array containing images for comparison.
+        type (str): The type of data, either 'image' or 'ts' (time_series).
+        plot (bool, optional): Flag to display the plot. Defaults to True.
+        save (bool, optional): Flag to save the plot. Defaults to False.
+        path (str, optional): The path to save the plot. Defaults to './reconstructions.png'.
+
+    Returns:
+        None
+    """
+
+    n = 10
+
+    indices = np.random.randint(len(original), size=n)
+    samples1 = original[indices, :]
+    samples2 = reconstructed[indices, :]
+
+    if type == "image":
+        if len(samples1.shape) == 2:
+            width = int(np.sqrt(samples1.shape[1]))
+            samples1 = samples1.reshape(samples1.shape[0], width, width)
+            samples2 = samples2.reshape(samples2.shape[0], width, width)
+
+    plt.figure(figsize=(20, 4))
+    for i, (sample1, sample2) in enumerate(zip(samples1, samples2)):
+        ax = plt.subplot(2, n, i + 1)
+        if type == "image":
+            plt.imshow(sample1)
+            plt.gray()
+        else:
+            plt.plot(sample1)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        ax = plt.subplot(2, n, i + 1 + n)
+        if type == "image":
+            plt.imshow(sample2)
+            plt.gray()
+        else:
+            plt.plot(sample2)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+    if save:
+        plt.savefig(path)
+    if plot:
+        plt.show()
+    # Close the plot to avoid memory leaks
+    plt.close()
 
 
 def evaluate(y_true, y_hat, sel_metric, label="test"):
@@ -83,52 +161,3 @@ def evaluate(y_true, y_hat, sel_metric, label="test"):
         )
 
     return result
-
-
-def plot_reconstructions(original, reconstructed, type="image"):
-    """
-    Displays ten random samples from each one of the supplied arrays.
-    Useful for checking the quality of the reconstructions.
-
-    Args:
-        original (numpy.ndarray): The first array containing images for comparison.
-        reconstructed (numpy.ndarray): The second array containing images for comparison.
-        type (str): The type of data, either 'image' or 'ts' (time_series).
-    """
-
-    n = 10
-
-    indices = np.random.randint(len(original), size=n)
-    samples1 = original[indices, :]
-    samples2 = reconstructed[indices, :]
-
-    if type == "image":
-        if len(samples1.shape) == 2:
-            width = int(np.sqrt(samples1.shape[1]))
-            samples1 = samples1.reshape(samples1.shape[0], width, width)
-            samples2 = samples2.reshape(samples2.shape[0], width, width)
-
-    plt.figure(figsize=(20, 4))
-    for i, (sample1, sample2) in enumerate(zip(samples1, samples2)):
-        ax = plt.subplot(2, n, i + 1)
-        if type == "image":
-            plt.imshow(sample1)
-            plt.gray()
-        else:
-            plt.plot(sample1)
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-
-        ax = plt.subplot(2, n, i + 1 + n)
-        if type == "image":
-            plt.imshow(sample2)
-            plt.gray()
-        else:
-            plt.plot(sample2)
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-
-    plt.show()
-
-    # return figure
-    return plt.gcf()

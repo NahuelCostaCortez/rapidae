@@ -5,20 +5,26 @@ We will keep updating!
 """
 
 from .ae import AE
-from .cae import CAE
-from .vae import VAE
-from .rve import RVE
 from .beta_vae import Beta_VAE
+from .cae import CAE
+from .rvae import RVAE
+from .rve import RVE
+from .time_hvae import TimeHVAE
+from .time_vae import TimeVAE
+from .vae import VAE
 from .vq_vae import VQ_VAE, VectorQuantizer
 from .utils import *
 
 
 __all__ = [
     "AE",
-    "CAE",
-    "VAE",
     "Beta_VAE",
+    "CAE",
+    "RVAE",
+    "RVE",
+    "TimeHVAE",
+    "TimeVAE",
+    "VAE",
     "VQ_VAE",
     "VectorQuantizer",
-    "RVE",
 ]

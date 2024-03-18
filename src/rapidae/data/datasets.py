@@ -30,6 +30,7 @@ def load_SineWave(persistant=False):
         url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/sine_wave.npy",
         filename="sine_wave.npy",
         data_dir=data_dir,
+        persistant=persistant,
     )
 
     # Get the data
@@ -67,6 +68,7 @@ def load_AtrialFibrillation(persistant=False):
         url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy",
         filename="arrhythmia_data.npy",
         data_dir=data_dir,
+        persistant=persistant,
     )
 
     # Get the data

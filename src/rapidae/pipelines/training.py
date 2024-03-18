@@ -18,13 +18,17 @@ class TrainingPipeline(BasePipeline):
     and saving the best weights.
 
     Attributes:
+        name (str): Name of the pipeline.
         model (BaseAE): Autoencoder model to be trained.
-        optimizer (str): Name of the optimizer. Currently supports 'adam'.
+        output_dir (str): Output directory for saving the trained model. If not specified, a new directory "output_dir/name_YYY-MM-DD_HH-MM-SS" is created.
+        optimizer (str): Name of the optimizer. Currently only 'adam' is supported.
         learning_rate (float): Learning rate for the optimizer.
         batch_size (int): Batch size for training.
         num_epochs (int): Number of training epochs.
         callbacks (list, optional): List of Keras callbacks. If None, EarlyStopping and ModelCheckpoint are created. Defaults to None.
         save_model (bool, optional): Flag to save the trained model. Defaults to True.
+        run_eagerly (bool, optional): Flag to run the model eagerly. Defaults to False.
+        verbose (int, optional): Verbosity mode. 0 will show no output, 1 will show a progress bar, and 2 will show the full output. Defaults to 1.
     """
 
     def __init__(
@@ -39,6 +43,7 @@ class TrainingPipeline(BasePipeline):
         callbacks: Optional[list] = None,
         save_model: bool = True,
         run_eagerly=False,
+        verbose=1,
     ):
         super().__init__(name, output_dir)
         self.model = model
@@ -49,6 +54,7 @@ class TrainingPipeline(BasePipeline):
         self.callbacks = callbacks
         self.save_model = save_model
         self.run_eagerly = run_eagerly
+        self.verbose = verbose
 
     def plot_training_history(self):
         """
@@ -85,14 +91,19 @@ class TrainingPipeline(BasePipeline):
             BaseAE (keras.Model): Trained autoencoder model.
         """
 
-        # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = os.path.join(".", self.output_dir, f"{self.name}_{timestamp}")
+        if self.output_dir == "output_dir":
+            # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            folder_path = os.path.join(".", self.output_dir, f"{self.name}_{timestamp}")
+        else:
+            folder_path = self.output_dir
 
         self.logger.log_info("+++ {} +++".format(self.name))
         self.logger.log_info("Creating folder in {}".format(folder_path))
 
-        os.makedirs(folder_path)
+        # check if folder exists
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
         self.output_dir = str(folder_path)
 
         # Callbacks
@@ -138,7 +149,7 @@ class TrainingPipeline(BasePipeline):
                 epochs=self.num_epochs,
                 batch_size=self.batch_size,
                 callbacks=self.callbacks,
-                verbose=2,
+                verbose=self.verbose,
             )
         else:
             self.model.fit(
@@ -149,7 +160,7 @@ class TrainingPipeline(BasePipeline):
                 epochs=self.num_epochs,
                 batch_size=self.batch_size,
                 callbacks=self.callbacks,
-                verbose=2,
+                verbose=self.verbose,
             )
 
         # Restore the best model

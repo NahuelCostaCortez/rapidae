@@ -1,7 +1,5 @@
 from typing import Union, Tuple
-
-import keras
-
+from keras import ops, losses
 from rapidae.models.base import BaseAE
 
 
@@ -37,17 +35,16 @@ class AE(BaseAE):
             **kwargs,
         )
 
-    # keras model call function
     def call(self, x):
         z = self.encoder(x)
         recon_x = self.decoder(z)
         outputs = {}
         outputs["z"] = z
-        outputs["recon"] = recon_x
+        outputs["x_recon"] = recon_x
 
         return outputs
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
-        loss = keras.ops.mean(keras.losses.mean_squared_error(x, y_pred["recon"]))
+        loss = ops.mean(losses.mean_squared_error(x, y_pred["x_recon"]))
 
         return loss

@@ -288,12 +288,49 @@ class LRFinder:
         return self.lrs[n_skip_beginning:-n_skip_end][best_der_idx]
 
 
-class save_latent_space_viz(Callback):
-    def __init__(self, model, data, target, path="./images/"):
+class save_visualizations(Callback):
+    """
+    Callback class for saving visualizations during training.
+
+    Args:
+        model: The trained model.
+        data: The input data.
+        target: The target data.
+        latent_space (bool): Whether to save visualizations of the latent space. Default is True.
+        reconstructions (bool): Whether to save visualizations of the reconstructions. Default is True.
+        type (str): The type of data, either 'image' or 'ts' (time_series).
+        path (str): The path to save the visualizations. Default is "./images/".
+        plot (bool): Whether to plot the visualizations. Default is False.
+
+    Raises:
+        ValueError: If both `latent_space` and `reconstructions` are False.
+
+    """
+
+    def __init__(
+        self,
+        model,
+        data,
+        target=None,
+        latent_space=True,
+        reconstructions=True,
+        type="ts",
+        path="./images/",
+        plot=False,
+    ):
         self.trained_model = model
         self.data = data
         self.target = target
         self.path = path
+        self.latent_space = latent_space
+        self.reconstructions = reconstructions
+        self.type = type
+        self.plot = plot
+
+        if not self.latent_space and not self.reconstructions:
+            raise ValueError(
+                "At least one of latent_space or reconstructions must be True"
+            )
 
         # create path if it does not exist
         import os
@@ -305,17 +342,36 @@ class save_latent_space_viz(Callback):
         self.best_val_loss = 100000
 
     def on_epoch_end(self, epoch, logs=None):
+        """
+        Callback function called at the end of each epoch.
+
+        Args:
+            epoch (int): The current epoch number.
+            logs (dict): Dictionary containing the training and validation loss values.
+
+        """
         val_loss = logs.get("val_loss")
-        if val_loss != None:
+        if val_loss is not None:
             val_to_compare = val_loss
         else:
             val_to_compare = logs.get("loss")
         if val_to_compare < self.best_val_loss:
             self.best_val_loss = val_to_compare
             outputs = self.trained_model.predict(self.data)
-            utils.plot_latent_space(
-                outputs["z"],
-                self.target,
-                save=True,
-                path=self.path + "latent_space_epoch" + str(epoch) + ".png",
-            )
+            if self.latent_space:
+                utils.plot_latent_space(
+                    outputs["z"],
+                    self.target,
+                    plot=self.plot,
+                    save=True,
+                    path=self.path + "latent_space_epoch" + str(epoch) + ".png",
+                )
+            if self.reconstructions:
+                utils.plot_reconstructions(
+                    self.data,
+                    outputs["x_recon"],
+                    type=self.type,
+                    plot=self.plot,
+                    save=True,
+                    path=self.path + "reconstructions_epoch" + str(epoch) + ".png",
+                )
