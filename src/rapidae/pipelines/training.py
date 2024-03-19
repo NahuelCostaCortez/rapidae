@@ -28,7 +28,7 @@ class TrainingPipeline(BasePipeline):
         callbacks (list, optional): List of Keras callbacks. If None, EarlyStopping and ModelCheckpoint are created. Defaults to None.
         save_model (bool, optional): Flag to save the trained model. Defaults to True.
         run_eagerly (bool, optional): Flag to run the model eagerly. Defaults to False.
-        verbose (int, optional): Verbosity mode. 0 will show no output, 1 will show a progress bar, and 2 will show the full output. Defaults to 1.
+        verbose (int, optional): Verbosity mode. 0 will show no output, 1 will show a progress bar, and 2 will just mention the number of epoch. Defaults to 2.
     """
 
     def __init__(
@@ -43,7 +43,7 @@ class TrainingPipeline(BasePipeline):
         callbacks: Optional[list] = None,
         save_model: bool = True,
         run_eagerly=False,
-        verbose=1,
+        verbose=2,
     ):
         super().__init__(name, output_dir)
         self.model = model

@@ -53,7 +53,7 @@ class TimeVAE(BaseAE):
         z = q.sample()
 
         # DECODER
-        recon_x, recon_x_log_scale = self.decoder(z)
+        recon_x, recon_x_log_scale = self.decoder(z)  # mu is used as the reconstruction
 
         outputs = {
             "z": z,

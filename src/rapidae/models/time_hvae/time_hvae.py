@@ -47,47 +47,6 @@ class TimeHVAE(BaseAE):
             name="reconstruction_loss"
         )
 
-    def call(self, x):
-
-        # log_enc = []
-        # log_dec = []
-        kls = []
-        recon_losses = []
-
-        for i in range(self.nz):
-            # ENCODER
-            # get the parameters of inference distribution i given x q(z_i|x) or z q(z_i|z_{i+1})
-            mu, log_var = self.encoder(x, lvl=i)
-
-            # sample z from q - encoder
-            std = keras.ops.exp(0.5 * log_var)  # convert log_var to std
-            q = Normal(mu, std)
-            z_next = q.sample()
-
-            # kl - likelihood of z
-            kl = self.kl_divergence(z_next, mu, std)
-            kls = kl
-
-            # DECODER
-            # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
-            x_recon, x_log_scale = self.decoder(z_next, lvl=i)
-
-            # reconstruction loss
-            recon_loss = self.gaussian_likelihood(x_recon, x_log_scale, x)
-            recon_losses = recon_loss
-
-        """
-        outputs = {
-            "z": z_next,
-            "z_mean": mu,
-            "z_std": std,
-            "x_recon": x_recon,
-            "x_log_scale": x_log_scale,
-        }
-        """
-
-        return {"x_recon": x_recon, "kl": kls, "recon_loss": recon_losses}
-
     def gaussian_likelihood(self, mean, logscale, sample):
         scale = keras.ops.exp(logscale) + self.min_std
         dist = Normal(mean, scale)
@@ -107,6 +66,51 @@ class TimeHVAE(BaseAE):
         kl = log_qzx - log_pz
         kl = keras.ops.sum(kl, axis=-1)
         return kl
+
+    def call(self, x):
+
+        # log_enc = []
+        # log_dec = []
+        kls = []
+        recon_losses = []
+
+        for i in range(self.nz):
+            # ENCODER
+            # get the parameters of inference distribution i given x q(z_i|x) or z q(z_i|z_{i+1})
+            mu, log_var = self.encoder(x, lvl=i)
+
+            # sample z from q - encoder
+            std = keras.ops.exp(0.5 * log_var)  # convert log_var to std
+            q = Normal(mu, std)
+            z_next = q.sample()
+
+            # logq - kl
+            logq = self.kl_divergence(z_next, mu, std)
+            kls = logq
+
+            # DECODER
+            # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
+            x_mu, x_log_scale = self.decoder(z_next, lvl=i)
+
+            # logp - reconstruction loss
+            logp = self.gaussian_likelihood(x_mu, x_log_scale, x)
+            recon_losses = logp
+
+            # sample from p(x|z) to get x
+            p = Normal(x_mu, keras.ops.exp(x_log_scale))
+            x_recon = p.sample()
+
+        """
+        outputs = {
+            "z": z_next,
+            "z_mean": mu,
+            "z_std": std,
+            "x_recon": x_recon,
+            "x_log_scale": x_log_scale,
+        }
+        """
+
+        return {"x_recon": x_recon, "kl": kls, "recon_loss": recon_losses}
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         """
@@ -130,4 +134,5 @@ class TimeHVAE(BaseAE):
 
         # elbo
         elbo = kl - (self.beta * recon_loss)
+        # elbo = recon_loss - (self.beta * kl)
         return keras.ops.mean(elbo)

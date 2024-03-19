@@ -1,4 +1,5 @@
-import keras
+from keras import ops
+from keras import random, activations
 import math
 
 
@@ -24,6 +25,7 @@ class Normal:
         self.mu = mu
         self.std = std
         self.seed = seed
+        self.shape = ops.shape(self.mu)
         # self.seed_generator = keras.random.SeedGenerator(seed)
 
     def log_prob(self, x):
@@ -36,12 +38,21 @@ class Normal:
         Returns:
             float: The logarithm of the PDF at the given value.
         """
+        """
         var = self.std**2
-        log_scale = keras.ops.log(self.std)
+        log_scale = ops.log(self.std)
         logp = (
             -((x - self.mu) ** 2) / (2 * var)
             - log_scale
             - math.log(math.sqrt(2 * math.pi))
+        )
+        """
+        var = ops.square(self.std)
+        log_scale = ops.log(self.std)
+        logp = (
+            -(ops.square(x - self.mu)) / (2 * var)
+            - log_scale
+            - ops.log(ops.sqrt(2 * ops.convert_to_tensor(math.pi)))
         )
 
         return logp
@@ -53,9 +64,9 @@ class Normal:
         Returns:
             keras.tensor: Samples generated from the distribution.
         """
-        batch = keras.ops.shape(self.mu)[0]
-        dim = keras.ops.shape(self.mu)[1]
-        epsilon = keras.random.normal(shape=(batch, dim), seed=self.seed)
+        # batch = keras.ops.shape(self.mu)[0]
+        # dim = keras.ops.shape(self.mu)[1]
+        epsilon = random.normal(shape=self.shape, seed=self.seed)
 
         return self.mu + self.std * epsilon
 
@@ -84,7 +95,8 @@ class Logistic:
         super().__init__(**kwargs)
         self.mu = mu
         self.std = scale
-        self.seed_generator = keras.random.SeedGenerator(seed)
+        self.shape = ops.shape(self.mu)
+        self.seed_generator = random.SeedGenerator(seed)
 
     def log_prob(self, x):
         """
@@ -97,20 +109,20 @@ class Logistic:
             float: The logarithm of the PDF at the given value.
         """
         y = -(x - self.mu) / self.scale
-        logp = -y - keras.ops.log(self.scale) - 2 * keras.activations.softplus(-y)
+        logp = -y - ops.log(self.scale) - 2 * activations.softplus(-y)
         return logp
 
     def logistic_eps(self, shape, bound=1e-5):
         # first sample from a Gaussian
-        u = keras.random.normal(shape=shape, seed=self.seed_generator)
+        u = random.normal(shape=shape, seed=self.seed_generator)
 
         # clip to interval [bound, 1-bound] to ensure numerical stability
         # (to avoid saturation regions of the sigmoid)
-        u = keras.ops.clip(u, x_min=bound, x_max=1 - bound)
+        u = ops.clip(u, x_min=bound, x_max=1 - bound)
 
         # transform to a sample from the Logistic distribution
         # log(u / (1 - u))
-        epsilon = keras.ops.log(u) - keras.ops.log1p(-u)
+        epsilon = ops.log(u) - ops.log1p(-u)
 
         return epsilon
 
@@ -131,5 +143,6 @@ class Logistic:
         Returns:
             keras.tensor: Samples generated from the distribution.
         """
-        epsilon = self.logistic_eps(shape=keras.ops.shape(self.mu))
+        # epsilon = self.logistic_eps(shape=keras.ops.shape(self.mu))
+        epsilon = self.logistic_eps(shape=self.shape)
         return self.mu + self.scale * epsilon
