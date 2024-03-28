@@ -1,7 +1,6 @@
 from typing import Tuple, Union
 
-import keras
-import torch
+from keras import metrics, ops
 
 from rapidae.models.base import BaseAE
 from rapidae.models.distributions import Normal
@@ -38,19 +37,17 @@ class TimeVAE(BaseAE):
         self.min_std = min_std
 
         # Training metrics trackers
-        self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
-        self.reconstruction_loss_tracker = keras.metrics.Mean(
-            name="reconstruction_loss"
-        )
+        self.kl_loss_tracker = metrics.Mean(name="kl_loss")
+        self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
 
     def call(self, x):
         # ENCODER
         mu, log_var = self.encoder(x)
 
         # sample z from q - encoder
-        std = keras.ops.exp(0.5 * log_var)  # convert log_var to std
-        q = Normal(mu, std)
-        z = q.sample()
+        std = ops.exp(0.5 * log_var)  # convert log_var to std
+        q = Normal()
+        z = q([mu, std])
 
         # DECODER
         recon_x, recon_x_log_scale = self.decoder(z)  # mu is used as the reconstruction
@@ -66,10 +63,10 @@ class TimeVAE(BaseAE):
         return outputs
 
     def gaussian_likelihood(self, mean, logscale, sample):
-        scale = keras.ops.exp(logscale) + self.min_std
-        dist = Normal(mean, scale)
-        log_pxz = dist.log_prob(sample)
-        return keras.ops.sum(log_pxz, axis=(1, 2))
+        scale = ops.exp(logscale) + self.min_std
+        dist = Normal()
+        log_pxz = dist.log_prob([sample, mean, scale])
+        return ops.sum(log_pxz, axis=(1, 2))
 
     """
     def gaussian_likelihood(self, mean, logscale, sample):
@@ -80,17 +77,15 @@ class TimeVAE(BaseAE):
     """
 
     def kl_divergence(self, z, mu, std):
-        p = Normal(
-            keras.ops.zeros_like(mu), keras.ops.ones_like(std)
-        )  # prior - standard normal
-        q = Normal(mu, std)  # posterior - encoder - learned distribution
+        p = Normal()  # prior - standard normal
+        q = Normal()  # posterior - encoder - learned distribution
 
-        log_pz = p.log_prob(z)
-        log_qzx = q.log_prob(z)
+        log_pz = p.log_prob([z, ops.zeros_like(mu), ops.ones_like(std)])
+        log_qzx = q.log_prob([z, mu, std])
 
         # kl
         kl = log_qzx - log_pz
-        kl = keras.ops.sum(kl, axis=-1)
+        kl = ops.sum(kl, axis=-1)
         return kl
 
     """
@@ -125,4 +120,4 @@ class TimeVAE(BaseAE):
 
         # elbo
         elbo = kl - (self.beta * recon_loss)
-        return keras.ops.mean(elbo)
+        return ops.mean(elbo)

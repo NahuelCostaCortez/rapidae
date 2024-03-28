@@ -27,7 +27,7 @@ def load_SineWave(persistant=False):
     # Load the data
     data_dir = os.path.join("..", "datasets", "SineWave")
     data = utils.get_data_from_url(
-        url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/sine_wave.npy",
+        url="https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/SineWave/sine_wave.npy",
         filename="sine_wave.npy",
         data_dir=data_dir,
         persistant=persistant,
@@ -65,7 +65,7 @@ def load_AtrialFibrillation(persistant=False):
     # Load the data
     data_dir = os.path.join("..", "datasets", "AtrialFibrilation")
     data = utils.get_data_from_url(
-        url="https://raw.githubusercontent.com/NahuelCostaCortez/RVAE/main/data/arrhythmia_data.npy",
+        url="https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/AtrialFibrillation/arrhythmia_data.npy",
         filename="arrhythmia_data.npy",
         data_dir=data_dir,
         persistant=persistant,
@@ -177,17 +177,17 @@ def load_CMAPSS(subset="FD001", persistant=False):
 
     # Load the data
     url_train = (
-        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/train_"
+        "https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/CMAPSS/train_"
         + subset
         + ".txt"
     )
     url_RUL = (
-        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/RUL_"
+        "https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/CMAPSS/RUL_"
         + subset
         + ".txt"
     )
     url_test = (
-        "https://raw.githubusercontent.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational/main/data/test_"
+        "https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/CMAPSS/test_"
         + subset
         + ".txt"
     )
@@ -229,7 +229,7 @@ def load_CMAPSS(subset="FD001", persistant=False):
     return data
 
 
-def load_dataset(dataset, persistant=False):
+def load_dataset(dataset, subset="FD004", persistant=False):
     """
     Load the dataset.
 
@@ -245,7 +245,7 @@ def load_dataset(dataset, persistant=False):
     elif dataset == "AtrialFibrillation":
         return load_AtrialFibrillation(persistant)
     elif dataset == "CMAPSS":
-        return load_CMAPSS(persistant)
+        return load_CMAPSS(subset=subset, persistant=persistant)
     elif dataset == "SineWave":
         return load_SineWave(persistant)
     else:

@@ -40,9 +40,9 @@ class VAE(BaseAE):
         )
 
         self.exclude_decoder = exclude_decoder
-        self.downstream_task = downstream_task.lower()
 
         if self.downstream_task is not None:
+            self.downstream_task = downstream_task.lower()
 
             if self.downstream_task == "regression":
                 from rapidae.models.base import BaseRegressor

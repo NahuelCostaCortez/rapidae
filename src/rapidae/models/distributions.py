@@ -1,8 +1,56 @@
+from keras import layers
 from keras import ops
 from keras import random, activations
 import math
 
 
+class Normal(layers.Layer):
+    """Class for Normal distribution."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.seed_generator = random.SeedGenerator(1337)
+
+    def call(self, inputs):
+        """
+        Uses (mu, std) to sample.
+
+        Parameters:
+            inputs (tuple): A tuple containing the mean and standard deviation.
+
+        Returns:
+            keras.tensor: Samples generated from the distribution.
+        """
+        mu, std = inputs
+        batch = ops.shape(mu)[0]
+        dim = ops.shape(std)[1]
+        epsilon = random.normal(shape=(batch, dim), seed=self.seed_generator)
+        return mu + std * epsilon
+
+    def log_prob(self, inputs):
+        """
+        Calculates the logarithm of the probability density function (PDF) at the given value.
+
+        Parameters:
+            inputs (float): The value at which to calculate the logarithm of the PDF, and the mean and standard deviation of the distribution.
+
+        Returns:
+            float: The logarithm of the PDF at the given value.
+        """
+
+        x, mu, std = inputs
+        var = ops.square(std)
+        log_scale = ops.log(std)
+        logp = (
+            -(ops.square(x - mu)) / (2 * var)
+            - log_scale
+            - ops.log(ops.sqrt(2 * ops.convert_to_tensor(math.pi)))
+        )
+
+        return logp
+
+
+'''
 class Normal:
     def __init__(self, mu, std, seed=None, **kwargs):
         """
@@ -69,7 +117,7 @@ class Normal:
         epsilon = random.normal(shape=self.shape, seed=self.seed)
 
         return self.mu + self.std * epsilon
-
+'''
 
 '''
     class Sampling(layers.Layer):

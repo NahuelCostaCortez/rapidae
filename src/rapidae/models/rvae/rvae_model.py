@@ -7,7 +7,7 @@ from rapidae.models.distributions import Normal
 
 class RVAE(BaseAE):
     """
-    Recurrent Variational AutoEncoder (RVAE) model.
+    Recurrent Variational AutoEncoder (RVAE) model - DOI: 10.1109/ACCESS.2021.3064854
 
     Args:
         input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
@@ -26,6 +26,9 @@ class RVAE(BaseAE):
         # Initialize base class
         BaseAE.__init__(self, input_dim, latent_dim, encoder, decoder)
 
+        # Initialize sampling distribution
+        self.sampling = Normal()
+
         # Initialize metrics
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
         self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
@@ -33,8 +36,8 @@ class RVAE(BaseAE):
     # keras model call function
     def call(self, x):
         z_mean, z_log_var = self.encoder(x)
-        q = Normal(z_mean, ops.exp(0.5 * z_log_var))
-        z = q.sample()
+        z_std = ops.exp(0.5 * z_log_var)
+        z = self.sampling([z_mean, z_std])
         x_recon = self.decoder(z)
 
         return {"z": z, "z_mean": z_mean, "z_log_var": z_log_var, "x_recon": x_recon}

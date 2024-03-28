@@ -63,6 +63,7 @@ def plot_reconstructions(
     plot=True,
     save=False,
     path="./reconstructions.png",
+    num_samples=10,
 ):
     """
     Displays ten random samples from each one of the supplied arrays.
@@ -80,9 +81,7 @@ def plot_reconstructions(
         None
     """
 
-    n = 10
-
-    indices = np.random.randint(len(original), size=n)
+    indices = np.random.randint(len(original), size=num_samples)
     samples1 = original[indices, :]
     samples2 = reconstructed[indices, :]
 
@@ -94,7 +93,7 @@ def plot_reconstructions(
 
     plt.figure(figsize=(20, 4))
     for i, (sample1, sample2) in enumerate(zip(samples1, samples2)):
-        ax = plt.subplot(2, n, i + 1)
+        ax = plt.subplot(2, num_samples, i + 1)
         if type == "image":
             plt.imshow(sample1)
             plt.gray()
@@ -103,7 +102,7 @@ def plot_reconstructions(
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
-        ax = plt.subplot(2, n, i + 1 + n)
+        ax = plt.subplot(2, num_samples, i + 1 + num_samples)
         if type == "image":
             plt.imshow(sample2)
             plt.gray()

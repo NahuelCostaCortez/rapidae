@@ -21,7 +21,7 @@ class RVE(BaseAE):
         input_dim: Union[Tuple[int, ...], None] = None,
         latent_dim: int = 2,
         encoder: callable = None,
-        downstream_task: str = None,
+        downstream_task: str = "regression",
         **kwargs,
     ):
         BaseAE.__init__(

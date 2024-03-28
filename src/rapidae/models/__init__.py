@@ -14,6 +14,7 @@ from .time_vae import TimeVAE
 from .vae import VAE
 from .vq_vae import VQ_VAE, VectorQuantizer
 from .utils import *
+from .callbacks import *
 
 
 __all__ = [

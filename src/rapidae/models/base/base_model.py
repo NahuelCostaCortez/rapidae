@@ -55,19 +55,19 @@ class BaseAE(Model):
             self.logger.log_info(
                 "Trying to set encoder and decoder from child class..."
             )
-            child_class = type(self).__module__.split(".")[-1]
+            parent_class = type(self).__module__.split(".")[-2]
             # Dynamically import the models from the child class
-            model_module = importlib.import_module("rapidae.models." + child_class)
+            model_module = importlib.import_module("rapidae.models." + parent_class)
             Encoder = getattr(model_module, "Encoder")
             Decoder = getattr(model_module, "Decoder")
 
             if Encoder is not None:
                 self.encoder = Encoder(self.input_dim, self.latent_dim)
-                self.logger.log_info(f"Encoder set from {child_class}")
+                self.logger.log_info(f"Encoder set from {parent_class}")
             else:
                 # This means that the child class does not have an encoder -> use default encoder
                 self.logger.log_warning(
-                    f"No encoder found in {child_class}, using default encoder with layers_conf=[512]..."
+                    f"No encoder found in {parent_class}, using default encoder with layers_conf=[512]..."
                 )
                 from rapidae.models.base import VanillaEncoder
 
@@ -78,11 +78,11 @@ class BaseAE(Model):
                 # This means that the model does have a decoder -> try to set it from the child class
                 if Decoder is not None:
                     self.decoder = Decoder(self.input_dim, self.latent_dim)
-                    self.logger.log_info(f"Decoder set from {child_class}")
+                    self.logger.log_info(f"Decoder set from {parent_class}")
                 else:
                     # This means that the child class does not have a decoder -> use default decoder
                     self.logger.log_warning(
-                        f"No decoder found in {child_class}, using default decoder with layers_conf=[512]..."
+                        f"No decoder found in {parent_class}, using default decoder with layers_conf=[512]..."
                     )
                     from rapidae.models.base import VanillaDecoder
 
@@ -92,7 +92,7 @@ class BaseAE(Model):
                     )
         else:
             self.logger.log_info("Using provided encoder")
-            if self.decoder is not False:
+            if self.decoder is not False and self.decoder is not None:
                 self.logger.log_info("Using provided decoder")
 
     def call(self, inputs):

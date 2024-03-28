@@ -16,8 +16,12 @@ class Encoder(BaseEncoder):
         z_log_var (keras.layers.Dense): Dense layer for the log variance.
     """
 
-    def __init__(self, input_dim, latent_dim):
+    def __init__(self, input_dim, latent_dim, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim)
+        self.masking_value = (
+            kwargs["masking_value"] if "masking_value" in kwargs else -99.0
+        )
+        self.mask = Masking(mask_value=self.masking_value)
         self.h = Bidirectional(LSTM(300))
         self.z_mean = Dense(self.latent_dim, name="z_mean")
         self.z_log_var = Dense(self.latent_dim, name="z_log_var")
@@ -34,7 +38,7 @@ class Encoder(BaseEncoder):
         """
         x = self.mask(x)
         x = self.h(x)
-        x_z_mean = self.z_mean(x)
-        x_z_log_var = self.z_log_var(x)
+        z_mean = self.z_mean(x)
+        z_log_var = self.z_log_var(x)
 
-        return x_z_mean, x_z_log_var
+        return z_mean, z_log_var
