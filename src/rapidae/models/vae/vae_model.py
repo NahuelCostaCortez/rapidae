@@ -27,7 +27,6 @@ class VAE(BaseAE):
         downstream_task: str = None,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
         **kwargs,
     ):
 

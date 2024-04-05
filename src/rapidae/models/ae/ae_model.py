@@ -21,7 +21,6 @@ class AE(BaseAE):
         latent_dim: int = 2,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
         **kwargs,
     ):
         BaseAE.__init__(
@@ -30,8 +29,6 @@ class AE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
-            exclude_decoder=False,
-            layers_conf=layers_conf,
             **kwargs,
         )
 
@@ -45,6 +42,9 @@ class AE(BaseAE):
         return outputs
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        # User can provide either x only or x and y
+        if y is not None:
+            x = y  # If y is provided, x is set to y
         loss = ops.mean(losses.mean_squared_error(x, y_pred["x_recon"]))
 
         return loss

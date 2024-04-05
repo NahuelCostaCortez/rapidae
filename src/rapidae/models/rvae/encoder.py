@@ -19,9 +19,11 @@ class Encoder(BaseEncoder):
     def __init__(self, input_dim, latent_dim, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim)
         self.masking_value = (
-            kwargs["masking_value"] if "masking_value" in kwargs else -99.0
+            kwargs["masking_value"] if "masking_value" in kwargs else None
         )
-        self.mask = Masking(mask_value=self.masking_value)
+        self.mask = (
+            Masking(mask_value=self.masking_value) if self.masking_value else None
+        )
         self.h = Bidirectional(LSTM(300))
         self.z_mean = Dense(self.latent_dim, name="z_mean")
         self.z_log_var = Dense(self.latent_dim, name="z_log_var")
@@ -36,7 +38,7 @@ class Encoder(BaseEncoder):
         Returns:
             x_z_mean (Tensor), x_z_log_var (Tensor): Tuple containing the mean and log variance.
         """
-        x = self.mask(x)
+        x = self.mask(x) if self.mask else x
         x = self.h(x)
         z_mean = self.z_mean(x)
         z_log_var = self.z_log_var(x)

@@ -58,8 +58,12 @@ class BaseAE(Model):
             parent_class = type(self).__module__.split(".")[-2]
             # Dynamically import the models from the child class
             model_module = importlib.import_module("rapidae.models." + parent_class)
-            Encoder = getattr(model_module, "Encoder")
-            Decoder = getattr(model_module, "Decoder")
+            try:
+                Encoder = getattr(model_module, "Encoder")
+                Decoder = getattr(model_module, "Decoder")
+            except AttributeError:
+                Encoder = None
+                Decoder = None
 
             if Encoder is not None:
                 self.encoder = Encoder(self.input_dim, self.latent_dim)
@@ -72,7 +76,9 @@ class BaseAE(Model):
                 from rapidae.models.base import VanillaEncoder
 
                 layers_conf = [512]
-                encoder = VanillaEncoder(input_dim, latent_dim, layers_conf=layers_conf)
+                self.encoder = VanillaEncoder(
+                    input_dim, latent_dim, layers_conf=layers_conf
+                )
 
             if self.decoder != False:
                 # This means that the model does have a decoder -> try to set it from the child class
@@ -87,7 +93,7 @@ class BaseAE(Model):
                     from rapidae.models.base import VanillaDecoder
 
                     layers_conf = [512]
-                    decoder = VanillaDecoder(
+                    self.decoder = VanillaDecoder(
                         input_dim, latent_dim, layers_conf=layers_conf
                     )
         else:

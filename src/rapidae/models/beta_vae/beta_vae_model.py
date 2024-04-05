@@ -25,7 +25,6 @@ class Beta_VAE(BaseAE):
         beta: float = 1.0,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
         **kwargs,
     ):
         BaseAE.__init__(
@@ -34,7 +33,6 @@ class Beta_VAE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
-            layers_conf=layers_conf,
             **kwargs,
         )
 

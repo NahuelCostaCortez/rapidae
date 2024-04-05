@@ -27,7 +27,7 @@ class TrainingPipeline(BasePipeline):
         batch_size (int): Batch size for training.
         num_epochs (int): Number of training epochs.
         callbacks (list, optional): List of Keras callbacks. If None, EarlyStopping and ModelCheckpoint are created. Defaults to None.
-        save_model (bool, optional): Flag to save the trained model. Defaults to True.
+        save_model (bool, optional): Flag to save the trained model. Defaults to True. Otherwise, the output directory is removed.
         run_eagerly (bool, optional): Flag to run the model eagerly. Defaults to False.
         verbose (int, optional): Verbosity mode. 0 will show no output, 1 will show a progress bar, and 2 will just mention the number of epoch. Defaults to 2.
     """
@@ -93,7 +93,11 @@ class TrainingPipeline(BasePipeline):
                 # check if callback has attribute path
                 if hasattr(callback, "path"):
                     # set the path to the output_dir
+                    self.logger.log_info("Setting path to output_dir")
                     callback.path = os.path.join(self.output_dir, callback.path)
+                    # create path if it does not exist
+                    if not os.path.exists(callback.path):
+                        os.makedirs(callback.path)
 
         # Check if validation data is provided
         monitor = "val_loss" if x_eval is not None else "loss"
@@ -136,7 +140,7 @@ class TrainingPipeline(BasePipeline):
             y_eval (ArrayLike, optional): Validation target data. Defaults to None.
 
         Returns:
-            BaseAE (keras.Model): Trained autoencoder model.
+            BaseAE (keras.Model): Trained model.
         """
 
         # ------------ Create output directory ------------
@@ -150,7 +154,7 @@ class TrainingPipeline(BasePipeline):
         self.logger.log_info("+++ {} +++".format(self.name))
         self.logger.log_info("Creating folder in {}".format(folder_path))
 
-        # check if folder exists
+        # if folder does not exist create it
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         self.output_dir = str(folder_path)

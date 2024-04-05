@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.callbacks import Callback, LambdaCallback
 from rapidae.evaluate import utils
+from rapidae.conf import Logger
 
 
 class TrainingTime(Callback):
@@ -18,8 +19,9 @@ class TrainingTime(Callback):
     def on_train_end(self, logs=None):
         end_time = time.time()
         training_time = end_time - self.start_time
-        # give in hh:mm:ss format
-        print("Training time:", time.strftime("%H:%M:%S", time.gmtime(training_time)))
+        Logger().log_info(
+            "Training time: " + time.strftime("%H:%M:%S", time.gmtime(training_time))
+        )
 
 
 class save_visualizations(Callback):
@@ -133,6 +135,12 @@ class LRFinder:
         self.losses = []
         self.lrs = []
         self.best_loss = 1e9
+        try:
+            self.model.optimizer
+        except AttributeError:
+            from keras.optimizers import Adam
+
+            self.model.compile(optimizer=Adam())
 
     def on_batch_end(self, batch, logs):
         """
@@ -187,10 +195,11 @@ class LRFinder:
             float(1) / float(num_batches)
         )
         # Save weights into a file
-        initial_weights = self.model.get_weights()
+        # initial_weights = self.model.get_weights()
+        # print("The weights are: ", initial_weights)
 
         # Remember the original learning rate
-        original_lr = self.model.optimizer.learning_rate.value.numpy()
+        # original_lr = self.model.optimizer.learning_rate.value.numpy()
 
         # Set the initial learning rate
         self.model.optimizer.learning_rate.assign(start_lr)
@@ -209,10 +218,10 @@ class LRFinder:
         )
 
         # Restore the weights to the state before model fitting
-        self.model.set_weights(initial_weights)
+        # self.model.set_weights(initial_weights)
 
         # Restore the original learning rate
-        self.model.optimizer.learning_rate.assign(original_lr)
+        # self.model.optimizer.learning_rate.assign(original_lr)
 
     def find_generator(
         self, generator, start_lr, end_lr, epochs=1, steps_per_epoch=None, **kw_fit
@@ -323,7 +332,7 @@ class LRFinder:
             derivatives.append((self.losses[i] - self.losses[i - sma]) / sma)
         return derivatives
 
-    def get_best_lr(self, sma, n_skip_beginning=10, n_skip_end=5):
+    def get_best_lr(self, sma=1, n_skip_beginning=1, n_skip_end=1):
         """
         Returns the learning rate with the smallest derivative value within a given range.
 

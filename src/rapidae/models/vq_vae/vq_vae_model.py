@@ -26,7 +26,6 @@ class VQ_VAE(BaseAE):
         num_embeddings: int = 128,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
         **kwargs,
     ):
         BaseAE.__init__(
@@ -35,7 +34,6 @@ class VQ_VAE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
-            layers_conf=layers_conf,
             **kwargs,
         )
 

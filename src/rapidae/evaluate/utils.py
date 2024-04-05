@@ -49,6 +49,7 @@ def plot_latent_space(
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     if save:
+        Logger().log_info("Saving latent space plot...")
         plt.savefig(path)
     if plot:
         plt.show()
@@ -112,6 +113,7 @@ def plot_reconstructions(
         ax.get_yaxis().set_visible(False)
 
     if save:
+        Logger().log_info("Saving reconstructions plot...")
         plt.savefig(path)
     if plot:
         plt.show()

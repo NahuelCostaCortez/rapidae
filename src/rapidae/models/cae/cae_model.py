@@ -23,7 +23,6 @@ class CAE(BaseAE):
         latent_dim: int = 2,
         encoder: callable = None,
         decoder: callable = None,
-        layers_conf: list = None,
         lambda_=1e-4,
         **kwargs,
     ):
@@ -33,7 +32,6 @@ class CAE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
-            layers_conf=layers_conf,
             **kwargs,
         )
 
