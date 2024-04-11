@@ -2,6 +2,7 @@ from typing import Tuple, Union
 
 from keras import metrics, ops, losses
 from rapidae.models.base import BaseAE
+from rapidae.models.base import BaseClassifier
 from rapidae.models.distributions import Normal
 
 
@@ -14,6 +15,9 @@ class RVAE(BaseAE):
         latent_dim (int): Dimension of the latent space.
         encoder (BaseEncoder): An instance of BaseEncoder.
         decoder (BaseDecoder): An instance of BaseDecoder.
+        n_classes (int): Number of classes.
+        weight_ae (float): Weight of the autoencoder loss.
+        weight_clf (float): Weight of the classifier loss.
     """
 
     def __init__(
@@ -22,25 +26,46 @@ class RVAE(BaseAE):
         latent_dim: int = 2,
         encoder: callable = None,
         decoder: callable = None,
+        n_classes: int = 6,
+        weight_ae: float = 10,  # 0.25,
+        weight_clf: float = 1,  # 20.0,
     ):
         # Initialize base class
         BaseAE.__init__(self, input_dim, latent_dim, encoder, decoder)
 
-        # Initialize sampling distribution
+        # Initialize classifier
+        self.classifier = BaseClassifier(n_classes=n_classes)
+
+        # Initialize distribution
         self.sampling = Normal()
+
+        # Initialize weights
+        self.weight_ae = weight_ae
+        self.weight_clf = weight_clf
 
         # Initialize metrics
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
         self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
+        self.clf_loss_tracker = metrics.Mean(name="clf_loss")
 
-    # keras model call function
     def call(self, x):
+        # encoder
         z_mean, z_log_var = self.encoder(x)
         z_std = ops.exp(0.5 * z_log_var)
+        # sampling
         z = self.sampling([z_mean, z_std])
+        # classifier
+        y_pred = self.classifier(z)
+        # decoder
         x_recon = self.decoder(z)
 
-        return {"z": z, "z_mean": z_mean, "z_log_var": z_log_var, "x_recon": x_recon}
+        return {
+            "z": z,
+            "z_mean": z_mean,
+            "z_log_var": z_log_var,
+            "x_recon": x_recon,
+            "clf": y_pred,
+        }
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         # KL loss
@@ -54,10 +79,13 @@ class RVAE(BaseAE):
         self.kl_loss_tracker.update_state(kl_loss)
 
         # Reconstruction loss
-        recon_loss = losses.mean_squared_error(x, y_pred["x_recon"])
-        recon_loss = ops.mean(recon_loss)
+        recon_loss = ops.mean(ops.sum(losses.mean_squared_error(x, y_pred["x_recon"])))
         self.reconstruction_loss_tracker.update_state(recon_loss)
 
         loss = kl_loss + recon_loss
 
-        return loss
+        # Classifier loss
+        clf_loss = ops.mean(losses.sparse_categorical_crossentropy(y, y_pred["y_pred"]))
+        self.clf_loss_tracker.update_state(clf_loss)
+
+        return self.weight_ae * loss + self.weight_clf * clf_loss

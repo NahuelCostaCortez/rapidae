@@ -71,24 +71,6 @@ def load_AtrialFibrillation(persistant=False):
         persistant=persistant,
     )
 
-    # Get the data
-    x_train = data["input_train"]
-    x_val = data["input_vali"]
-    x_test = data["input_test"]
-
-    y_train = data["target_train"]
-    y_val = data["target_vali"]
-    y_test = data["target_test"]
-
-    # Create a dictionary to store the data in rapidae format
-    data = {}
-    data["x_train"] = x_train
-    data["x_val"] = x_val
-    data["x_test"] = x_test
-    data["y_train"] = y_train
-    data["y_val"] = y_val
-    data["y_test"] = y_test
-
     return data
 
 
@@ -236,6 +218,7 @@ def load_dataset(dataset, subset="FD004", persistant=False):
     Args:
         dataset (str): Name of the dataset to be loaded.
                     If False, returns the raw data.
+                    Supported datasets are: MNIST, AtrialFibrillation, CMAPSS, SineWave.
         persistant (bool): If True, keeps the downloaded dataset files.
                            If False, deletes the dataset files after loading.
                            Default is False.

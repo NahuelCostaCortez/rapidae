@@ -29,7 +29,7 @@ class VAE(BaseAE):
         decoder: callable = None,
         **kwargs,
     ):
-
+        # Initialize base class
         BaseAE.__init__(
             self,
             input_dim,
@@ -38,8 +38,11 @@ class VAE(BaseAE):
             decoder=decoder,
         )
 
+        self.downstream_task = downstream_task
         self.exclude_decoder = exclude_decoder
+        self.sampling = Normal()
 
+        # Check whether a downstream task has been selected
         if self.downstream_task is not None:
             self.downstream_task = downstream_task.lower()
 
@@ -78,8 +81,8 @@ class VAE(BaseAE):
     # keras model call function
     def call(self, x):
         z_mean, z_log_var = self.encoder(x)
-        q = Normal(z_mean, ops.exp(0.5 * z_log_var))
-        z = q.sample()
+        z_std = ops.exp(0.5 * z_log_var)
+        z = self.sampling([z_mean, z_std])
         outputs = {}
         outputs["z"] = z
         outputs["z_mean"] = z_mean
@@ -130,7 +133,7 @@ class VAE(BaseAE):
             # the vae is the sum of the kl divergence plus the reconstruction error
             loss = kl_loss + recon_loss
 
-        if self.downstream_task == "classification":
+        elif self.downstream_task == "classification":
             if not self.exclude_decoder:
                 loss = (
                     self.weight_vae * (kl_loss + recon_loss)
@@ -139,7 +142,7 @@ class VAE(BaseAE):
             else:
                 loss = self.weight_vae * kl_loss + self.weight_clf * clf_loss
 
-        if self.downstream_task == "regression":
+        elif self.downstream_task == "regression":
             if not self.exclude_decoder:
                 loss = kl_loss + recon_loss + reg_loss
             else:

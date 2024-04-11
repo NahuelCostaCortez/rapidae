@@ -127,8 +127,8 @@ class TrainingPipeline(BasePipeline):
         self,
         x,
         y=None,
-        x_eval=None,
-        y_eval=None,
+        x_val=None,
+        y_val=None,
     ):
         """
         Launches the training pipeline.
@@ -161,7 +161,7 @@ class TrainingPipeline(BasePipeline):
         # ------------------------------------------------
 
         # --------------- Handle callbacks ---------------
-        self.handle_callbacks(x_eval)
+        self.handle_callbacks(x_val)
         # ------------------------------------------------
 
         # ----------------- Compile model ----------------
@@ -174,7 +174,7 @@ class TrainingPipeline(BasePipeline):
         self.model.compile(optimizer=optimizer, run_eagerly=self.run_eagerly)
         # ------------------------------------------------
         validation_data = (
-            (x_eval, y_eval) if x_eval is not None and y_eval is not None else None
+            (x_val, y_val) if x_val is not None and y_val is not None else None
         )
         self.logger.log_info(
             "\nTRAINING STARTED\n\tBackend: {}\n\tEager mode: {}\n\tValidation data available: {}\n\tCallbacks set: {} \n".format(

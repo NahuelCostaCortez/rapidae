@@ -114,7 +114,7 @@ class VAE_Encoder_MLP(BaseEncoder):
         layers_idx (list): List of layer indices.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
+    def __init__(self, input_dim, latent_dim, layers_conf=[64]):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
 

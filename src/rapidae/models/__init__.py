@@ -15,6 +15,7 @@ from .vae import VAE
 from .vq_vae import VQ_VAE, VectorQuantizer
 from .utils import *
 from .callbacks import *
+from .distributions import *
 
 
 __all__ = [
