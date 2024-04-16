@@ -19,10 +19,9 @@ class Decoder(BaseDecoder):
         conv2d_transpose_recons (tf.keras.layers.Conv2DTranspose): Transposed convolutional layer for reconstruction.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf=[64,32], **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
-
         self.layers_idx = [i for i in range(len(layers_conf))]
 
         for depth, idx in zip(self.layers_conf, self.layers_idx):

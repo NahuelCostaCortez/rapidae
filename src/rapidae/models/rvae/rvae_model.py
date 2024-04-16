@@ -27,8 +27,8 @@ class RVAE(BaseAE):
         encoder: callable = None,
         decoder: callable = None,
         n_classes: int = 6,
-        weight_ae: float = 10,  # 0.25,
-        weight_clf: float = 1,  # 20.0,
+        weight_ae: float = 1,  # 0.25,
+        weight_clf: float = 60,  # 20.0,
     ):
         # Initialize base class
         BaseAE.__init__(self, input_dim, latent_dim, encoder, decoder)
@@ -85,7 +85,7 @@ class RVAE(BaseAE):
         loss = kl_loss + recon_loss
 
         # Classifier loss
-        clf_loss = ops.mean(losses.sparse_categorical_crossentropy(y, y_pred["y_pred"]))
+        clf_loss = self.weight_clf * ops.mean(losses.sparse_categorical_crossentropy(y, y_pred["clf"]))
         self.clf_loss_tracker.update_state(clf_loss)
 
-        return self.weight_ae * loss + self.weight_clf * clf_loss
+        return loss + clf_loss

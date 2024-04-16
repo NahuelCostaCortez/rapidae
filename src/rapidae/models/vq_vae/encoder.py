@@ -19,7 +19,7 @@ class Encoder(BaseEncoder):
         encoder_outputs (tf.keras.layers.Conv2D): Convolutional layer for encoder outputs.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf=[32,64], **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
         self.layers_idx = [i for i in range(len(layers_conf))]

@@ -25,27 +25,13 @@ def load_SineWave(persistant=False):
         data (dict): Dictionary containing the data.
     """
     # Load the data
-    data_dir = os.path.join("..", "datasets", "SineWave")
+    data_dir = os.path.join(".", "datasets", "SineWave")
     data = utils.get_data_from_url(
         url="https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/SineWave/sine_wave.npy",
         filename="sine_wave.npy",
         data_dir=data_dir,
         persistant=persistant,
     )
-
-    # Get the data
-    x_train = data["input_train"]
-    x_test = data["input_test"]
-
-    y_train = data["target_train"]
-    y_test = data["target_test"]
-
-    # Create a dictionary to store the data in rapidae format
-    data = {}
-    data["x_train"] = x_train
-    data["x_test"] = x_test
-    data["y_train"] = y_train
-    data["y_test"] = y_test
 
     return data
 
@@ -63,7 +49,7 @@ def load_AtrialFibrillation(persistant=False):
         data (dict): Dictionary containing the data.
     """
     # Load the data
-    data_dir = os.path.join("..", "datasets", "AtrialFibrilation")
+    data_dir = os.path.join(".", "datasets", "AtrialFibrilation")
     data = utils.get_data_from_url(
         url="https://raw.githubusercontent.com/NahuelCostaCortez/datasets/main/AtrialFibrillation/arrhythmia_data.npy",
         filename="arrhythmia_data.npy",
@@ -94,7 +80,7 @@ def load_MNIST(persistant=False):
         "t10k-images-idx3-ubyte.gz",
         "t10k-labels-idx1-ubyte.gz",
     ]
-    data_dir = os.path.join("..", "datasets", "MNIST")
+    data_dir = os.path.join(".", "datasets", "MNIST")
 
     train_img_path = os.path.join(data_dir, filenames[0])
     train_lbl_path = os.path.join(data_dir, filenames[1])
@@ -124,6 +110,9 @@ def load_MNIST(persistant=False):
     if not persistant:
         Logger().log_info("Deleting MNIST data...")
         rmtree(data_dir)
+        # check if datasets folder is empty
+        if not os.listdir("./datasets"):
+            os.rmdir("./datasets")
 
     data = {}
     data["x_train"] = x_train
@@ -179,7 +168,7 @@ def load_CMAPSS(subset="FD001", persistant=False):
         "RUL_" + subset + ".txt",
         "test_" + subset + ".txt",
     ]
-    data_dir = os.path.join("..", "datasets", "CMAPSS")
+    data_dir = os.path.join(".", "datasets", "CMAPSS")
 
     # columns
     index_names = ["unit_nr", "time_cycles"]
@@ -241,17 +230,16 @@ def list_datasets():
 
     # Import the module
     current_module = sys.modules[__name__]
-
     # Get all functions in the module
     functions = inspect.getmembers(current_module, inspect.isfunction)
-
     # Filter functions that start with 'load_'
     load_functions = [func for func in functions if func[0].startswith("load_")]
-
     # Return the names of the functions in a list
     dataset_names = [func[0].split("_")[1] for func in load_functions]
-    # exclude the load_dataset function
+    # Exclude the load_dataset function
     dataset_names.remove("dataset")
-    # remove duplicates
+    # Remove duplicates
     dataset_names = list(set(dataset_names))
+    # Order alphabetically
+    dataset_names.sort()
     return dataset_names

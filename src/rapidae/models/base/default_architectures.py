@@ -21,7 +21,7 @@ class VanillaEncoder(BaseEncoder):
         enc_layer (Dense): Dense layer.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
+    def __init__(self, input_dim, latent_dim, layers_conf=[512]):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
 
         self.layers_dict = {}
@@ -66,7 +66,7 @@ class VanillaDecoder(BaseDecoder):
         dense_recons (Dense): Dense layer in the decoder for reconstruction.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
+    def __init__(self, input_dim, latent_dim, layers_conf=[512]):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
 
         self.layers_dict = {}
@@ -162,7 +162,7 @@ class VAE_Decoder_MLP(BaseDecoder):
         dense_recons (Dense): Dense layer for reconstruction.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
+    def __init__(self, input_dim, latent_dim, layers_conf=[64]):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
         self.layers_dict = {}
 
@@ -203,24 +203,12 @@ class VAE_Encoder_Conv_MNIST(BaseEncoder):
     Args:
         input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): List of integers specifying the number of filters in each convolutional layer.
-
-    Attributes:
-        layers_dict (dict): Dictionary containing the convolutional layers of the encoder.
-        layers_idx (list): List of layer indices.
-        flatten (Flatten): Flatten layer.
-        dense (Dense): Dense layer.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
-        BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.layers_dict = {}
-        self.layers_idx = [i for i in range(len(layers_conf))]
-
-        for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict["conv2d_" + str(idx)] = layers.Conv2D(
-                depth, 3, activation="relu", strides=2, padding="same"
-            )
+    def __init__(self, input_dim, latent_dim):
+        BaseEncoder.__init__(self, input_dim, latent_dim)
+        self.conv1 = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")
+        self.conv2 = layers.Conv2D(64, 3, activation="relu", strides=2, padding="same")
         self.flatten = layers.Flatten()
         self.dense = layers.Dense(16, activation="relu")
         self.z_mean = layers.Dense(self.latent_dim, name="z_mean")
@@ -236,8 +224,8 @@ class VAE_Encoder_Conv_MNIST(BaseEncoder):
         Returns:
             z_mean (Tensor), log_var (Tensor): Tuple containing the mean and log variance of the latent space.
         """
-        for _, layer in self.layers_dict.items():
-            x = layer(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
         x = self.flatten(x)
         x = self.dense(x)
         z_mean = self.z_mean(x)
@@ -253,32 +241,15 @@ class VAE_Decoder_Conv_MNIST(BaseDecoder):
     Args:
         input_dim (tuple): Dimensions of the input data (height, width, channels).
         latent_dim (int): Dimensionality of the latent space.
-        layers_conf (list): List of integers specifying the number of filters in each transposed convolutional layer.
-
-    Attributes:
-        dense (Dense): Dense layer.
-        reshape (Reshape): Reshape layer to convert flattened input to 4D tensor.
-        layers_dict (dict): Dictionary containing the transposed convolutional layers of the decoder.
-        layers_idx (list): List of layer indices.
-        conv2d_transpose_recons (Conv2DTranspose): Transposed convolutional layer for reconstruction.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf):
-        BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
+    def __init__(self, input_dim, latent_dim):
+        BaseDecoder.__init__(self, input_dim, latent_dim)
         self.dense = layers.Dense(7 * 7 * 64, activation="relu")
         self.reshape = layers.Reshape((7, 7, 64))
-        self.layers_dict = {}
-
-        self.layers_idx = [i for i in range(len(layers_conf))]
-
-        for depth, idx in zip(self.layers_conf, self.layers_idx):
-            self.layers_dict["conv2d_" + str(idx)] = layers.Conv2DTranspose(
-                depth, 3, activation="relu", strides=2, padding="same"
-            )
-
-        self.conv2d_transpose_recons = layers.Conv2DTranspose(
-            1, 3, activation="sigmoid", padding="same"
-        )
+        self.conv1 = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")
+        self.conv2 = layers.Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")
+        self.conv3 = layers.Conv2DTranspose(1, 3, activation="sigmoid", padding="same")
 
     def call(self, z):
         """
@@ -292,9 +263,9 @@ class VAE_Decoder_Conv_MNIST(BaseDecoder):
         """
         x = self.dense(z)
         x = self.reshape(x)
-        for _, layer in self.layers_dict.items():
-            x = layer(x)
-        x = self.conv2d_transpose_recons(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
 
         return x
 
@@ -399,11 +370,8 @@ class SparseEncoder(BaseEncoder):
         encoder_outputs (Dense): Dense layer with sparsity regularization.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf=[512], **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.input_dim = input_dim
-        self.latent_dim = latent_dim
-        self.layers_conf = layers_conf
         self.beta = kwargs["beta"] if "beta" in kwargs else 3
         self.p = kwargs["p"] if "p" in kwargs else 0.01
         self.layers_dict = {}
@@ -452,11 +420,8 @@ class SparseDecoder(BaseDecoder):
         dense_recons (Dense): Dense layer for reconstruction.
     """
 
-    def __init__(self, input_dim, latent_dim, layers_conf, **kwargs):
+    def __init__(self, input_dim, latent_dim, layers_conf=[512], **kwargs):
         BaseDecoder.__init__(self, input_dim, latent_dim, layers_conf)
-        self.input_dim = input_dim
-        self.latent_dim = latent_dim
-        self.layers_conf = layers_conf
         self.layers_dict = {}
 
         self.layers_idx = [i for i in range(len(layers_conf))]

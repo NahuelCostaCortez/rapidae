@@ -60,7 +60,7 @@ class VQ_VAE(BaseAE):
         return {
             "quantized_latents": quantized_latents,
             "vq_loss": vq_loss,
-            "recon": x_recon,
+            "x_recon": x_recon,
         }
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):

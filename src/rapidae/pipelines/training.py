@@ -145,8 +145,8 @@ class TrainingPipeline(BasePipeline):
 
         # ------------ Create output directory ------------
         if self.output_dir == "output_dir":
-            # create a dir self.output_dir/training_YYY-MM-DD_HH-MM-SS
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            # create a dir self.output_dir/training_YYY-MM-DD_HH-MM
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
             folder_path = os.path.join(".", self.output_dir, f"{self.name}_{timestamp}")
         else:
             folder_path = self.output_dir

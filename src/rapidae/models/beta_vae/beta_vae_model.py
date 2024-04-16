@@ -22,10 +22,10 @@ class Beta_VAE(BaseAE):
         self,
         input_dim: Union[Tuple[int, ...], None] = None,
         latent_dim: int = 2,
-        beta: float = 1.0,
         encoder: callable = None,
         decoder: callable = None,
-        **kwargs,
+        beta: float = 1.0,
+        recon_loss_fn: str = None,
     ):
         BaseAE.__init__(
             self,
@@ -33,7 +33,6 @@ class Beta_VAE(BaseAE):
             latent_dim,
             encoder=encoder,
             decoder=decoder,
-            **kwargs,
         )
 
         if beta < 0.0:
@@ -43,14 +42,27 @@ class Beta_VAE(BaseAE):
         else:
             self.beta = beta
 
+        self.sampling = Normal()
+        self.recon_loss_fn = recon_loss_fn
+        self.check_recon_loss()
+
         # Training metrics trackers
         self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
 
+    def check_recon_loss(self):
+        if self.recon_loss_fn == "mse" or len(self.input_dim)==2:
+            self.recon_loss_fn = losses.mean_squared_error
+        elif self.recon_loss_fn == "bce" or len(self.input_dim)==3:
+            self.recon_loss_fn = losses.binary_crossentropy
+        else:
+            self.recon_loss_fn = losses.mean_squared_error
+        self.logger.log_info("Using " + str(self.recon_loss_fn.__name__) + " as the reconstruction loss function")
+
     def call(self, x):
         z_mean, z_log_var = self.encoder(x)
-        q = Normal(z_mean, ops.exp(0.5 * z_log_var))
-        z = q.sample()
+        z_std = ops.exp(0.5 * z_log_var)
+        z = self.sampling([z_mean, z_std])
         x_recon = self.decoder(z)
 
         return {"z": z, "z_mean": z_mean, "z_log_var": z_log_var, "x_recon": x_recon}
@@ -67,8 +79,9 @@ class Beta_VAE(BaseAE):
         self.kl_loss_tracker.update_state(kl_loss)
 
         # Reconstruction loss
+        recon_loss = self.recon_loss_fn(x, y_pred["x_recon"])
         recon_loss = ops.mean(
-            ops.sum(losses.binary_crossentropy(x, y_pred["x_recon"], axis=(1, 2)))
+            ops.sum(recon_loss, axis=tuple(range(1, recon_loss.ndim))) # (1,2) in case of images, 1 in case of time_series
         )
         self.reconstruction_loss_tracker.update_state(recon_loss)
 

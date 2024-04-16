@@ -137,7 +137,8 @@ def gen_test_data(df, sequence_length, columns, mask_value):
             shape=(sequence_length, len(columns)), fill_value=mask_value
         )  # pad
         idx = data_matrix.shape[0] - df.shape[0]
-        data_matrix[idx:, :] = df[columns].values  # fill with available data
+        #data_matrix[idx:, :] = df[columns].values  # fill with available data
+        data_matrix[0:sequence_length-idx, :] = df[columns].values  # fill with available data
     else:
         data_matrix = df[columns].values
 

@@ -40,6 +40,9 @@ def get_data_from_url(url, filename, data_dir, persistant=False):
     if not persistant:
         Logger().log_info("Deleting data...")
         rmtree(data_dir)
+        # check if datasets folder is empty
+        if not os.listdir("./datasets"):
+            os.rmdir("./datasets")
 
     return data
 
