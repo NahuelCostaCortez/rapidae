@@ -69,7 +69,7 @@ class BaseAE(Model):
             except AttributeError:
                 if Encoder is not None:
                     self.logger.log_warning(
-                        f"{parent_class} does not have a decoder."
+                        f"{parent_class} does not have a decoder"
                     )
                     self.decoder = False
                 else:
@@ -77,7 +77,7 @@ class BaseAE(Model):
 
             if Encoder is not None:
                 self.encoder = Encoder(self.input_dim, self.latent_dim)
-                self.logger.log_info(f"Encoder set from {parent_class}.")
+                self.logger.log_info(f"Encoder set from {parent_class}")
             else:
                 # This means that the child class does not have an encoder -> use default encoder
                 self.logger.log_warning(
@@ -94,7 +94,7 @@ class BaseAE(Model):
                 # This means that the model does have a decoder -> try to set it from the child class
                 if Decoder is not None:
                     self.decoder = Decoder(self.input_dim, self.latent_dim)
-                    self.logger.log_info(f"Decoder set from {parent_class}.")
+                    self.logger.log_info(f"Decoder set from {parent_class}")
                 else:
                     # This means that the child class does not have a decoder -> use default decoder
                     self.logger.log_warning(
