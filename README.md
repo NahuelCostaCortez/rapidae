@@ -10,7 +10,7 @@
 
 Rapidae is a Python library specialized in simplifying the creation and experimentation of autoencoder models. With a focus on ease of use, this library allows users to explore and develop autoencoder models in an efficient and straightforward manner.
 
-I decided to develop this library to optimize my research workflow and provide a comprehensive resource for educators and learners exploring autoencoder models.
+I decided to develop this library to optimize my research workflow and provide a comprehensive resource for educators and learners exploring autoencoders.
 
 As a researcher, I often found myself spending time on repetitive tasks, such as creating project structures or replicating baseline models. (I've lost count of how many times I've gone through the Keras VAE tutorial just to copy the model as a baseline for other experiments.)
 
@@ -19,10 +19,10 @@ As an educator, despite recognizing numerous fantastic online resources, I felt 
 In summary, this library is designed to be simple enough for educational purposes, yet robust for researchers to concentrate on developing their models and conducting benchmark experiments in a unified environment.
 
 >[!NOTE]
->Shout out to [Pythae](https://github.com/clementchadebec/benchmark_VAE/tree/main), which provides an excellent library for experimenting with VAEs . If you're looking for a quick way to implement an autoencoder for image applications, Pythae is probably your best option. Rapidae differs from Pythae in the following ways:
+>Shout out to [Pythae](https://github.com/clementchadebec/benchmark_VAE/tree/main), which provides an excellent library for experimenting with VAEs . If you're looking for a quick way to implement autoencoders for image applications, Pythae is probably your best option. Rapidae differs from Pythae in the following ways:
 >- It is built on Keras 3, allowing you to experiment with and provide your implementations in either PyTorch, TensorFlow, or JAX.
 >- The image models implemented in Rapidae are primarily designed for educational purposes.
->- Rapidae is intended to serve as a benchmarking library for models implemented in the sequential/time-series domain, as these are widely dispersed across various fields."
+>- Rapidae is intended to serve as a benchmarking library for models implemented in the sequential/time-series domain, as these are widely dispersed across various fields.
 
 🚨**Call for contributions**🚨
 
@@ -38,10 +38,10 @@ If you want to add your model to the package or collaborate in the package devel
 - [Switching backends](#switching-backends)
 - [Experiment tracking with wandb](#experiment-tracking-with-wandb)
 - [Documentation](https://rapidae.readthedocs.io/en/latest/)
-- [Citing this repository](#citing-this-repository)
+- [Citing this repository](#citation)
 
 
-## Main features ⚙️
+## Main features
 
 - **Ease of Use:** Rapidae has been designed to make the process of creating and experimenting with autoencoders as simple as possible, users can create and train autoencoder models with just a few lines of code.
 
@@ -51,7 +51,8 @@ If you want to add your model to the package or collaborate in the package devel
 
 - **Experimentation:** Conduct experiments with different hyperparameters and configurations to optimize the performance of your models.
 
-## Overview 📦	
+
+## Overview
 
 Rapidae is structured as follows:
 
@@ -64,11 +65,11 @@ Rapidae is structured as follows:
 - **evaluate:** Its main functionality is the evaluation of model performance. It also includes a tool utils for various tasks: latent space visualization, reconstructions, evaluation, etc.
  
 
-## Installation ⚙️
+## Installation
 
-The library has been tested with Python versions <3.12, >=3.10, therefore we recommend first creating a **virtual environment** with a suitable python version. Here´s an example with conda:
+The library has been tested with Python versions >=3.10, <3.12, therefore we recommend first creating a **virtual environment** with a suitable python version. Here´s an example with conda:
 
-```conda create -n rapidae python=3.10.13```
+```conda create -n rapidae python=3.10```
 
 Then, just activate the environment with ```conda activate rapidae``` and install the library.
 
@@ -106,7 +107,7 @@ Then you only have to install the requirements:
 pip install -r requirements.txt
 ```
 
-## Available Models 🚀
+## Available Models
 
 Below is the list of the models currently implemented in the library.
 
@@ -119,18 +120,20 @@ Below is the list of the models currently implemented in the library.
 | Variational Autoencoder (VAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb) | [link](https://arxiv.org/abs/1312.6114)                                             | [link](https://keras.io/examples/generative/vae/)
 | Beta Variational Autoencoder (BetaVAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/beta_vae.ipynb)| [link](https://openreview.net/pdf?id=Sy2fzU9gl)                                             | 
 | Vector Quantised-Variational AutoEncoder (VQ-VAE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/vae.ipynb) | [link](https://proceedings.neurips.cc/paper_files/paper/2017/file/7a98af17e63a0ac09ce2e96d03992fbc-Paper.pdf)                                             | [link](https://keras.io/examples/generative/vq_vae/)
-| Recurrent Variational Encoder (RVE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/RVE_RUL.ipynb) | [link](https://www.sciencedirect.com/science/article/pii/S0951832022000321)                                             | [link](https://github.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational)
+| 
+Recurrent Variational AutoEncoder (RVAE)                 | SOON | [link](https://ieeexplore.ieee.org/document/9373315)                                             | [link](https://github.com/NahuelCostaCortez/RVAE)
+Recurrent Variational Encoder (RVE)                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NahuelCostaCortez/rapidae/blob/main/examples/RVE_RUL.ipynb) | [link](https://www.sciencedirect.com/science/article/pii/S0951832022000321)                                             | [link](https://github.com/NahuelCostaCortez/Remaining-Useful-Life-Estimation-Variational)
 | ICFormer                 | SOON | [link](https://www.sciencedirect.com/science/article/pii/S0378775323012867)                                             | [link](https://github.com/NahuelCostaCortez/ICFormer)
 | Hierarchical Variational Autoencoder (HVAE)                 | SOON | [link](https://arxiv.org/abs/1905.06845)                                             | [link](https://github.com/fhkingma/bitswap)
 | interval-valued Variational Autoencoder (iVAE)                 | IN PROGRESS |                                             | 
 
 
-## Usage 🫳🏻
+## Usage
 [Here](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/QUICKSTART_tutorial.ipynb) you have a simple tutorial with the most relevant aspects of the library. In addition, in the [examples folder](https://github.com/NahuelCostaCortez/rapidae/tree/main/examples), you will find a series of notebooks for each model and with particular use cases.
 
 You can also use a web interface made with Streamlit where you can load datasets, configure models and hypeparameters, train, and evaluate the results. Check the [web interface](https://github.com/NahuelCostaCortez/rapidae/blob/main/examples/web_interface.ipynb) notebook.
 
-## Custom models and loss functions 🖌️
+## Custom models and loss functions
 You can provide your own autoencoder architecture. Here´s an example for defining a custom encoder and a custom decoder:
 
 ```
@@ -175,6 +178,7 @@ from keras.losses import mean_squared_error
 
 class CustomModel(BaseAE):
     def __init__(self, input_dim, latent_dim, encoder, decoder):
+        # If you are adding your model to the source code there is no need to specify the encoder and decoder, just place them in the same directory as the model and the BaseAE constructor will initialize them
         BaseAE.__init__(
             self,
             input_dim=input_dim,
@@ -204,7 +208,7 @@ class CustomModel(BaseAE):
         return loss
 ```
 
-## Switching backends 💻
+## Switching backends
 Since Rapidae uses Keras 3, you can easily switch among Tensorflow, Pytorch and Jax (Tensorflow is the selected option by default).
 
 You can export the environment variable KERAS_BACKEND or you can edit your local config file at ~/.keras/keras.json to configure your backend. Available backend options are: "jax", "tensorflow", "torch". Example:
@@ -221,7 +225,7 @@ os.environ["KERAS_BACKEND"] = "torch"
 import keras
 ```
 
-## Experiment tracking with wandb 📈
+## Experiment tracking with wandb
 
 If you want to add experiment tracking to rapidae models you can just create a Wandb callback and pass it to the TrainingPipeline as follows (this also applies to other experiment tracking frameworks):
 
@@ -240,18 +244,27 @@ pipeline = TrainingPipeline(name="you_pipeline_name",
                             callbacks=[wandb_cb])
 ```
 
-## Documentation 📚
+## Documentation
 
 Check out the full documentation for detailed information on installation, usage, examples and recipes: 🔗 [Documentation Link](https://rapidae.readthedocs.io/en/latest/)
 
 All documentation source and configuration files are located inside the docs directory.
 
 
-## Dealing with issues 🛠️	
+## Dealing with issues	
 
 If you are experiencing any issues while running the code or request new features/models to be implemented please [open an issue on github](https://github.com/NahuelCostaCortez/rapidae/issues).
 
 
-## Citation ✒️
+## Citation
 
-If you find this work useful or incorporate it into your research, please consider citing it. You will find the citation information in the "Cite this repository" button below the "About" section.
+If you find this work useful or incorporate it into your research, please consider citing it 🙏🏻.
+
+```
+@software{Costa_Rapidae,
+author = {Costa, Nahuel},
+license = {Apache-2.0},
+title = {{Rapidae}},
+url = {https://github.com/NahuelCostaCortez/rapidae}
+}
+```

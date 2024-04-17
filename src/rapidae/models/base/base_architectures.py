@@ -2,7 +2,6 @@
 Base class for defining the encoder and decoder architectures
 """
 
-import keras as keras
 from keras import layers
 
 
@@ -24,7 +23,7 @@ class BaseEncoder(layers.Layer):
         self.latent_dim = latent_dim
         self.layers_conf = layers_conf
 
-    def call(self, x):
+    def call(self, x, **kwargs):
         """
         Forward pass of the base encoder.
 

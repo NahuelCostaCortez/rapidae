@@ -4,3 +4,6 @@ datasets/
 .vscode
 rapidae.log
 dist/
+runs/
+src/rapidae/models/h_vae/*
+project.tldr
