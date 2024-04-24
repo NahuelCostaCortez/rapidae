@@ -22,9 +22,10 @@ class Normal(layers.Layer):
             keras.tensor: Samples generated from the distribution.
         """
         mu, std = inputs
-        batch = ops.shape(mu)[0]
-        dim = ops.shape(std)[1]
-        epsilon = random.normal(shape=(batch, dim), seed=self.seed_generator)
+        #batch = ops.shape(mu)[0]
+        #dim = ops.shape(std)[1]
+        #epsilon = random.normal(shape=(batch, dim), seed=self.seed_generator)
+        epsilon = random.normal(shape=ops.shape(mu), seed=self.seed_generator)
         return mu + std * epsilon
 
     def log_prob(self, inputs):
