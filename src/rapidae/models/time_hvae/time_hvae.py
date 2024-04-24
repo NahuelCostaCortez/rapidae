@@ -6,11 +6,9 @@ from rapidae.models.base import BaseAE
 from rapidae.models.distributions import Normal
 
 
-class TimeVAE(BaseAE):
+class TimeHVAE(BaseAE):
     """
-    A Variational Autoencoder (VAE)  for multivariate time series generation.
-    Contrary to vanilla VAE whose decoder output is the reconstruction of the data, 
-    the decoder outputs the mean and log var of the input data.
+    Hierarchical Variational Autoencoder (VAE) for multivariate time series.
 
     Args:
         input_dim (Union[Tuple[int, ...], None]): Shape of the input data.
@@ -28,21 +26,27 @@ class TimeVAE(BaseAE):
         latent_dim: int = 16,
         encoder: callable = None,
         decoder: callable = None,
+        nz: int = 1,
         beta: float = 3.0,
         min_std: float = 0.25,
     ):
         # Initialize base class
         BaseAE.__init__(self, input_dim, latent_dim, encoder, decoder)
 
+        # level of hierarchy
+        self.nz = nz
+        self.depth = nz - 1  # number of layers in the hierarchy
+
         # Parameters for distribution
         self.beta = beta
         self.min_std = min_std
-        # for encoder
         self.normal = Normal()
 
         # Training metrics trackers
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
-        self.reconstruction_loss_tracker = metrics.Mean(name="reconstruction_loss")
+        self.reconstruction_loss_tracker = metrics.Mean(
+            name="reconstruction_loss"
+        )
 
     def gaussian_likelihood(self, mean, logscale, sample):
         scale = ops.exp(logscale) + self.min_std
@@ -57,45 +61,71 @@ class TimeVAE(BaseAE):
         kl = log_qzx - log_pz
         kl = ops.sum(kl, axis=-1)
         return kl
-    
-    def reconstruct(self, x):
-        outputs = self.call(x)
-        x_mean, x_log_var = outputs["x_mean"], outputs["x_log_var"]
-        x_std = ops.exp(0.5 * x_log_var)
-        return self.normal([x_mean, x_std])
 
     def call(self, x):
-        # ENCODER
-        z_mean, z_log_var = self.encoder(x)
 
-        # sample z from q - encoder
-        z_std = ops.exp(0.5 * z_log_var)  # convert log_var to std
-        z = self.normal([z_mean, z_std])
+        # log_enc = []
+        # log_dec = []
+        kls = []
+        recon_losses = []
 
-        # DECODER
-        x_mean, x_log_var = self.decoder(z)  # mu is used as the reconstruction
+        for i in range(self.nz):
+            # ENCODER
+            # get the parameters of inference distribution i given x q(z_i|x) or z q(z_i|z_{i+1})
+            z_mean, z_log_var = self.encoder(x, lvl=i)
 
+            # sample z from q - encoder
+            z_std = ops.exp(0.5 * z_log_var)  # convert log_var to std
+            z = self.normal([z_mean, z_std])
+
+            # logq - kl
+            logq = self.kl_divergence(z, z_mean, z_std)
+            kls = logq # cambiar cuando nz > 1
+
+            # DECODER
+            # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
+            x_mu, x_log_scale = self.decoder(z, lvl=i)
+
+            # logp - reconstruction loss
+            logp = self.gaussian_likelihood(x_mu, x_log_scale, x)
+            recon_losses = logp # cambiar cuando nz > 1
+
+            # sample from p(x|z) to get x
+            x_recon = self.normal([x_mu, ops.exp(x_log_scale)])
+
+        """
         outputs = {
-            "z": z,
-            "z_mean": z_mean,
-            "z_std": z_std,
-            "x_mean": x_mean,
-            "x_log_var": x_log_var,
+            "z": z_next,
+            "z_mean": mu,
+            "z_std": std,
+            "x_recon": x_recon,
+            "x_log_scale": x_log_scale,
         }
+        """
 
-        return outputs
+        return {"x_recon": x_recon, "kl": kls, "recon_loss": recon_losses}
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        """
         # reconstruction loss
         recon_loss = self.gaussian_likelihood(
-            y_pred["x_mean"], y_pred["x_log_var"], x
+            y_pred["x_recon"], y_pred["x_log_scale"], x
         )
         self.reconstruction_loss_tracker.update_state(recon_loss)
 
-        # kl loss
+        # kl
         kl = self.kl_divergence(y_pred["z"], y_pred["z_mean"], y_pred["z_std"])
+        self.kl_loss_tracker.update_state(kl)
+        """
+        # reconstruction loss
+        recon_loss = y_pred["recon_loss"]
+        self.reconstruction_loss_tracker.update_state(recon_loss)
+
+        # kl
+        kl = y_pred["kl"]
         self.kl_loss_tracker.update_state(kl)
 
         # elbo
         elbo = kl - (self.beta * recon_loss)
+        # elbo = recon_loss - (self.beta * kl)
         return ops.mean(elbo)
