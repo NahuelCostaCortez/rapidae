@@ -75,15 +75,13 @@ class TimeVAE(BaseAE):
         # DECODER
         x_mean, x_log_var = self.decoder(z)  # mu is used as the reconstruction
 
-        outputs = {
+        return {
             "z": z,
             "z_mean": z_mean,
             "z_std": z_std,
             "x_mean": x_mean,
             "x_log_var": x_log_var,
         }
-
-        return outputs
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         # reconstruction loss

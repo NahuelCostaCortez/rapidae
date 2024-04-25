@@ -62,6 +62,12 @@ class TimeHVAE(BaseAE):
         kl = ops.sum(kl, axis=-1)
         return kl
 
+    def reconstruct(self, x):
+        outputs = self.call(x)
+        x_mean, x_log_var = outputs["x_mean"], outputs["x_log_var"]
+        x_std = ops.exp(0.5 * x_log_var)
+        return self.normal([x_mean, x_std])
+
     def call(self, x):
 
         # log_enc = []
@@ -84,26 +90,22 @@ class TimeHVAE(BaseAE):
 
             # DECODER
             # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
-            x_mu, x_log_scale = self.decoder(z, lvl=i)
+            x_mean, x_log_var = self.decoder(z, lvl=i)
 
             # logp - reconstruction loss
-            logp = self.gaussian_likelihood(x_mu, x_log_scale, x)
+            logp = self.gaussian_likelihood(x_mean, x_log_var, x)
             recon_losses = logp # cambiar cuando nz > 1
 
             # sample from p(x|z) to get x
-            x_recon = self.normal([x_mu, ops.exp(x_log_scale)])
+            #x_recon = self.normal([x_mu, ops.exp(x_log_scale)])
 
-        """
-        outputs = {
-            "z": z_next,
-            "z_mean": mu,
-            "z_std": std,
-            "x_recon": x_recon,
-            "x_log_scale": x_log_scale,
+        return {
+            "z": z,
+            "x_mean": x_mean,
+            "x_log_var": x_log_var,
+            "kl": kls, 
+            "recon_loss": recon_losses
         }
-        """
-
-        return {"x_recon": x_recon, "kl": kls, "recon_loss": recon_losses}
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
         """

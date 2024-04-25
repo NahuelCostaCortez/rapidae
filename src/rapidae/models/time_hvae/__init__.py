@@ -1,4 +1,4 @@
-from .time_hvae import TimeHVAE
+from .time_hvae_model import TimeHVAE
 from .encoder import Encoder
 from .decoder import Decoder
 
