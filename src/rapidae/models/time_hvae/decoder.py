@@ -13,7 +13,7 @@ class Decoder(BaseDecoder):
 
         # BOTTOM LATENT LAYER
         self.fc = Dense(embed_dim)
-        self.repeat = RepeatVector(self.seq_len)
+        #self.repeat = RepeatVector(self.seq_len)
         self.rnn1 = Bidirectional(LSTM(self.embed_dim, return_sequences=True))
         self.rnn2 = LSTM(self.hidden_dim, return_sequences=True)
         self.output_layer_mean = Dense(self.feat_dim)
@@ -27,21 +27,21 @@ class Decoder(BaseDecoder):
             # (batch_size, embed_dim)
             x = self.fc(x)
             # (batch_size, seq_len, embed_dim)
-            x = self.repeat(x)
+            #x = self.repeat(x)
             # (batch_size, seq_len, embed_dim)
             x = self.rnn1(x)
             # (batch_size, seq_len, embed_dim)
             x = self.rnn2(x)
             # (batch_size * seq_len, embed_dim)
-            x = reshape(x, (-1, self.hidden_dim))
+            #x = reshape(x, (-1, self.hidden_dim))
             # (batch_size * seq_len, feat_dim)
             x_mean = self.output_layer_mean(x)
             # (batch_size, seq_len, feat_dim)
-            x_mean = reshape(x_mean, (-1, self.seq_len, self.feat_dim))
+            #x_mean = reshape(x_mean, (-1, self.seq_len, self.feat_dim))
             # (batch_size * seq_len, feat_dim)
             x_log_var = self.output_layer_log_var(x)
             # (batch_size, seq_len, feat_dim)
-            x_log_var = reshape(x_log_var, (-1, self.seq_len, self.feat_dim))
+            #x_log_var = reshape(x_log_var, (-1, self.seq_len, self.feat_dim))
         # deeper latent layers
         else:
             lvl -= 1

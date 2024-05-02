@@ -51,7 +51,8 @@ class TimeHVAE(BaseAE):
     def gaussian_likelihood(self, mean, logscale, sample):
         scale = ops.exp(logscale) + self.min_std
         log_pxz = self.normal.log_prob([sample, mean, scale])
-        return ops.sum(log_pxz, axis=(1, 2))
+        #return ops.sum(log_pxz, axis=(1, 2))
+        return ops.sum(log_pxz, axis=-1)
 
     def kl_divergence(self, z, mu, std):
         log_pz = self.normal.log_prob([z, ops.zeros_like(mu), ops.ones_like(std)])
@@ -72,12 +73,13 @@ class TimeHVAE(BaseAE):
 
         # log_enc = []
         # log_dec = []
-        kls = []
-        recon_losses = []
+        kls = [] # (nz, batch_size, seq_len)
+        recon_losses = [] # (nz, batch_size, seq_len)
 
         for i in range(self.nz):
             # ENCODER
             # get the parameters of inference distribution i given x q(z_i|x) or z q(z_i|z_{i+1})
+            # (batch_size, seq_len, latent_dim)
             z_mean, z_log_var = self.encoder(x, lvl=i)
 
             # sample z from q - encoder
@@ -90,11 +92,13 @@ class TimeHVAE(BaseAE):
 
             # DECODER
             # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
+            # (batch_size, seq_len, feat_dim)
             x_mean, x_log_var = self.decoder(z, lvl=i)
 
             # logp - reconstruction loss
             logp = self.gaussian_likelihood(x_mean, x_log_var, x)
             recon_losses = logp # cambiar cuando nz > 1
+            print("shape of recon_losses: ", recon_losses.shape)
 
             # sample from p(x|z) to get x
             #x_recon = self.normal([x_mu, ops.exp(x_log_scale)])

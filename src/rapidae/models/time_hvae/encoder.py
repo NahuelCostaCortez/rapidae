@@ -18,7 +18,7 @@ class Encoder(BaseEncoder):
         self.rnn1 = Bidirectional(
             LSTM(self.hidden_dim, return_sequences=True)
         )  # this returns output, hidden_state_f, cell_state_f, hidden_state_b, cell_state_b
-        self.rnn2 = Bidirectional(LSTM(self.embed_dim, return_state=True))
+        self.rnn2 = Bidirectional(LSTM(self.embed_dim, return_sequences=True)) #return_state=True))
 
         self.fc_mu = Dense(self.latent_dim)
         self.fc_var = Dense(self.latent_dim)
@@ -33,11 +33,12 @@ class Encoder(BaseEncoder):
             x = self.rnn1(x)
             # (batch_size, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim)
             # (batch_size, seq_len, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim), (batch_size, embed_dim) if return_sequences=True
-            _, hidden_state_f, _, _, _ = self.rnn2(x)
+            #_, hidden_state_f, _, _, _ = self.rnn2(x)
+            x = self.rnn2(x)
             # (batch_size, latent_dim)
-            mu = self.fc_mu(hidden_state_f)
+            mu = self.fc_mu(x) #) hidden_state_f)
             # (batch_size, latent_dim)
-            log_var = self.fc_var(hidden_state_f)
+            log_var = self.fc_var(x) #) hidden_state_f)
         # deeper latent layers
         else:
             lvl -= 1
