@@ -20,8 +20,10 @@ class Encoder(BaseEncoder):
         )  # this returns output, hidden_state_f, cell_state_f, hidden_state_b, cell_state_b
         self.rnn2 = Bidirectional(LSTM(self.embed_dim, return_sequences=True)) #return_state=True))
 
-        self.fc_mu = Dense(self.latent_dim)
-        self.fc_var = Dense(self.latent_dim)
+        self.z_mean = Dense(self.latent_dim, name="z_mean")
+        self.z_log_var = Dense(self.latent_dim, name="z_log_var")
+        #self.z_mu = Dense(self.latent_dim, name="z_mu") -> logistica
+        #self.z_std = Dense(self.latent_dim, name="z_std") -> logistica
 
     def call(self, x, **kwargs):
         lvl = kwargs["lvl"] if "lvl" in kwargs else 0
@@ -36,11 +38,14 @@ class Encoder(BaseEncoder):
             #_, hidden_state_f, _, _, _ = self.rnn2(x)
             x = self.rnn2(x)
             # (batch_size, latent_dim)
-            mu = self.fc_mu(x) #) hidden_state_f)
+            z_mean = self.z_mean(x) #) hidden_state_f)
+            #z_mu = self.z_mu -> logistica
             # (batch_size, latent_dim)
-            log_var = self.fc_var(x) #) hidden_state_f)
+            z_log_var = self.z_log_var(x)
+            #z_log_var = self.z_std(x) #) hidden_state_f) -> logistica
         # deeper latent layers
         else:
             lvl -= 1
 
-        return mu, log_var
+        return z_mean, z_log_var
+        #return z_mu, z_log_var -> logistica

@@ -41,6 +41,7 @@ class TimeHVAE(BaseAE):
         self.beta = beta
         self.min_std = min_std
         self.normal = Normal()
+        #self.logistic = Logistic()
 
         # Training metrics trackers
         self.kl_loss_tracker = metrics.Mean(name="kl_loss")
@@ -81,24 +82,30 @@ class TimeHVAE(BaseAE):
             # get the parameters of inference distribution i given x q(z_i|x) or z q(z_i|z_{i+1})
             # (batch_size, seq_len, latent_dim)
             z_mean, z_log_var = self.encoder(x, lvl=i)
+            #z_mu, z_scale = self.encoder(x, lvl=i) -> logistica
 
             # sample z from q - encoder
             z_std = ops.exp(0.5 * z_log_var)  # convert log_var to std
             z = self.normal([z_mean, z_std])
+            #z = self.logistic([z_mu, z_scale]) -> logistica
 
             # logq - kl
             logq = self.kl_divergence(z, z_mean, z_std)
+            #logq = self.logistic.log_prob([z, z_mu, z_scale]) -> logistica
+            #print("Shape of logq: ", logq.shape) -> logistica
             kls = logq # cambiar cuando nz > 1
 
             # DECODER
             # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
             # (batch_size, seq_len, feat_dim)
             x_mean, x_log_var = self.decoder(z, lvl=i)
+            #x_mu, x_scale = self.decoder(z, lvl=i) -> logistica
 
             # logp - reconstruction loss
             logp = self.gaussian_likelihood(x_mean, x_log_var, x)
+            #logp = self.logistic.log_prob([x, x_mu, x_scale]) -> logistica
+            #print("Shape of logp: ", logp.shape) -> logistica
             recon_losses = logp # cambiar cuando nz > 1
-            print("shape of recon_losses: ", recon_losses.shape)
 
             # sample from p(x|z) to get x
             #x_recon = self.normal([x_mu, ops.exp(x_log_scale)])
@@ -106,7 +113,9 @@ class TimeHVAE(BaseAE):
         return {
             "z": z,
             "x_mean": x_mean,
+            #"x_mu": x_mu, -> logistica
             "x_log_var": x_log_var,
+            #"x_scale": x_scale, -> logistica
             "kl": kls, 
             "recon_loss": recon_losses
         }
