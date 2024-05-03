@@ -3,11 +3,12 @@ from keras.layers import Masking, LSTM, Bidirectional, Dense
 
 
 class Encoder(BaseEncoder):
-    def __init__(self, input_dim, latent_dim, nz=1, embed_dim=100, **kwargs):
+    def __init__(self, input_dim, latent_dim, nz=1, embed_dim=100, depth=1, **kwargs):
         BaseEncoder.__init__(self, input_dim, latent_dim)
         self.nz = nz
         self.embed_dim = embed_dim
         self.hidden_dim = 2 * embed_dim
+        self.depth = depth
 
         # BOTTOM LATENT LAYER
         self.masking_value = (
@@ -20,10 +21,26 @@ class Encoder(BaseEncoder):
         )  # this returns output, hidden_state_f, cell_state_f, hidden_state_b, cell_state_b
         self.rnn2 = Bidirectional(LSTM(self.embed_dim, return_sequences=True)) #return_state=True))
 
-        self.z_mean = Dense(self.latent_dim, name="z_mean")
-        self.z_log_var = Dense(self.latent_dim, name="z_log_var")
+        self.z_mean = Dense(self.latent_dim)
+        self.z_log_var = Dense(self.latent_dim)
         #self.z_mu = Dense(self.latent_dim, name="z_mu") -> logistica
         #self.z_std = Dense(self.latent_dim, name="z_std") -> logistica
+
+        # DEEPER LATENT LAYERS
+        self.rnn_deep = [
+            Bidirectional(
+                LSTM(self.embed_dim, return_sequences=True)
+            )
+            for _ in range(self.depth)
+        ]
+
+        self.z_mean_deep = [
+            Dense(self.latent_dim) for _ in range(self.depth)
+        ]
+        self.z_log_var_deep = [
+            Dense(self.latent_dim) for _ in range(self.depth)
+        ]
+
 
     def call(self, x, **kwargs):
         lvl = kwargs["lvl"] if "lvl" in kwargs else 0
@@ -46,6 +63,9 @@ class Encoder(BaseEncoder):
         # deeper latent layers
         else:
             lvl -= 1
+            x = self.rnn_deep[lvl](x)
+            z_mean = self.z_mean_deep[lvl](x)
+            z_log_var = self.z_log_var_deep[lvl](x)
 
         return z_mean, z_log_var
         #return z_mu, z_log_var -> logistica

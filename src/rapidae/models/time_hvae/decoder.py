@@ -6,12 +6,13 @@ import torch.nn.functional as F
 
 
 class Decoder(BaseDecoder):
-    def __init__(self, input_dim, latent_dim, embed_dim=32):
+    def __init__(self, input_dim, latent_dim, embed_dim=32, depth=1):
         BaseDecoder.__init__(self, input_dim, latent_dim)
         self.seq_len = input_dim[0]
         self.embed_dim = embed_dim
         self.hidden_dim = 2 * embed_dim
         self.feat_dim = input_dim[1]
+        self.depth = depth
 
         # BOTTOM LATENT LAYER
         self.fc = Dense(embed_dim)
@@ -23,6 +24,18 @@ class Decoder(BaseDecoder):
         #self.x_mu = Dense(self.num_features, name="x_mu") -> logistica
         #self.x_std = nn.Parameter(Tensor(*(self.seq_len, self.num_features))) -> logistica
         #nn.init.zeros_(self.x_std) -> logistica
+
+        # DEEPER LATENT LAYERS
+        self.rnn_deep = [
+            LSTM(self.embed_dim, return_sequences=True)
+            for _ in range(self.depth)
+        ]
+        self.x_mean_deep = [
+            Dense(self.feat_dim) for _ in range(self.depth)
+        ]
+        self.x_log_var_deep = [
+            Dense(self.feat_dim) for _ in range(self.depth)
+        ]
 
     def call(self, x, **kwargs):
         lvl = kwargs["lvl"] if "lvl" in kwargs else 0
@@ -56,6 +69,9 @@ class Decoder(BaseDecoder):
         # deeper latent layers
         else:
             lvl -= 1
+            x = self.rnn_deep[lvl](x)
+            x_mean = self.x_mean_deep[lvl](x)
+            x_log_var = self.x_log_var_deep[lvl](x)
 
         #return x_mu, x_scale -> logistica
         return x_mean, x_log_var

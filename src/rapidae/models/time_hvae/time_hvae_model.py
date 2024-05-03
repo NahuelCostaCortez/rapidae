@@ -93,7 +93,8 @@ class TimeHVAE(BaseAE):
             logq = self.kl_divergence(z, z_mean, z_std)
             #logq = self.logistic.log_prob([z, z_mu, z_scale]) -> logistica
             #print("Shape of logq: ", logq.shape) -> logistica
-            kls = logq # cambiar cuando nz > 1
+            #kls = logq # cambiar cuando nz > 1
+            kls.append(logq)
 
             # DECODER
             # get the parameters of generative distribution i p(x_i|z_i) or z p(z_i|z_{i+1})
@@ -105,7 +106,8 @@ class TimeHVAE(BaseAE):
             logp = self.gaussian_likelihood(x_mean, x_log_var, x)
             #logp = self.logistic.log_prob([x, x_mu, x_scale]) -> logistica
             #print("Shape of logp: ", logp.shape) -> logistica
-            recon_losses = logp # cambiar cuando nz > 1
+            #recon_losses = logp # cambiar cuando nz > 1
+            recon_losses.append(logp)
 
             # sample from p(x|z) to get x
             #x_recon = self.normal([x_mu, ops.exp(x_log_scale)])
@@ -133,14 +135,17 @@ class TimeHVAE(BaseAE):
         self.kl_loss_tracker.update_state(kl)
         """
         # reconstruction loss
-        recon_loss = y_pred["recon_loss"]
+        # (batch_size, seq_len)
+        recon_loss = ops.mean(y_pred["recon_loss"], axis=0)
         self.reconstruction_loss_tracker.update_state(recon_loss)
 
         # kl
-        kl = y_pred["kl"]
+        # (batch_size, seq_len)
+        kl = ops.mean(y_pred["kl"], axis=0)
         self.kl_loss_tracker.update_state(kl)
 
         # elbo
         elbo = kl - (self.beta * recon_loss)
         # elbo = recon_loss - (self.beta * kl)
+        # (batch_size)
         return ops.mean(elbo)
