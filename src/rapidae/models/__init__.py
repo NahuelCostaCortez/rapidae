@@ -7,6 +7,7 @@ We will keep updating!
 from .ae import AE
 from .beta_vae import Beta_VAE
 from .cae import CAE
+from .ic_former import ICFormer
 from .rvae import RVAE
 from .rve import RVE
 from .time_hvae import TimeHVAE
@@ -22,6 +23,7 @@ __all__ = [
     "AE",
     "Beta_VAE",
     "CAE",
+    "ICFormer",
     "RVAE",
     "RVE",
     "TimeHVAE",
