@@ -5,7 +5,9 @@ Class to load some common datasets.
 import os
 
 import urllib
+import numpy as np
 import pandas as pd
+import keras
 from shutil import rmtree
 from rapidae.data import utils
 
@@ -73,6 +75,35 @@ def load_MNIST(persistant=False):
     Returns:
         data (dict): Dictionary containing the data.
     """
+
+    Logger().log_info(f"Downloading data...")
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    x_train =  np.expand_dims(x_train, -1).astype("float32")
+    x_test = np.expand_dims(x_test, -1).astype("float32")
+
+    data_dir = os.path.join(".", "datasets", "MNIST")
+    # If required delete data
+    if persistant:
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+            
+            np.save(os.path.join(data_dir, "x_train.npy"), x_train)
+            np.save(os.path.join(data_dir, "y_train.npy"), y_train)
+            np.save(os.path.join(data_dir, "x_test.npy"), x_test)
+            np.save(os.path.join(data_dir, "y_test.npy"), y_test)
+        else:
+            Logger().log_info(f"Skipping... Data already exists.")
+    else:
+        if os.path.exists(data_dir):
+            Logger().log_info("Deleting MNIST data...")
+            rmtree(data_dir)
+            # check if datasets folder is empty
+            if not os.listdir("./datasets"):
+                os.rmdir("./datasets")
+
+    return {"x_train": x_train, "y_train": y_train, "x_test": x_test, "y_test": y_test}
+
+    '''
     url_base = "http://yann.lecun.com/exdb/mnist/"
     filenames = [
         "train-images-idx3-ubyte.gz",
@@ -121,6 +152,7 @@ def load_MNIST(persistant=False):
     data["y_test"] = y_test
 
     return data
+    '''
 
 
 def load_CMAPSS(subset="FD001", persistant=False):
