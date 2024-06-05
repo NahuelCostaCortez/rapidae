@@ -42,13 +42,15 @@ class ICFormer(BaseAE):
         encoder_outputs, attention_outputs, attention_weights, attention_outputs_sum = (
             self.encoder(x, training=training, mask=None)
         )
+
         mlp_output = self.mlp_layer(encoder_outputs)
         mlp_output = self.dropout(mlp_output, training=training)
 
-        regression_output = self.regression_layer(mlp_output)  # regression layer
+        regression_output = self.regression_layer(mlp_output)
         classification_output = self.classification_layer(
             mlp_output
-        )  # classification layer
+        )
+
         return {
             "regression_output": regression_output,
             "classification_output": classification_output,
@@ -62,10 +64,13 @@ class ICFormer(BaseAE):
             y["y_regression"], y_pred["regression_output"]
         )
         self.regression_tracker.update_state(loss_reg)
+
         loss_clf = losses.binary_crossentropy(
             y["y_classification"], y_pred["classification_output"]
         )
         self.classification_tracker.update_state(loss_clf)
+
         loss_ = loss_reg + loss_clf * 10
         self.loss_tracker.update_state(loss_)
+
         return ops.mean(loss_)

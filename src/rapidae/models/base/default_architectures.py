@@ -1,7 +1,7 @@
 from keras import layers, ops
 from keras.regularizers import Regularizer
 
-from rapidae.models.base import BaseDecoder, BaseEncoder
+from rapidae.models.base import BaseEncoder, BaseDecoder
 
 # --------------------- VANILLA ENCODER-DECODER --------------------- #
 
@@ -50,7 +50,6 @@ class VanillaEncoder(BaseEncoder):
 
         return z
 
-
 class VanillaDecoder(BaseDecoder):
     """
     Vanilla Decoder class.
@@ -72,7 +71,7 @@ class VanillaDecoder(BaseDecoder):
         self.layers_dict = {}
         self.layers_idx = [i for i in range(len(layers_conf))]
 
-        for depth, idx in zip(self.layers_conf, self.layers_idx):
+        for depth, idx in zip(layers_conf, self.layers_idx):
             self.layers_dict["dense_" + str(idx)] = layers.Dense(
                 depth, activation="relu"
             )
@@ -190,7 +189,6 @@ class VAE_Decoder_MLP(BaseDecoder):
         x = self.dense_recons(z)
 
         return x
-
 
 # ------------------------------------------------------------------- #
 

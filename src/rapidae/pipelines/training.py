@@ -28,7 +28,7 @@ class TrainingPipeline(BasePipeline):
         num_epochs (int): Number of training epochs.
         callbacks (list, optional): List of Keras callbacks. If None, EarlyStopping and ModelCheckpoint are created. Defaults to None.
         save_model (bool, optional): Flag to save the trained model. Defaults to True. Otherwise, the output directory is removed.
-        run_eagerly (bool, optional): Flag to run the model eagerly. Defaults to False.
+        graph_mode (bool, optional): Flag to decide whether the model should run in eager or graph mode. Defaults to True.
         verbose (int, optional): Verbosity mode. 0 will show no output, 1 will show a progress bar, and 2 will just mention the number of epoch. Defaults to 2.
     """
 
@@ -43,7 +43,7 @@ class TrainingPipeline(BasePipeline):
         num_epochs=100,
         callbacks: Optional[list] = None,
         save_model: bool = True,
-        run_eagerly=False,
+        graph_mode=False,
         verbose=2,
     ):
         super().__init__(name, output_dir)
@@ -54,7 +54,7 @@ class TrainingPipeline(BasePipeline):
         self.num_epochs = num_epochs
         self.callbacks = callbacks
         self.save_model = save_model
-        self.run_eagerly = run_eagerly
+        self.graph_mode = graph_mode
         self.verbose = verbose
 
     def plot_training_history(self):
@@ -171,15 +171,15 @@ class TrainingPipeline(BasePipeline):
             self.logger.log_error("Unimplemented optimizer")
             exit(-1)
 
-        self.model.compile(optimizer=optimizer, run_eagerly=self.run_eagerly)
+        self.model.compile(optimizer=optimizer, run_eagerly=not self.graph_mode)
         # ------------------------------------------------
         validation_data = (
             (x_val, y_val) if x_val is not None and y_val is not None else None
         )
         self.logger.log_info(
-            "\nTRAINING STARTED\n\tBackend: {}\n\tEager mode: {}\n\tValidation data available: {}\n\tCallbacks set: {} \n".format(
+            "\nTRAINING STARTED\n\tBackend: {}\n\tGraph mode: {}\n\tValidation data available: {}\n\tCallbacks set: {} \n".format(
                 backend(),
-                self.run_eagerly,
+                self.graph_mode,
                 validation_data is not None,
                 [callback.__class__.__name__ for callback in self.callbacks],
             )

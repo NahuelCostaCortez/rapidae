@@ -65,6 +65,8 @@ class CVAE(BaseAE):
         }
 
     def compute_loss(self, x=None, y=None, y_pred=None, sample_weight=None):
+        x, y = x
+
         # KL loss
         kl_loss = -0.5 * (
             1
